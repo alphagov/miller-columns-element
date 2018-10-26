@@ -14,7 +14,229 @@ describe('govuk-miller-columns', function() {
   describe('after tree insertion', function() {
     beforeEach(function() {
       const container = document.createElement('div')
-      container.innerHTML = '<govuk-miller-columns></govuk-miller-columns>'
+      container.innerHTML = `
+        <govuk-miller-columns>
+        <ul>
+          <li>
+            Parenting, childcare and children&#39;s services
+            <ul>
+              <li>
+                Divorce, separation and legal issues
+                <ul>
+                  <li>
+                    Disagreements about parentage
+                  </li>
+                  <li>
+                    Child maintenance
+                  </li>
+                  <li>
+                    Child custody
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Childcare and early years
+                <ul>
+                  <li>
+                    Local authorities and early years
+                  </li>
+                  <li>
+                    Providing childcare
+                    <ul>
+                      <li>
+                        Recruiting and managing early years staff
+                      </li>
+                      <li>
+                        Performance and inspection of childcare providers
+                      </li>
+                      <li>
+                        Funding and finance for childcare providers
+                      </li>
+                      <li>
+                        Early years curriculum (0 to 5)
+                      </li>
+                      <li>
+                        Children&#39;s centres, childminders, pre-schools and nurseries
+                      </li>
+                      <li>
+                        Becoming a childcare provider
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    Finding childcare
+                  </li>
+                  <li>
+                    Data collection for early years and childcare
+                    <ul>
+                      <li>
+                        Early years census
+                      </li>
+                      <li>
+                        Early years foundation stage profile return
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Financial help if you have children
+                <ul>
+                  <li>
+                    Child benefit
+                  </li>
+                  <li>
+                    Financial help if you have a disabled child
+                  </li>
+                  <li>
+                    Tax credits if you have children
+                  </li>
+                  <li>
+                    Savings accounts for children
+                  </li>
+                  <li>
+                    Financial support for childcare
+                  </li>
+                  <li>
+                    Financial help when having a baby
+                  </li>
+                  <li>
+                    Financial help if you&#39;re a student with children
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Adoption, fostering and surrogacy
+                <ul>
+                  <li>
+                    Intercountry adoption
+                  </li>
+                  <li>
+                    Adoption
+                  </li>
+                  <li>
+                    Surrogacy
+                  </li>
+                  <li>
+                    Special guardianship
+                  </li>
+                  <li>
+                    Fostering
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Children&#39;s health and welfare
+                <ul>
+                  <li>
+                    Support for children with special educational needs and disabilities (SEND)
+                  </li>
+                  <li>
+                    Mental health of children and young people
+                  </li>
+                  <li>
+                    Help for children with a long-term illness or disability
+                  </li>
+                  <li>
+                    Children&#39;s rights
+                  </li>
+                  <li>
+                    Child poverty
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Youth employment and social issues
+              </li>
+              <li>
+                Pregnancy and birth
+                <ul>
+                  <li>
+                    Working and time off when you&#39;re having a baby
+                  </li>
+                  <li>
+                    Register the birth of a child
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Safeguarding and social care for children
+                <ul>
+                  <li>
+                    Child and family social work
+                  </li>
+                  <li>
+                    Safeguarding and child protection
+                    <ul>
+                      <li>
+                        Data collection for safeguarding and child protection
+                      </li>
+                      <li>
+                        Preventing neglect, abuse and exploitation
+                      </li>
+                      <li>
+                        Serious case reviews
+                      </li>
+                      <li>
+                        Refugee, runaway and homeless children
+                      </li>
+                      <li>
+                        Child abduction and cross-border child protection
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    Looked-after children and children in care
+                    <ul>
+                      <li>
+                        Data collection for looked-after children
+                      </li>
+                      <li>
+                        Health, wellbeing and education of looked-after children
+                      </li>
+                      <li>
+                        Children&#39;s homes and other accommodation
+                      </li>
+                      <li>
+                        Children and young people leaving care
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    Children&#39;s social care providers
+                    <ul>
+                      <li>
+                        Becoming a children&#39;s social care provider
+                      </li>
+                      <li>
+                        Social care provider complaints
+                      </li>
+                      <li>
+                        Inspection of children&#39;s social care providers
+                        <ul>
+                          <li>
+                            Inspections of local authority children&#39;s services
+                          </li>
+                          <li>
+                            Inspections of fostering and adoption agencies
+                          </li>
+                          <li>
+                            Incidents, concerns and feedback about children&#39;s social care providers
+                          </li>
+                          <li>
+                            Children&#39;s homes and other residential care inspections
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        </govuk-miller-columns>
+      `
       document.body.append(container)
     })
 
