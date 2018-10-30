@@ -7,9 +7,11 @@ class MillerColumnsElement extends HTMLElement {
 
   connectedCallback() {
     const list = this.list
+    // const breadcrumbs = this.breadcrumbs
     if (list) {
       attachClickEvents(list)
       unnest(list)
+      // updateBreadcrumbs(breadcrumbs)
     }
   }
 
@@ -20,6 +22,13 @@ class MillerColumnsElement extends HTMLElement {
     if (!id) return
     const list = document.getElementById(id)
     return list instanceof HTMLUListElement ? list : null
+  }
+
+  get breadcrumbs(): ?HTMLOListElement {
+    const id = this.getAttribute('breadcrumbs')
+    if (!id) return
+    const breadcrumbs = document.getElementById(id)
+    return breadcrumbs instanceof HTMLOListElement ? breadcrumbs : null
   }
 }
 
@@ -78,6 +87,7 @@ function unnest(root: HTMLUListElement) {
   root.dataset['depth'] = depth.toString()
 }
 
+/** Attach click events for list items. */
 function attachClickEvents(root: HTMLUListElement) {
   const items = root.querySelectorAll('li')
 
@@ -87,10 +97,14 @@ function attachClickEvents(root: HTMLUListElement) {
   }
 }
 
+/** Select item. */
 function selectItem(item: HTMLElement) {
   item.classList.toggle('app-miller-columns__item--selected')
+
+  updateBreadcrumbs()
 }
 
+/** Reveal the column associated with a parent item. */
 function revealColumn(item: HTMLElement, column: HTMLElement) {
   hideColumns(column.dataset.level)
   if (item.classList.contains('app-miller-columns__item--selected')) {
@@ -98,10 +112,12 @@ function revealColumn(item: HTMLElement, column: HTMLElement) {
   }
 }
 
+/** Hides all columns at a higher or equal level with the specified one. */
 function hideColumns(level) {
   const levelInt = parseInt(level)
   const selectors = []
 
+  // TODO: use depth instead of constant
   for (let i = levelInt; i <= 5; i++) {
     selectors.push(`[data-level='${i.toString()}']`)
   }
@@ -110,6 +126,29 @@ function hideColumns(level) {
   for (const item of lists) {
     item.classList.add('app-miller-columns__column--collapse')
   }
+}
+
+/** Add the breadcrumb path using the chain of selected items. */
+function updateBreadcrumbs() {
+  const chain = getActiveChain()
+  //TODO: fix by making the breadcrumbs object available at object level
+  const breadcrumbs = document.querySelector('.govuk-breadcrumbs__list') //eslint-disable-line
+
+  if (breadcrumbs) {
+    breadcrumbs.innerHTML = ''
+
+    for (const item of chain) {
+      const breadcrumb = document.createElement('li')
+      breadcrumb.innerHTML = item.innerHTML
+      breadcrumb.classList.add('govuk-breadcrumbs__list-item')
+      breadcrumbs.appendChild(breadcrumb)
+    }
+  }
+}
+
+/** Returns a list of the currently selected items. */
+function getActiveChain() {
+  return document.querySelectorAll('.app-miller-columns__item--selected')
 }
 
 if (!window.customElements.get('govuk-miller-columns')) {

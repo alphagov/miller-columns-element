@@ -236,6 +236,9 @@ describe('govuk-miller-columns', function() {
           </li>
         </ul>
         </govuk-miller-columns>
+        <div class="govuk-breadcrumbs">
+          <ol class="govuk-breadcrumbs__list"></ol>
+        </div>
       `
       document.body.append(container)
     })

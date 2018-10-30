@@ -55,6 +55,7 @@ $transition-time: 400ms;
 // Put some space between the column's list entries.
 .app-miller-columns__column > li {
   min-width: 10em;
+  margin-bottom: 1px;
   list-style: none;
   cursor: pointer;
   // padding: 0.5em;
@@ -88,7 +89,8 @@ $transition-time: 400ms;
 .app-miller-columns__column {
   li {
     position: relative;
-    padding: 3px 9px 9px 9px;
+    // padding: 3px 9px 9px 9px;
+    padding: 9px;
     color: $govuk-text-colour;
 
     &.app-miller-columns__item--selected {
