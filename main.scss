@@ -1,1 +1,157 @@
 @import "node_modules/govuk-frontend/all";
+
+$transition-time: 400ms;
+
+// Cascading columns styling
+.app-miller-columns {
+  display: block;
+  width: 100%;
+  height: 100%;
+  @include govuk-responsive-margin(6, "bottom");
+  overflow: scroll;
+  outline: 0;
+  white-space: nowrap;
+}
+
+// Display the lists as columns in blocks.
+.app-miller-columns__column {
+  @extend %govuk-list;
+  display: inline-block;
+  width: 33%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  // float: left;
+  overflow: hidden;
+  transition: $transition-time;
+  border-right: 1px solid govuk-colour("grey-3");
+  vertical-align: top;
+  white-space: normal;
+}
+
+.app-miller-columns__column--narrow {
+  width: 13%;
+
+  a,
+  label {
+    white-space: nowrap;
+  }
+}
+
+.app-miller-columns__column--medium {
+  width: 20%;
+
+  a,
+  label {
+    white-space: nowrap;
+  }
+}
+
+// Setting a list container class to "collapsed" will hide the column.
+.app-miller-columns__column--collapse {
+  display: none;
+}
+
+// Put some space between the column's list entries.
+.app-miller-columns__column > li {
+  min-width: 10em;
+  list-style: none;
+  cursor: pointer;
+  // padding: 0.5em;
+}
+
+.app-miller-columns__item--parent:after,
+.app-miller-columns__item--parent a:after,
+.app-miller-columns__item--parent .govuk-checkboxes__item:after {
+  content: "\203A";
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  margin-top: -15px;
+  float: right;
+}
+
+// Highlight while hovering, without allowing selected items to override.
+.app-miller-columns__column > li:hover {
+  color: govuk-colour("black");
+  background-color: govuk-colour("grey-3");
+}
+
+// Ensure all selected nodes in the hierarchy are easily seen.
+.app-miller-columns__item--selected,
+.app-miller-columns__item--selected:hover,
+.app-miller-columns__item--selected a {
+  color: govuk-colour("white");
+  background-color: govuk-colour("blue");
+}
+
+.app-miller-columns__column {
+  li {
+    position: relative;
+    padding: 3px 9px 9px 9px;
+    color: $govuk-text-colour;
+
+    &.app-miller-columns__item--selected {
+      color: govuk-colour("white");
+
+      &:hover {
+        color: govuk-colour("white");
+        background-color: govuk-colour("blue");
+      }
+    }
+  }
+
+  a {
+    display: block;
+    position: relative;
+    padding: 12px 25px 8px 0;
+    text-decoration: none;
+    @include govuk-font($size: 16)
+
+    // @include mq(tablet) {
+    //   padding: 12px $gutter 8px $gutter-half;
+    // }
+
+    &:hover {
+      color: $govuk-link-colour;
+      background-color: govuk-colour("grey-3");
+    }
+
+    &.selected {
+      color: govuk-colour("white");
+      background-color: govuk-colour("blue");
+    }
+  }
+
+
+  .govuk-checkboxes__label {
+    @include govuk-font($size: 16)
+  }
+
+  .app-miller-columns__item--selected {
+    .govuk-checkboxes__label {
+      color: govuk-colour("white");
+    }
+
+    .govuk-checkboxes__label::after {
+      opacity: 1;
+    }
+  }
+}
+
+// Breadcrumb styling.
+.app-breadcrumb {
+  padding: 10px 0;
+  border-top: 1px solid govuk-colour("grey-3");
+  border-bottom: 1px solid govuk-colour("grey-3");
+}
+
+.app-breadcrumb > *:after {
+  content: " › ";
+  margin: 0 5px;
+  color: $govuk-secondary-text-colour;
+}
+
+.app-breadcrumb > *:last-child:after {
+  content: "";
+}

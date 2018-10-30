@@ -15,8 +15,8 @@ describe('govuk-miller-columns', function() {
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
-        <govuk-miller-columns>
-        <ul>
+        <govuk-miller-columns for="taxonomy">
+        <ul id="taxonomy">
           <li>
             Parenting, childcare and children&#39;s services
             <ul>
@@ -244,9 +244,9 @@ describe('govuk-miller-columns', function() {
       document.body.innerHTML = ''
     })
 
-    it('initiates', function() {
-      const ce = document.querySelector('govuk-miller-columns')
-      assert.equal(ce.textContent, '<govuk-miller-columns>')
+    it('unnest', function() {
+      const lists = document.querySelectorAll('govuk-miller-columns > ul')
+      assert.equal(lists.length, 15)
     })
   })
 })
