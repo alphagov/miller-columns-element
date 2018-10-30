@@ -248,5 +248,34 @@ describe('govuk-miller-columns', function() {
       const lists = document.querySelectorAll('govuk-miller-columns > ul')
       assert.equal(lists.length, 15)
     })
+
+    it('store levels and depth', function() {
+      const l1Lists = document.querySelectorAll('ul[data-level="1"][data-depth="5"]')
+      assert.equal(l1Lists.length, 1)
+
+      const l2Lists = document.querySelectorAll('ul[data-level="2"]')
+      assert.equal(l2Lists.length, 1)
+
+      const l3Lists = document.querySelectorAll('ul[data-level="3"]')
+      assert.equal(l3Lists.length, 7)
+
+      const l4Lists = document.querySelectorAll('ul[data-level="4"]')
+      assert.equal(l4Lists.length, 5)
+
+      const l5Lists = document.querySelectorAll('ul[data-level="5"]')
+      assert.equal(l5Lists.length, 1)
+    })
+
+    it('adds open state to active list items', function() {
+      // When an item is selected it should be marked with an open state
+    })
+
+    it('shows the child list for open list items', function() {
+      // When an item is selected the child list should be visible
+    })
+
+    it('adds selected state to selected items', function() {
+      // When an item is selected it should be marked with a selected state
+    })
   })
 })

@@ -30,9 +30,11 @@ function unnest(root: HTMLUListElement) {
   const queue = []
   let node
   let listItems
+  let depth = 1
 
   // Push the root unordered list item into the queue.
   root.className = 'app-miller-columns__column'
+  root.dataset.level = '1'
   queue.push(root)
 
   while (queue.length) {
@@ -46,6 +48,11 @@ function unnest(root: HTMLUListElement) {
         const ancestor = listItems[i]
 
         if (child) {
+          // Store level and depth
+          const level = parseInt(node.dataset.level) + 1
+          child.dataset.level = level.toString()
+          if (level > depth) depth = level
+
           queue.push(child)
 
           if (ancestor) {
@@ -60,6 +67,8 @@ function unnest(root: HTMLUListElement) {
       }
     }
   }
+
+  root.dataset['depth'] = depth.toString()
 }
 
 if (!window.customElements.get('govuk-miller-columns')) {
