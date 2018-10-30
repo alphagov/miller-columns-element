@@ -266,16 +266,17 @@ describe('govuk-miller-columns', function() {
       assert.equal(l5Lists.length, 1)
     })
 
-    it('adds open state to active list items', function() {
-      // When an item is selected it should be marked with an open state
+    it('store active state for active list item', function() {
+      const firstItem = document.querySelector('ul[data-level="1"] li')
+      firstItem.click()
+      assert.equal(firstItem.className, 'app-miller-columns__item--parent app-miller-columns__item--selected')
     })
 
-    it('shows the child list for open list items', function() {
-      // When an item is selected the child list should be visible
-    })
-
-    it('adds selected state to selected items', function() {
-      // When an item is selected it should be marked with a selected state
+    it('show the child list for active list items', function() {
+      const firstItem = document.querySelector('ul[data-level="1"] li')
+      const l2Lists = document.querySelector('ul[data-level="2"]')
+      firstItem.click()
+      assert.equal(l2Lists.className, 'app-miller-columns__column')
     })
   })
 })

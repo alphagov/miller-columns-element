@@ -10,6 +10,7 @@ $transition-time: 400ms;
   @include govuk-responsive-margin(6, "bottom");
   overflow: scroll;
   outline: 0;
+  font-size: 0;
   white-space: nowrap;
 }
 
@@ -21,7 +22,6 @@ $transition-time: 400ms;
   height: 100%;
   margin: 0;
   padding: 0;
-  // float: left;
   overflow: hidden;
   transition: $transition-time;
   border-right: 1px solid govuk-colour("grey-3");
