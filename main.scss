@@ -23,7 +23,7 @@ $transition-time: 400ms;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  transition: $transition-time;
+  // transition: $transition-time;
   border-right: 1px solid govuk-colour("grey-3");
   vertical-align: top;
   white-space: normal;
@@ -58,6 +58,7 @@ $transition-time: 400ms;
   margin-bottom: 1px;
   list-style: none;
   cursor: pointer;
+  @include govuk-font($size: 16)
   // padding: 0.5em;
 }
 
@@ -68,7 +69,7 @@ $transition-time: 400ms;
   position: absolute;
   top: 50%;
   right: 5px;
-  margin-top: -15px;
+  margin-top: -10px;
   float: right;
 }
 
@@ -143,17 +144,7 @@ $transition-time: 400ms;
 
 // Breadcrumb styling.
 .app-breadcrumb {
-  padding: 10px 0;
+  padding: 10px 0 5px;
   border-top: 1px solid govuk-colour("grey-3");
   border-bottom: 1px solid govuk-colour("grey-3");
-}
-
-.app-breadcrumb > *:after {
-  content: " › ";
-  margin: 0 5px;
-  color: $govuk-secondary-text-colour;
-}
-
-.app-breadcrumb > *:last-child:after {
-  content: "";
 }
