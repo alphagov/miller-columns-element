@@ -15,7 +15,7 @@ describe('govuk-miller-columns', function() {
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
-        <govuk-miller-columns for="taxonomy">
+        <govuk-miller-columns for="taxonomy" breadcrumbs="selected-items">
         <ul id="taxonomy">
           <li>
             Parenting, childcare and children&#39;s services
@@ -237,7 +237,7 @@ describe('govuk-miller-columns', function() {
         </ul>
         </govuk-miller-columns>
         <div class="govuk-breadcrumbs">
-          <ol class="govuk-breadcrumbs__list"></ol>
+          <ol class="govuk-breadcrumbs__list" id="selected-items"></ol>
         </div>
       `
       document.body.append(container)
@@ -280,6 +280,17 @@ describe('govuk-miller-columns', function() {
       const l2Lists = document.querySelector('ul[data-level="2"]')
       firstItem.click()
       assert.equal(l2Lists.className, 'app-miller-columns__column')
+    })
+
+    it('store active items in breadcrumb', function() {
+      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
+      const firstItemL2 = document.querySelector('ul[data-level="2"] li')
+      firstItemL1.click()
+      firstItemL2.click()
+      const breadcrumbsL1 = document.querySelector('.govuk-breadcrumbs__list-item:nth-child(1)')
+      const breadcrumbsL2 = document.querySelector('.govuk-breadcrumbs__list-item:nth-child(2)')
+      assert.equal(breadcrumbsL1.innerHTML.trim(), firstItemL1.innerHTML.trim())
+      assert.equal(breadcrumbsL2.innerHTML.trim(), firstItemL2.innerHTML.trim())
     })
   })
 })
