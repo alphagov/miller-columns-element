@@ -7,11 +7,9 @@ class MillerColumnsElement extends HTMLElement {
 
   connectedCallback() {
     const list = this.list
-    // const breadcrumbs = this.breadcrumbs
     if (list) {
       this.attachClickEvents(list)
       this.unnest(list)
-      // this.updateBreadcrumbs(breadcrumbs)
     }
   }
 
@@ -92,13 +90,15 @@ class MillerColumnsElement extends HTMLElement {
     for (let i = 0; i < items.length; i++) {
       const fn = this.selectItem.bind(null, this, items[i])
       items[i].addEventListener('click', fn, false)
+      items[i].tabIndex = 0
     }
   }
 
   /** Select item. */
   selectItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
     item.classList.toggle('app-miller-columns__item--selected')
-
+    // TODO: unselect all children
+    // TODO: ensure parents are selected
     millercolumns.updateBreadcrumbs(millercolumns)
   }
 
@@ -141,6 +141,7 @@ class MillerColumnsElement extends HTMLElement {
         const breadcrumb = document.createElement('li')
         breadcrumb.innerHTML = item.innerHTML
         breadcrumb.classList.add('govuk-breadcrumbs__list-item')
+        //TODO: add link to remove breadcrumb item
         breadcrumbs.appendChild(breadcrumb)
       }
     }
