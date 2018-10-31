@@ -23,16 +23,18 @@ $transition-time: 400ms;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  // transition: $transition-time;
   border-right: 1px solid govuk-colour("grey-3");
   vertical-align: top;
   white-space: normal;
+  transition-duration: $transition-time;
+  transition-property: width;
 }
 
 .app-miller-columns__column--narrow {
   width: 13%;
 
   a,
+  li,
   label {
     white-space: nowrap;
   }
@@ -42,6 +44,7 @@ $transition-time: 400ms;
   width: 20%;
 
   a,
+  li,
   label {
     white-space: nowrap;
   }

@@ -3739,17 +3739,21 @@
   overflow: hidden;
   border-right: 1px solid #dee0e2;
   vertical-align: top;
-  white-space: normal; }
+  white-space: normal;
+  transition-duration: 400ms;
+  transition-property: width; }
 
 .app-miller-columns__column--narrow {
   width: 13%; }
   .app-miller-columns__column--narrow a,
+  .app-miller-columns__column--narrow li,
   .app-miller-columns__column--narrow label {
     white-space: nowrap; }
 
 .app-miller-columns__column--medium {
   width: 20%; }
   .app-miller-columns__column--medium a,
+  .app-miller-columns__column--medium li,
   .app-miller-columns__column--medium label {
     white-space: nowrap; }
 

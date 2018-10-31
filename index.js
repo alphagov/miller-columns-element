@@ -107,6 +107,9 @@ class MillerColumnsElement extends HTMLElement {
     millercolumns.hideColumns(millercolumns, column.dataset.level)
     if (item.classList.contains('app-miller-columns__item--selected')) {
       column.classList.remove('app-miller-columns__column--collapse')
+      millercolumns.animateColumns(millercolumns, column)
+    } else {
+      millercolumns.resetAnimation(millercolumns)
     }
   }
 
@@ -140,6 +143,34 @@ class MillerColumnsElement extends HTMLElement {
         breadcrumb.classList.add('govuk-breadcrumbs__list-item')
         breadcrumbs.appendChild(breadcrumb)
       }
+    }
+  }
+
+  /** Ensure the viewport shows the entire newly expanded item. */
+  animateColumns(millercolumns: MillerColumnsElement, column: HTMLElement) {
+    const level = column.dataset.level
+    const levelInt = parseInt(level)
+
+    // TODO: determine start level instead of using a constant
+    if (levelInt > 3) {
+      const selectors = []
+
+      for (let i = 1; i < levelInt; i++) {
+        selectors.push(`[data-level='${i.toString()}']`)
+      }
+
+      const lists = millercolumns.querySelectorAll(selectors.join(', '))
+      for (const item of lists) {
+        item.classList.add('app-miller-columns__column--narrow')
+      }
+    }
+  }
+
+  /** Reset column width. */
+  resetAnimation(millercolumns: MillerColumnsElement) {
+    const allLists = millercolumns.querySelectorAll('.app-miller-columns__column')
+    for (const list of allLists) {
+      list.classList.remove('app-miller-columns__column--narrow')
     }
   }
 
