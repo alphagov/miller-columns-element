@@ -236,9 +236,7 @@ describe('govuk-miller-columns', function() {
           </li>
         </ul>
         </govuk-miller-columns>
-        <div class="govuk-breadcrumbs">
-          <ol class="govuk-breadcrumbs__list" id="selected-items"></ol>
-        </div>
+        <div class="govuk-breadcrumbs" id="selected-items"></div>
       `
       document.body.append(container)
     })
@@ -247,13 +245,18 @@ describe('govuk-miller-columns', function() {
       document.body.innerHTML = ''
     })
 
-    it('unnest', function() {
-      const lists = document.querySelectorAll('govuk-miller-columns > ul')
+    it('unnest lists', function() {
+      const lists = document.querySelectorAll('ul')
       assert.equal(lists.length, 15)
     })
 
-    it('store levels and depth', function() {
-      const l1Lists = document.querySelectorAll('ul[data-level="1"][data-depth="5"]')
+    it('store tree depth', function() {
+      const millerColumns = document.querySelector('govuk-miller-columns')
+      assert.equal(millerColumns.getAttribute('data-depth'), '5')
+    })
+
+    it('store list levels', function() {
+      const l1Lists = document.querySelectorAll('ul[data-level="1"]')
       assert.equal(l1Lists.length, 1)
 
       const l2Lists = document.querySelectorAll('ul[data-level="2"]')
@@ -269,17 +272,31 @@ describe('govuk-miller-columns', function() {
       assert.equal(l5Lists.length, 1)
     })
 
-    it('store active state for active list item', function() {
+    it('mark items with children as parents', function() {
+      const firstItem = document.querySelector('ul[data-level="1"] li')
+      assert.equal(firstItem.getAttribute('data-parent'), 'true')
+    })
+
+    it('store state for active items', function() {
       const firstItem = document.querySelector('ul[data-level="1"] li')
       firstItem.click()
-      assert.equal(firstItem.className, 'app-miller-columns__item--parent app-miller-columns__item--selected')
+      assert.equal(firstItem.getAttribute('data-selected'), 'true')
     })
 
     it('show the child list for active list items', function() {
       const firstItem = document.querySelector('ul[data-level="1"] li')
-      const l2Lists = document.querySelector('ul[data-level="2"]')
+      const l2List = document.querySelector('ul[data-level="2"]')
       firstItem.click()
-      assert.equal(l2Lists.className, 'app-miller-columns__column')
+      assert.equal(l2List.getAttribute('data-collapse'), 'false')
+    })
+
+    it('unselect children when item is unselected', function() {
+      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
+      const firstItemL2 = document.querySelector('ul[data-level="2"] li')
+      firstItemL1.click()
+      firstItemL2.click()
+      firstItemL1.click()
+      assert.equal(firstItemL2.getAttribute('data-selected'), 'false')
     })
 
     it('store active items in breadcrumb', function() {
@@ -287,10 +304,26 @@ describe('govuk-miller-columns', function() {
       const firstItemL2 = document.querySelector('ul[data-level="2"] li')
       firstItemL1.click()
       firstItemL2.click()
-      const breadcrumbsL1 = document.querySelector('.govuk-breadcrumbs__list-item:nth-child(1)')
-      const breadcrumbsL2 = document.querySelector('.govuk-breadcrumbs__list-item:nth-child(2)')
+      const breadcrumbsL1 = document.querySelector('.govuk-breadcrumbs ol li:nth-child(1)')
+      const breadcrumbsL2 = document.querySelector('.govuk-breadcrumbs ol li:nth-child(2)')
       assert.equal(breadcrumbsL1.innerHTML.trim(), firstItemL1.innerHTML.trim())
       assert.equal(breadcrumbsL2.innerHTML.trim(), firstItemL2.innerHTML.trim())
     })
+
+    // if('creates a new chain when selecting siblings or add them with coma in the same list', function() {
+    //
+    // })
+
+    // if('removes a chain from stored breadcrumbs', function() {
+    //
+    // })
+
+    // if('use checkboxes to illustrate selection', function() {
+    //
+    // })
+
+    // if('add pre-checked items to selected topics when initialised', function() {
+    //
+    // })
   })
 })
