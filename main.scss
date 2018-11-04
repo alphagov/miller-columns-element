@@ -164,7 +164,26 @@ $transition-time: 400ms;
 
 // Breadcrumb styling.
 .app-breadcrumb {
-  padding: 10px 0 5px;
-  border-top: 1px solid govuk-colour("grey-3");
-  border-bottom: 1px solid govuk-colour("grey-3");
+  .govuk-breadcrumbs__list {
+    padding: govuk-spacing(2) 0 govuk-spacing(1);
+    border-top: 1px solid govuk-colour("grey-3");
+
+    &:last-child {
+      border-bottom: 1px solid govuk-colour("grey-3");
+    }
+  }
+
+  .govuk-link {
+    @extend %govuk-link;
+    @extend %govuk-body-m;
+    @include govuk-font($size: 16);
+    margin: 0;
+    padding: 0;
+    float: right;
+    border: 0;
+    color: $govuk-link-colour;
+    background: transparent;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }

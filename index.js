@@ -12,6 +12,7 @@ class MillerColumnsElement extends HTMLElement {
     if (list) {
       this.attachClickEvents(list)
       this.unnest(list)
+      this.setRootElements()
     }
   }
 
@@ -68,8 +69,6 @@ class MillerColumnsElement extends HTMLElement {
               ancestor.dataset.parent = 'true'
               ancestor.className = 'app-miller-columns__item--parent'
 
-              if (level === 2) ancestor.dataset.root = 'true'
-
               // Expand the requested child node on click.
               const fn = this.revealColumn.bind(null, this, ancestor, child)
               ancestor.addEventListener('click', fn, false)
@@ -116,7 +115,7 @@ class MillerColumnsElement extends HTMLElement {
   //   }
   // }
 
-  keydown(fn: Function, keys: Array<string>) {
+  keydown(fn: Function, keys: Array<string>): Function {
     return function(event: KeyboardEvent) {
       if (keys.indexOf(event.key) >= 0) {
         event.preventDefault()
@@ -127,8 +126,9 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Select item. */
   selectItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
+    // TODO: if the item is a sibling of last selected item, skip update active chain
+
     // Store active chain
-    // TODO: if the item is a sibling of the last selection, skip update active chain
     if (item.dataset.root === 'true' && item.dataset.selected !== 'true') {
       millercolumns.storeActiveChain()
     }
@@ -144,23 +144,25 @@ class MillerColumnsElement extends HTMLElement {
   /** Reveal the column associated with a parent item. */
   revealColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
     // Hide columns and remove selections
-    millercolumns.hideColumns(millercolumns, column.dataset.level)
-    millercolumns.resetAnimation(millercolumns, column)
+    millercolumns.hideColumns(column.dataset.level)
+    millercolumns.resetAnimation(column)
     if (item.dataset.selected === 'true') {
       column.dataset.collapse = 'false'
       column.classList.remove('app-miller-columns__column--collapse')
-      millercolumns.animateColumns(millercolumns, column)
+      millercolumns.animateColumns(column)
     }
   }
 
   /** Hides all columns at a higher or equal level with the specified one. */
   /** Remove selections at a higher or equal level with the specified one. */
-  hideColumns(millercolumns: MillerColumnsElement, level: string) {
+  hideColumns(level: string) {
+    const millercolumns = this
     const levelInt = parseInt(level)
+    const depth = this.getDepth()
     const columnSelectors = []
     const itemSelectors = []
 
-    for (let i = levelInt; i <= parseInt(millercolumns.dataset.depth); i++) {
+    for (let i = levelInt; i <= depth; i++) {
       columnSelectors.push(`[data-level='${i.toString()}']`)
       itemSelectors.push(`[data-level='${i.toString()}'] li`)
     }
@@ -180,40 +182,16 @@ class MillerColumnsElement extends HTMLElement {
     millercolumns.updateActiveChain()
   }
 
-  /** Add the breadcrumb path using the chain of selected items. */
-  updateBreadcrumbs() {
-    const breadcrumbs = document.querySelector('.govuk-breadcrumbs')
-    if (breadcrumbs && chains) {
-      breadcrumbs.innerHTML = ''
-      for (const chainItem of chains) {
-        const chainElement = document.createElement('ol')
-        chainElement.classList.add('govuk-breadcrumbs__list')
-        // TODO: add a remove link to the chainElement
-        this.updateChain(chainElement, chainItem)
-        breadcrumbs.appendChild(chainElement)
-      }
-    }
-  }
-
-  updateChain(chainElement: HTMLElement, chain: NodeList<HTMLElement>) {
-    chainElement.innerHTML = ''
-    for (const item of chain) {
-      const breadcrumb = document.createElement('li')
-      breadcrumb.innerHTML = item.innerHTML
-      breadcrumb.classList.add('govuk-breadcrumbs__list-item')
-      chainElement.appendChild(breadcrumb)
-    }
-  }
-
   /** Ensure the viewport shows the entire newly expanded item. */
-  animateColumns(millercolumns: MillerColumnsElement, column: HTMLElement) {
-    const level = column.dataset.level
-    const levelInt = parseInt(level)
+  animateColumns(column: HTMLElement) {
+    const millercolumns = this
+    const level = this.getLevel(column)
+    const depth = this.getDepth()
 
-    if (levelInt >= parseInt(millercolumns.dataset.depth) - 1) {
+    if (level >= depth - 1) {
       const selectors = []
 
-      for (let i = 1; i < levelInt; i++) {
+      for (let i = 1; i < level; i++) {
         selectors.push(`[data-level='${i.toString()}']`)
       }
 
@@ -225,12 +203,12 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Reset column width. */
-  resetAnimation(millercolumns: MillerColumnsElement, column: HTMLElement) {
-    const level = column.dataset.level
-    const levelInt = parseInt(level)
+  resetAnimation(column: HTMLElement) {
+    const level = this.getLevel(column)
+    const depth = this.getDepth()
 
-    if (levelInt < parseInt(millercolumns.dataset.depth)) {
-      const allLists = millercolumns.querySelectorAll('.app-miller-columns__column')
+    if (level < depth) {
+      const allLists = this.getAllColumns()
       for (const list of allLists) {
         list.classList.remove('app-miller-columns__column--narrow')
       }
@@ -238,13 +216,35 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Returns a list of the currently selected items. */
-  getActiveChain(millercolumns: MillerColumnsElement) {
-    return millercolumns.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
+  getActiveChain(): NodeList<HTMLElement> {
+    return this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
   }
 
-  /** Returns a list of the currently selected items. */
+  /** Returns a list of all columns. */
+  getAllColumns(): NodeList<HTMLElement> {
+    return this.querySelectorAll('.app-miller-columns__column')
+  }
+
+  /** Returns the level of a column. */
+  getLevel(column: HTMLElement): number {
+    return parseInt(column.dataset.level)
+  }
+
+  /** Returns the maximum depth of the miller column. */
+  getDepth(): number {
+    return parseInt(this.dataset.depth)
+  }
+
+  setRootElements() {
+    const items = this.querySelectorAll('[data-level="1"] li')
+
+    for (const item of items) {
+      item.dataset.root = 'true'
+    }
+  }
+
   storeActiveChain() {
-    const chain = document.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
+    const chain = this.getActiveChain()
 
     // Store the current chain in a list
     chains.push(chain)
@@ -259,8 +259,18 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
+  removeStoredChain(chain: NodeList<HTMLElement>) {
+    for (const item of chain) {
+      item.dataset.selected = 'false'
+      item.classList.remove('app-miller-columns__item--selected')
+
+      item.dataset.stored = 'false'
+      item.classList.remove('app-miller-columns__item--stored')
+    }
+  }
+
   updateActiveChain() {
-    const chain = document.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
+    const chain = this.getActiveChain()
 
     // Store the current chain in a list
     if (chains[chains.length - 1]) {
@@ -269,6 +279,57 @@ class MillerColumnsElement extends HTMLElement {
       chains.push(chain)
     }
     this.updateBreadcrumbs()
+  }
+
+  /** Add the breadcrumb path using the chain of selected items. */
+  updateBreadcrumbs() {
+    const breadcrumbs = this.breadcrumbs
+    if (breadcrumbs && chains) {
+      breadcrumbs.innerHTML = ''
+      for (const [index, chainItem] of chains.entries()) {
+        if (chainItem.length) {
+          const chainElement = document.createElement('ol')
+          chainElement.classList.add('govuk-breadcrumbs__list')
+          this.updateChain(chainElement, chainItem)
+
+          // TODO: add a remove link to the chainElement
+          const removeButton = document.createElement('button')
+          removeButton.dataset.chain = index.toString()
+          removeButton.classList.add('govuk-link')
+          removeButton.innerHTML = 'Remove topic'
+          const fn = this.removeChain.bind(null, this, removeButton)
+          removeButton.addEventListener('click', fn, false)
+
+          chainElement.appendChild(removeButton)
+
+          breadcrumbs.appendChild(chainElement)
+        }
+      }
+    }
+  }
+
+  updateChain(chainElement: HTMLElement, chain: NodeList<HTMLElement>) {
+    chainElement.innerHTML = ''
+    for (const item of chain) {
+      const breadcrumb = document.createElement('li')
+      breadcrumb.innerHTML = item.innerHTML
+      breadcrumb.classList.add('govuk-breadcrumbs__list-item')
+      chainElement.appendChild(breadcrumb)
+    }
+  }
+
+  removeChain(millercolumns: MillerColumnsElement, item: HTMLElement) {
+    const chainIndex = parseInt(item.dataset.chain)
+    millercolumns.removeStoredChain(chains[chainIndex])
+    chains.splice(chainIndex, 1)
+
+    // If active chain store chain and hide columns
+    if (chainIndex === chains.length) {
+      millercolumns.storeActiveChain()
+      millercolumns.hideColumns('2')
+    }
+
+    millercolumns.updateBreadcrumbs()
   }
 }
 
