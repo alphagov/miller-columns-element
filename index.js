@@ -10,6 +10,7 @@ class MillerColumnsElement extends HTMLElement {
   connectedCallback() {
     const list = this.list
     if (list) {
+      this.removeClickEvents()
       this.attachClickEvents(list)
       this.unnest(list)
       this.setRootElements()
@@ -95,7 +96,7 @@ class MillerColumnsElement extends HTMLElement {
     const items = root.querySelectorAll('li')
 
     for (let i = 0; i < items.length; i++) {
-      const fn = this.selectItem.bind(null, this, items[i])
+      const fn = this.clickItem.bind(null, this, items[i])
       items[i].addEventListener('click', fn, false)
 
       const keys = [' ', 'Enter'] //'ArrowRight'
@@ -105,12 +106,30 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
+  removeClickEvents() {
+    const inputs = document.querySelectorAll('input')
+
+    for (const input of inputs) {
+      input.addEventListener('click', function passiveHandler(event: Event) {
+        event.preventDefault()
+      })
+    }
+
+    const labels = document.querySelectorAll('label')
+
+    for (const label of labels) {
+      label.addEventListener('click', function passiveHandler(event: Event) {
+        event.preventDefault()
+      })
+    }
+  }
+
   // /** Attach key events for lists. */
   // attachKeyEvents(root: HTMLUListElement) {
   //   const items = root.querySelectorAll('li')
   //
   //   for (let i = 0; i < items.length; i++) {
-  //     const fn = this.selectItem.bind(null, this, items[i])
+  //     const fn = this.clickItem.bind(null, this, items[i])
   //     items[i].tabIndex = 0
   //   }
   // }
@@ -124,8 +143,8 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
-  /** Select item. */
-  selectItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
+  /** Click item. */
+  clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
     // TODO: if the item is a sibling of last selected item, skip update active chain
 
     // Store active chain
@@ -133,12 +152,39 @@ class MillerColumnsElement extends HTMLElement {
       millercolumns.storeActiveChain()
     }
 
-    item.dataset.selected = item.dataset.selected === 'true' ? 'false' : 'true'
-    item.classList.toggle('app-miller-columns__item--selected')
+    millercolumns.toggleItem(item)
 
     // TODO: ensure parents are selected
 
     millercolumns.updateActiveChain()
+  }
+
+  toggleItem(item: HTMLElement) {
+    if (item.dataset.selected === 'true') {
+      this.unselectItem(item)
+    } else {
+      this.selectItem(item)
+    }
+  }
+
+  selectItem(item: HTMLElement) {
+    item.dataset.selected = 'true'
+    item.classList.add('app-miller-columns__item--selected')
+
+    const input = item.querySelector('input[type=checkbox]')
+    if (input) {
+      input.setAttribute('checked', 'checked')
+    }
+  }
+
+  unselectItem(item: HTMLElement) {
+    item.dataset.selected = 'false'
+    item.classList.remove('app-miller-columns__item--selected')
+
+    const input = item.querySelector('input[type=checkbox]')
+    if (input) {
+      input.removeAttribute('checked')
+    }
   }
 
   /** Reveal the column associated with a parent item. */
@@ -175,8 +221,7 @@ class MillerColumnsElement extends HTMLElement {
 
     const items = millercolumns.querySelectorAll(itemSelectors.join(', '))
     for (const item of items) {
-      item.dataset.selected = 'false'
-      item.classList.remove('app-miller-columns__item--selected')
+      millercolumns.unselectItem(item)
     }
 
     millercolumns.updateActiveChain()
@@ -251,8 +296,7 @@ class MillerColumnsElement extends HTMLElement {
 
     // Convert selected items to stored items
     for (const item of chain) {
-      item.dataset.selected = 'false'
-      item.classList.remove('app-miller-columns__item--selected')
+      this.unselectItem(item)
 
       item.dataset.stored = 'true'
       item.classList.add('app-miller-columns__item--stored')
@@ -261,8 +305,7 @@ class MillerColumnsElement extends HTMLElement {
 
   removeStoredChain(chain: NodeList<HTMLElement>) {
     for (const item of chain) {
-      item.dataset.selected = 'false'
-      item.classList.remove('app-miller-columns__item--selected')
+      this.unselectItem(item)
 
       item.dataset.stored = 'false'
       item.classList.remove('app-miller-columns__item--stored')
@@ -292,7 +335,7 @@ class MillerColumnsElement extends HTMLElement {
           chainElement.classList.add('govuk-breadcrumbs__list')
           this.updateChain(chainElement, chainItem)
 
-          // TODO: add a remove link to the chainElement
+          // Add a remove link to the chainElement
           const removeButton = document.createElement('button')
           removeButton.dataset.chain = index.toString()
           removeButton.classList.add('govuk-link')
@@ -312,7 +355,14 @@ class MillerColumnsElement extends HTMLElement {
     chainElement.innerHTML = ''
     for (const item of chain) {
       const breadcrumb = document.createElement('li')
-      breadcrumb.innerHTML = item.innerHTML
+
+      const label = item.querySelector('label')
+      if (label) {
+        breadcrumb.innerHTML = label.innerHTML
+      } else {
+        breadcrumb.innerHTML = item.innerHTML
+      }
+
       breadcrumb.classList.add('govuk-breadcrumbs__list-item')
       chainElement.appendChild(breadcrumb)
     }
