@@ -10,10 +10,15 @@ class MillerColumnsElement extends HTMLElement {
   connectedCallback() {
     const list = this.list
     if (list) {
+      const inputs = this.loadCheckboxes()
       this.removeClickEvents()
       this.attachClickEvents(list)
       this.unnest(list)
       this.setRootElements()
+
+      if (inputs) {
+        this.init(inputs)
+      }
     }
   }
 
@@ -31,6 +36,20 @@ class MillerColumnsElement extends HTMLElement {
     if (!id) return
     const breadcrumbs = document.getElementById(id)
     return breadcrumbs instanceof HTMLDivElement ? breadcrumbs : null
+  }
+
+  loadCheckboxes(): NodeList<HTMLElement> {
+    return this.querySelectorAll('input[type=checkbox]:checked')
+  }
+
+  init(inputs: NodeList<HTMLElement>) {
+    for (const input of inputs) {
+      const li = input.closest('li')
+      if (li) {
+        // $FlowFixMe
+        li.click()
+      }
+    }
   }
 
   /** Convert nested lists into columns using breadth-first traversal. */
@@ -71,7 +90,7 @@ class MillerColumnsElement extends HTMLElement {
               ancestor.className = 'app-miller-columns__item--parent'
 
               // Expand the requested child node on click.
-              const fn = this.revealColumn.bind(null, this, ancestor, child)
+              const fn = this.toggleColumn.bind(null, this, ancestor, child)
               ancestor.addEventListener('click', fn, false)
 
               const keys = [' ', 'Enter'] //'ArrowRight'
@@ -147,11 +166,12 @@ class MillerColumnsElement extends HTMLElement {
   clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
     // TODO: if the item is a sibling of last selected item, skip update active chain
 
-    // Store active chain
+    // When starting with a new root item store active chain
     if (item.dataset.root === 'true' && item.dataset.selected !== 'true') {
       millercolumns.storeActiveChain()
     }
 
+    // Toggle the state of the item
     millercolumns.toggleItem(item)
 
     // TODO: ensure parents are selected
@@ -188,35 +208,48 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Reveal the column associated with a parent item. */
-  revealColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
-    // Hide columns and remove selections
+  toggleColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
     millercolumns.hideColumns(column.dataset.level)
     millercolumns.resetAnimation(column)
     if (item.dataset.selected === 'true') {
       column.dataset.collapse = 'false'
       column.classList.remove('app-miller-columns__column--collapse')
       millercolumns.animateColumns(column)
+    } else {
+      // Ensure children are removed
+      millercolumns.removeAllChildren(column.dataset.level)
     }
   }
 
   /** Hides all columns at a higher or equal level with the specified one. */
-  /** Remove selections at a higher or equal level with the specified one. */
   hideColumns(level: string) {
     const millercolumns = this
     const levelInt = parseInt(level)
     const depth = this.getDepth()
     const columnSelectors = []
-    const itemSelectors = []
 
     for (let i = levelInt; i <= depth; i++) {
       columnSelectors.push(`[data-level='${i.toString()}']`)
-      itemSelectors.push(`[data-level='${i.toString()}'] li`)
     }
 
     const lists = millercolumns.querySelectorAll(columnSelectors.join(', '))
     for (const item of lists) {
       item.dataset.collapse = 'true'
       item.classList.add('app-miller-columns__column--collapse')
+    }
+
+    millercolumns.updateActiveChain()
+  }
+
+  /** Remove selections at a higher or equal level with the specified one. */
+  removeAllChildren(level: string) {
+    const millercolumns = this
+    const levelInt = parseInt(level)
+    const depth = this.getDepth()
+    const itemSelectors = []
+
+    for (let i = levelInt; i <= depth; i++) {
+      itemSelectors.push(`[data-level='${i.toString()}'] li`)
     }
 
     const items = millercolumns.querySelectorAll(itemSelectors.join(', '))
@@ -296,7 +329,8 @@ class MillerColumnsElement extends HTMLElement {
 
     // Convert selected items to stored items
     for (const item of chain) {
-      this.unselectItem(item)
+      item.dataset.selected = 'false'
+      item.classList.remove('app-miller-columns__item--selected')
 
       item.dataset.stored = 'true'
       item.classList.add('app-miller-columns__item--stored')
