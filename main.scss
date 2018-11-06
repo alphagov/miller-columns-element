@@ -67,6 +67,12 @@ $transition-time: 400ms;
   float: right;
 }
 
+.app-miller-columns__item--stored,
+.app-miller-columns__item--stored:hover,
+.app-miller-columns__item--stored a {
+  color: govuk-colour("white");
+  background-color: govuk-colour("grey-1");
+}
 
 // Ensure all selected nodes in the hierarchy are easily seen.
 .app-miller-columns__item--selected,
@@ -76,28 +82,11 @@ $transition-time: 400ms;
   background-color: govuk-colour("blue");
 }
 
-.app-miller-columns__item--stored,
-.app-miller-columns__item--stored:hover,
-.app-miller-columns__item--stored a {
-  color: govuk-colour("white");
-  background-color: govuk-colour("grey-1");
-}
-
 .app-miller-columns__column {
   li {
     position: relative;
     padding: 3px 9px 9px 9px;
     color: $govuk-text-colour;
-
-    &.app-miller-columns__item--selected {
-      color: govuk-colour("white");
-
-      &:focus,
-      &:hover {
-        color: govuk-colour("white");
-        background-color: govuk-colour("blue");
-      }
-    }
 
     &.app-miller-columns__item--stored {
       color: govuk-colour("white");
@@ -106,6 +95,16 @@ $transition-time: 400ms;
       &:hover {
         color: govuk-colour("white");
         background-color: govuk-colour("grey-1");
+      }
+    }
+
+    &.app-miller-columns__item--selected {
+      color: govuk-colour("white");
+
+      &:focus,
+      &:hover {
+        color: govuk-colour("white");
+        background-color: govuk-colour("blue");
       }
     }
 

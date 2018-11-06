@@ -169,13 +169,32 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Click list item. */
   clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
+    const column = item.closest('ul')
+    let sameLevel = false
+    if (column) {
+      // $FlowFixMe
+      const level = millercolumns.getLevel(column).toString()
+
+      if (millercolumns.dataset.current === level) {
+        sameLevel = true
+      }
+
+      millercolumns.dataset.current = level
+    }
+
     // When starting with a new root item store active chain
-    if (item.dataset.root === 'true' && item.dataset.selected !== 'true') {
+    if (
+      (item.dataset.root === 'true' || sameLevel) &&
+      item.dataset.selected !== 'true' &&
+      item.dataset.stored !== 'true'
+    ) {
       millercolumns.storeActiveChain()
     }
 
     // Toggle the state of the item
-    millercolumns.toggleItem(item)
+    if (item.dataset.stored !== 'true') {
+      millercolumns.toggleItem(item)
+    }
 
     millercolumns.updateActiveChain()
   }
@@ -302,6 +321,10 @@ class MillerColumnsElement extends HTMLElement {
     return this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
   }
 
+  getActiveChainArray(): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]'))
+  }
+
   /** Returns a list of all columns. */
   getAllColumns(): NodeList<HTMLElement> {
     return this.querySelectorAll('.app-miller-columns__column')
@@ -328,7 +351,7 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Store active items as a NodeList in a chain array. */
   storeActiveChain() {
-    const chain = this.getActiveChain()
+    const chain = this.getActiveChainArray()
 
     // Store the current chain in a list
     chains.push(chain)
@@ -344,7 +367,7 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Remove a NodeList from the chain array. */
-  removeStoredChain(chain: NodeList<HTMLElement>) {
+  removeStoredChain(chain: Array<HTMLElement>) {
     for (const item of chain) {
       this.unselectItem(item)
 
@@ -355,7 +378,7 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Update active items in the current chain. */
   updateActiveChain() {
-    const chain = this.getActiveChain()
+    const chain = this.getActiveChainArray()
 
     // Store the current chain in a list
     if (chains[chains.length - 1]) {
@@ -394,7 +417,7 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Update a breadcrumbs. */
-  updateChain(chainElement: HTMLElement, chain: NodeList<HTMLElement>) {
+  updateChain(chainElement: HTMLElement, chain: Array<HTMLElement>) {
     chainElement.innerHTML = ''
     for (const item of chain) {
       const breadcrumb = document.createElement('li')
