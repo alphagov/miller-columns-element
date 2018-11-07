@@ -120,7 +120,7 @@ $transition-time: 400ms;
       color: govuk-colour("white");
     }
 
-    .govuk-checkboxes__label::after {
+    .govuk-checkboxes__input + .govuk-checkboxes__label::after {
       opacity: 1;
     }
   }

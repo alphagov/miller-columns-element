@@ -17,7 +17,7 @@ class MillerColumnsElement extends HTMLElement {
       const checkedInputs = this.getCheckedItems()
 
       // Remove click events for checkboxes and labels
-      this.preventClickEvents('input, label')
+      this.preventClickEvents('input[type=checkbox], label')
 
       // Attach click events for list items
       this.attachClickEvents(list)
