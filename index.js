@@ -17,7 +17,7 @@ class MillerColumnsElement extends HTMLElement {
       const checkedInputs = this.getCheckedItems()
 
       // Remove click events for checkboxes and labels
-      this.preventClickEvents('input[type=checkbox], label')
+      this.preventClickEvents('input, label')
 
       // Attach click events for list items
       this.attachClickEvents(list)
@@ -234,7 +234,7 @@ class MillerColumnsElement extends HTMLElement {
   toggleColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
     millercolumns.hideColumns(column.dataset.level)
     millercolumns.resetAnimation(column)
-    if (item.dataset.selected === 'true') {
+    if (item.dataset.selected === 'true' || item.dataset.stored === 'true') {
       column.dataset.collapse = 'false'
       column.classList.remove('app-miller-columns__column--collapse')
       millercolumns.animateColumns(column)
