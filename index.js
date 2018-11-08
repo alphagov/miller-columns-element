@@ -149,15 +149,6 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   // /** Attach key events for lists. */
-  // attachKeyEvents(root: HTMLUListElement) {
-  //   const items = root.querySelectorAll('li')
-  //
-  //   for (let i = 0; i < items.length; i++) {
-  //     const fn = this.clickItem.bind(null, this, items[i])
-  //     items[i].tabIndex = 0
-  //   }
-  // }
-
   keydown(fn: Function, keys: Array<string>): Function {
     return function(event: KeyboardEvent) {
       if (keys.indexOf(event.key) >= 0) {
