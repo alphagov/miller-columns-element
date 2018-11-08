@@ -13,7 +13,17 @@ An npm installation will be available at a future point.
 ## Usage
 
 ```html
-<govuk-miller-columns></govuk-miller-columns>
+<govuk-miller-columns for="taxonomy" breadcrumbs="selected-items">
+  <ul id="taxonomy">
+    <li>Parenting, childcare and children's services</li>
+    <ul>
+      <li>Divorce, separation and legal issues</li>
+      <li>Childcare and early years</li>
+    </ul>
+  </ul>
+</govuk-miller-columns>
+
+<div id="selected-items"></div>
 ```
 
 ## Browser support
