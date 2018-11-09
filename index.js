@@ -68,7 +68,7 @@ class MillerColumnsElement extends HTMLElement {
     let depth = 1
 
     // Push the root unordered list item into the queue.
-    root.className = 'app-miller-columns__column'
+    root.className = 'govuk-miller-columns__column'
     root.dataset.level = '1'
     queue.push(root)
 
@@ -93,7 +93,7 @@ class MillerColumnsElement extends HTMLElement {
             // Mark list items with child lists as parents.
             if (ancestor) {
               ancestor.dataset.parent = 'true'
-              ancestor.className = 'app-miller-columns__item--parent'
+              ancestor.className = 'govuk-miller-columns__item--parent'
 
               // Expand the requested child node on click.
               const fn = this.toggleColumn.bind(null, this, ancestor, child)
@@ -105,7 +105,7 @@ class MillerColumnsElement extends HTMLElement {
 
             // Hide columns.
             child.dataset.collapse = 'true'
-            child.className = 'app-miller-columns__column app-miller-columns__column--collapse'
+            child.className = 'govuk-miller-columns__column govuk-miller-columns__column--collapse'
             // Causes item siblings to have a flattened DOM lineage.
             millercolumns.insertAdjacentElement('beforeend', child)
           }
@@ -161,9 +161,7 @@ class MillerColumnsElement extends HTMLElement {
     }
 
     // Toggle the state of the item
-    if (item.dataset.stored !== 'true') {
-      millercolumns.toggleItem(item)
-    }
+    millercolumns.toggleItem(item)
 
     millercolumns.updateActiveChain()
   }
@@ -180,7 +178,7 @@ class MillerColumnsElement extends HTMLElement {
   /** Select list item. */
   selectItem(item: HTMLElement) {
     item.dataset.selected = 'true'
-    item.classList.add('app-miller-columns__item--selected')
+    item.classList.add('govuk-miller-columns__item--selected')
 
     const input = item.querySelector('input[type=checkbox]')
     if (input) {
@@ -191,7 +189,9 @@ class MillerColumnsElement extends HTMLElement {
   /** Remove list item selection. */
   deselectItem(item: HTMLElement) {
     item.dataset.selected = 'false'
-    item.classList.remove('app-miller-columns__item--selected')
+    item.dataset.stored = 'false'
+    item.classList.remove('govuk-miller-columns__item--selected')
+    item.classList.remove('govuk-miller-columns__item--stored')
 
     const input = item.querySelector('input[type=checkbox]')
     if (input) {
@@ -205,7 +205,7 @@ class MillerColumnsElement extends HTMLElement {
     millercolumns.resetAnimation(column)
     if (item.dataset.selected === 'true' || item.dataset.stored === 'true') {
       column.dataset.collapse = 'false'
-      column.classList.remove('app-miller-columns__column--collapse')
+      column.classList.remove('govuk-miller-columns__column--collapse')
       millercolumns.animateColumns(column)
     } else {
       // Ensure children are removed
@@ -227,7 +227,7 @@ class MillerColumnsElement extends HTMLElement {
     const lists = millercolumns.querySelectorAll(columnSelectors.join(', '))
     for (const item of lists) {
       item.dataset.collapse = 'true'
-      item.classList.add('app-miller-columns__column--collapse')
+      item.classList.add('govuk-miller-columns__column--collapse')
     }
 
     millercolumns.updateActiveChain()
@@ -267,7 +267,7 @@ class MillerColumnsElement extends HTMLElement {
 
       const lists = millercolumns.querySelectorAll(selectors.join(', '))
       for (const item of lists) {
-        item.classList.add('app-miller-columns__column--narrow')
+        item.classList.add('govuk-miller-columns__column--narrow')
       }
     }
   }
@@ -280,19 +280,19 @@ class MillerColumnsElement extends HTMLElement {
     if (level < depth) {
       const allLists = this.getAllColumns()
       for (const list of allLists) {
-        list.classList.remove('app-miller-columns__column--narrow')
+        list.classList.remove('govuk-miller-columns__column--narrow')
       }
     }
   }
 
   /** Returns a list of the currently selected items. */
   getActiveChain(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]'))
+    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column li[data-selected="true"]'))
   }
 
   /** Returns a list of all columns. */
   getAllColumns(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('.app-miller-columns__column'))
+    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'))
   }
 
   /** Returns the level of a column. */
@@ -315,10 +315,10 @@ class MillerColumnsElement extends HTMLElement {
     // Convert selected items to stored items
     for (const item of chain) {
       item.dataset.selected = 'false'
-      item.classList.remove('app-miller-columns__item--selected')
+      item.classList.remove('govuk-miller-columns__item--selected')
 
       item.dataset.stored = 'true'
-      item.classList.add('app-miller-columns__item--stored')
+      item.classList.add('govuk-miller-columns__item--stored')
     }
   }
 
@@ -328,7 +328,7 @@ class MillerColumnsElement extends HTMLElement {
       this.deselectItem(item)
 
       item.dataset.stored = 'false'
-      item.classList.remove('app-miller-columns__item--stored')
+      item.classList.remove('govuk-miller-columns__item--stored')
     }
   }
 

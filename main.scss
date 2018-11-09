@@ -3,7 +3,7 @@
 $transition-time: 400ms;
 
 // Cascading columns styling
-.app-miller-columns {
+.govuk-miller-columns {
   display: block;
   width: 100%;
   height: 100%;
@@ -14,7 +14,7 @@ $transition-time: 400ms;
 }
 
 // Display the lists as columns in blocks.
-.app-miller-columns__column {
+.govuk-miller-columns__column {
   @extend %govuk-list;
   display: inline-block;
   width: 33%;
@@ -28,7 +28,7 @@ $transition-time: 400ms;
   transition-property: width;
 }
 
-.app-miller-columns__column--narrow {
+.govuk-miller-columns__column--narrow {
   width: 16%;
   overflow-x: hidden;
 
@@ -37,18 +37,18 @@ $transition-time: 400ms;
     white-space: nowrap;
   }
 
-  .app-miller-columns__item--parent:after {
+  .govuk-miller-columns__item--parent:after {
     display: none;
   }
 }
 
 // Setting a list container class to "collapsed" will hide the column.
-.app-miller-columns__column--collapse {
+.govuk-miller-columns__column--collapse {
   display: none;
 }
 
 // Put some space between the column's list entries.
-.app-miller-columns__column > li {
+.govuk-miller-columns__column > li {
   margin-bottom: 1px;
   list-style: none;
   cursor: pointer;
@@ -62,7 +62,7 @@ $transition-time: 400ms;
   }
 }
 
-.app-miller-columns__item--parent:after {
+.govuk-miller-columns__item--parent:after {
   content: "\203A";
   position: absolute;
   top: 50%;
@@ -71,28 +71,28 @@ $transition-time: 400ms;
   float: right;
 }
 
-.app-miller-columns__item--stored,
-.app-miller-columns__item--stored:hover,
-.app-miller-columns__item--stored a {
+.govuk-miller-columns__item--stored,
+.govuk-miller-columns__item--stored:hover,
+.govuk-miller-columns__item--stored a {
   color: govuk-colour("white");
   background-color: govuk-colour("grey-1");
 }
 
 // Ensure all selected nodes in the hierarchy are easily seen.
-.app-miller-columns__item--selected,
-.app-miller-columns__item--selected:hover,
-.app-miller-columns__item--selected a {
+.govuk-miller-columns__item--selected,
+.govuk-miller-columns__item--selected:hover,
+.govuk-miller-columns__item--selected a {
   color: govuk-colour("white");
   background-color: govuk-colour("blue");
 }
 
-.app-miller-columns__column {
+.govuk-miller-columns__column {
   li {
     position: relative;
     padding: 3px 9px 9px 9px;
     color: $govuk-text-colour;
 
-    &.app-miller-columns__item--stored {
+    &.govuk-miller-columns__item--stored {
       color: govuk-colour("white");
 
       &:focus,
@@ -102,7 +102,7 @@ $transition-time: 400ms;
       }
     }
 
-    &.app-miller-columns__item--selected {
+    &.govuk-miller-columns__item--selected {
       color: govuk-colour("white");
 
       &:focus,
@@ -118,8 +118,8 @@ $transition-time: 400ms;
     @include govuk-font($size: 16)
   }
 
-  .app-miller-columns__item--selected,
-  .app-miller-columns__item--stored {
+  .govuk-miller-columns__item--selected,
+  .govuk-miller-columns__item--stored {
     .govuk-checkboxes__label {
       color: govuk-colour("white");
     }
@@ -131,7 +131,7 @@ $transition-time: 400ms;
 }
 
 // Breadcrumb styling.
-.app-breadcrumb {
+.govuk-breadcrumbs {
   .govuk-breadcrumbs__list {
     padding: govuk-spacing(2) 0 govuk-spacing(1);
     border-top: 1px solid govuk-colour("grey-3");
@@ -157,7 +157,7 @@ $transition-time: 400ms;
 }
 
 // Small checkboxes
-.app-miller-columns {
+.govuk-miller-columns {
   .govuk-checkboxes__item {
     min-height: 26px;
     margin-bottom: 10px;

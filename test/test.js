@@ -551,7 +551,7 @@ describe('govuk-miller-columns', function() {
         </li>
         </ul>
         </govuk-miller-columns>
-        <div class="govuk-breadcrumbs" id="selected-items"></div>
+        <div id="selected-items"></div>
       `
       document.body.append(container)
     })
@@ -597,7 +597,7 @@ describe('govuk-miller-columns', function() {
       firstItem.click()
       assert.equal(firstItem.getAttribute('data-selected'), 'true')
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
     })
 
@@ -607,7 +607,7 @@ describe('govuk-miller-columns', function() {
       firstItem.click()
       assert.equal(l2List.getAttribute('data-collapse'), 'false')
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
     })
 
@@ -622,43 +622,49 @@ describe('govuk-miller-columns', function() {
     })
 
     it('store active items in breadcrumb', function() {
-      const firstItemL1 = document.querySelector('ul[data-level="1"] li label')
-      const firstItemL2 = document.querySelector('ul[data-level="2"] li label')
+      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
+      const firstLabelL1 = document.querySelector('ul[data-level="1"] li label')
+      const firstItemL2 = document.querySelector('ul[data-level="2"] li')
+      const firstLabelL2 = document.querySelector('ul[data-level="2"] li label')
       firstItemL1.click()
       firstItemL2.click()
-      const breadcrumbsL1 = document.querySelector('.govuk-breadcrumbs ol li:nth-child(1)')
-      const breadcrumbsL2 = document.querySelector('.govuk-breadcrumbs ol li:nth-child(2)')
-      assert.equal(breadcrumbsL1.innerHTML.trim(), firstItemL1.innerHTML.trim())
-      assert.equal(breadcrumbsL2.innerHTML.trim(), firstItemL2.innerHTML.trim())
+      const breadcrumbsL1 = document.querySelector('#selected-items ol li:nth-child(1)')
+      const breadcrumbsL2 = document.querySelector('#selected-items ol li:nth-child(2)')
+      assert.equal(breadcrumbsL1.innerHTML.trim(), firstLabelL1.innerHTML.trim())
+      assert.equal(breadcrumbsL2.innerHTML.trim(), firstLabelL2.innerHTML.trim())
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
     })
 
     it('creates a new chain when selecting siblings', function() {
-      const firstItemL1 = document.querySelector('ul[data-level="1"] li label')
-      const firstItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(1) label')
-      const secondItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(2) label')
+      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
+      const firstItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(1)')
+      // const secondItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(2)')
+
+      const firstLabelL1 = document.querySelector('ul[data-level="1"] li label')
+      const firstLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(1) label')
+      // const secondLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(2) label')
 
       firstItemL1.click()
       firstItemL2.click()
-      secondItemL2.click()
+      // secondItemL2.click()
 
-      const firstBreadcrumbsL1 = document.querySelector('.govuk-breadcrumbs ol:nth-child(1) li:nth-child(1)')
-      const firstBreadcrumbsL2 = document.querySelector('.govuk-breadcrumbs ol:nth-child(1) li:nth-child(2)')
-      const secondBreadcrumbsL1 = document.querySelector('.govuk-breadcrumbs ol:nth-child(2) li:nth-child(1)')
-      // const secondBreadcrumbsL2 = document.querySelector('.govuk-breadcrumbs ol:nth-child(2) li:nth-child(2)')
+      const firstBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(1)')
+      const firstBreadcrumbsL2 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(2)')
+      // const secondBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(2) li:nth-child(1)')
+      // const secondBreadcrumbsL2 = document.querySelector('#selected-items ol:nth-child(2) li:nth-child(2)')
 
-      assert.equal(firstBreadcrumbsL1.innerHTML.trim(), firstItemL1.innerHTML.trim())
-      assert.equal(firstBreadcrumbsL2.innerHTML.trim(), firstItemL2.innerHTML.trim())
-      assert.equal(secondBreadcrumbsL1.innerHTML.trim(), secondItemL2.innerHTML.trim())
+      assert.equal(firstBreadcrumbsL1.innerHTML.trim(), firstLabelL1.innerHTML.trim())
+      assert.equal(firstBreadcrumbsL2.innerHTML.trim(), firstLabelL2.innerHTML.trim())
+      // assert.equal(secondBreadcrumbsL1.innerHTML.trim(), secondLabelL2.innerHTML.trim())
       // assert.equal(secondBreadcrumbsL2.innerHTML.trim(), secondItemL2.innerHTML.trim())
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
 
-      const secondBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
-      secondBreadcrumbsRemove.click()
+      // const secondBreadcrumbsRemove = document.querySelector('#selected-items ol button')
+      // secondBreadcrumbsRemove.click()
     })
 
     it('removes a chain from stored breadcrumbs', function() {
@@ -666,10 +672,10 @@ describe('govuk-miller-columns', function() {
 
       firstItemL1.click()
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
 
-      const breadcrumbs = document.querySelectorAll('.govuk-breadcrumbs ol')
+      const breadcrumbs = document.querySelectorAll('#selected-items ol')
       assert.equal(breadcrumbs.length, 0)
     })
 
@@ -681,7 +687,7 @@ describe('govuk-miller-columns', function() {
       const firstCheckbox = document.querySelector('ul[data-level="1"] li:nth-child(1) input[type=checkbox]')
       assert.equal(firstCheckbox.getAttribute('checked'), 'checked')
 
-      const firstBreadcrumbsRemove = document.querySelector('.govuk-breadcrumbs ol .govuk-link')
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
     })
   })
