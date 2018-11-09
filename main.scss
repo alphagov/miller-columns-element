@@ -36,6 +36,10 @@ $transition-time: 400ms;
   label {
     white-space: nowrap;
   }
+
+  .app-miller-columns__item--parent:after {
+    display: none;
+  }
 }
 
 // Setting a list container class to "collapsed" will hide the column.
@@ -152,7 +156,7 @@ $transition-time: 400ms;
   }
 }
 
-// Small
+// Small checkboxes
 .app-miller-columns {
   .govuk-checkboxes__item {
     min-height: 26px;
@@ -170,10 +174,12 @@ $transition-time: 400ms;
     left: 0;
     width: 26px;
     height: 26px;
+    pointer-events: none;
   }
 
   .govuk-checkboxes__label {
     padding: 8px 5px 2px;
+    pointer-events: none;
   }
 
   .govuk-checkboxes__input + .govuk-checkboxes__label::before {
