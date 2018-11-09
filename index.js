@@ -143,20 +143,13 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Click list item. */
   clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
-    const column = item.closest('ul')
-    let sameLevel = false
-
-    // $FlowFixMe
-    const level = millercolumns.getLevel(column).toString()
-    if (millercolumns.dataset.current === level) {
-      sameLevel = true
-    }
-
     // Set the current level
+    const level = millercolumns.getItemLevel(item)
+
     millercolumns.dataset.current = level
 
     // When starting with a new root item store active chain
-    if ((level === '1' || sameLevel) && item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
+    if (level === '1' && item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
       millercolumns.storeActiveChain()
     }
 
@@ -283,6 +276,13 @@ class MillerColumnsElement extends HTMLElement {
         list.classList.remove('govuk-miller-columns__column--narrow')
       }
     }
+  }
+
+  // Return the level of an element
+  getItemLevel(item: HTMLElement): string {
+    const column = item.closest('ul')
+    // $FlowFixMe
+    return this.getLevel(column).toString()
   }
 
   /** Returns a list of the currently selected items. */
