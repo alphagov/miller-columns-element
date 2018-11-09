@@ -16,9 +16,6 @@ class MillerColumnsElement extends HTMLElement {
       // Store checked inputs
       const checkboxes = this.checkboxes
 
-      // Remove click events for checkboxes and labels
-      // this.preventClickEvents('input[type=checkbox], label')
-
       // Attach click events for list items
       this.attachClickEvents(list)
 
@@ -131,18 +128,6 @@ class MillerColumnsElement extends HTMLElement {
       item.addEventListener('keydown', this.keydown(fn, keys))
 
       item.tabIndex = 0
-    }
-  }
-
-  /** Remove click events for checkboxes and labels so they don't interfere. */
-  preventClickEvents(selector: string) {
-    const items = document.querySelectorAll(selector)
-
-    for (const item of items) {
-      item.addEventListener('click', function passiveHandler(event: Event) {
-        event.preventDefault()
-        event.stopPropagation()
-      })
     }
   }
 
