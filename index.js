@@ -14,10 +14,10 @@ class MillerColumnsElement extends HTMLElement {
 
     if (list) {
       // Store checked inputs
-      const checkedInputs = this.getCheckedItems()
+      const checkboxes = this.checkboxes
 
       // Remove click events for checkboxes and labels
-      this.preventClickEvents('input[type=checkbox], label')
+      // this.preventClickEvents('input[type=checkbox], label')
 
       // Attach click events for list items
       this.attachClickEvents(list)
@@ -25,12 +25,9 @@ class MillerColumnsElement extends HTMLElement {
       // Unnest the tree list into columns
       this.unnest(list)
 
-      // Mark root elements to know where a breadcrumb starts
-      this.setRootElements()
-
       // If we have checked inputs we reflect their states into list items
-      if (checkedInputs) {
-        this.loadInputs(checkedInputs)
+      if (checkboxes) {
+        this.loadCheckboxes(checkboxes)
       }
     }
   }
@@ -51,11 +48,11 @@ class MillerColumnsElement extends HTMLElement {
     return breadcrumbs instanceof HTMLDivElement ? breadcrumbs : null
   }
 
-  getCheckedItems(): NodeList<HTMLElement> {
-    return this.querySelectorAll('input[type=checkbox]:checked')
+  get checkboxes(): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]:checked'))
   }
 
-  loadInputs(inputs: NodeList<HTMLElement>) {
+  loadCheckboxes(inputs: Array<HTMLElement>) {
     for (const input of inputs) {
       const li = input.closest('li')
       if (li) {
@@ -84,9 +81,9 @@ class MillerColumnsElement extends HTMLElement {
       if (node.children) {
         listItems = node.children
 
-        for (let i = 0; i < listItems.length; i++) {
-          const child = listItems[i].querySelector('ul')
-          const ancestor = listItems[i]
+        for (const listItem of listItems) {
+          const child = listItem.querySelector('ul')
+          const ancestor = listItem
 
           if (child) {
             // Store level and depth
@@ -105,7 +102,7 @@ class MillerColumnsElement extends HTMLElement {
               const fn = this.toggleColumn.bind(null, this, ancestor, child)
               ancestor.addEventListener('click', fn, false)
 
-              const keys = [' ', 'Enter'] //'ArrowRight'
+              const keys = [' ', 'Enter']
               ancestor.addEventListener('keydown', this.keydown(fn, keys), false)
             }
 
@@ -126,14 +123,14 @@ class MillerColumnsElement extends HTMLElement {
   attachClickEvents(root: HTMLUListElement) {
     const items = root.querySelectorAll('li')
 
-    for (let i = 0; i < items.length; i++) {
-      const fn = this.clickItem.bind(null, this, items[i])
-      items[i].addEventListener('click', fn, false)
+    for (const item of items) {
+      const fn = this.clickItem.bind(null, this, item)
+      item.addEventListener('click', fn, false)
 
-      const keys = [' ', 'Enter'] //'ArrowRight'
-      items[i].addEventListener('keydown', this.keydown(fn, keys))
+      const keys = [' ', 'Enter']
+      item.addEventListener('keydown', this.keydown(fn, keys))
 
-      items[i].tabIndex = 0
+      item.tabIndex = 0
     }
   }
 
@@ -144,6 +141,7 @@ class MillerColumnsElement extends HTMLElement {
     for (const item of items) {
       item.addEventListener('click', function passiveHandler(event: Event) {
         event.preventDefault()
+        event.stopPropagation()
       })
     }
   }
@@ -162,23 +160,18 @@ class MillerColumnsElement extends HTMLElement {
   clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
     const column = item.closest('ul')
     let sameLevel = false
-    if (column) {
-      // $FlowFixMe
-      const level = millercolumns.getLevel(column).toString()
 
-      if (millercolumns.dataset.current === level) {
-        sameLevel = true
-      }
-
-      millercolumns.dataset.current = level
+    // $FlowFixMe
+    const level = millercolumns.getLevel(column).toString()
+    if (millercolumns.dataset.current === level) {
+      sameLevel = true
     }
 
+    // Set the current level
+    millercolumns.dataset.current = level
+
     // When starting with a new root item store active chain
-    if (
-      (item.dataset.root === 'true' || sameLevel) &&
-      item.dataset.selected !== 'true' &&
-      item.dataset.stored !== 'true'
-    ) {
+    if ((level === '1' || sameLevel) && item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
       millercolumns.storeActiveChain()
     }
 
@@ -193,7 +186,7 @@ class MillerColumnsElement extends HTMLElement {
   /** Toggle list item. */
   toggleItem(item: HTMLElement) {
     if (item.dataset.selected === 'true') {
-      this.unselectItem(item)
+      this.deselectItem(item)
     } else {
       this.selectItem(item)
     }
@@ -211,7 +204,7 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Remove list item selection. */
-  unselectItem(item: HTMLElement) {
+  deselectItem(item: HTMLElement) {
     item.dataset.selected = 'false'
     item.classList.remove('app-miller-columns__item--selected')
 
@@ -268,7 +261,7 @@ class MillerColumnsElement extends HTMLElement {
 
     const items = millercolumns.querySelectorAll(itemSelectors.join(', '))
     for (const item of items) {
-      millercolumns.unselectItem(item)
+      millercolumns.deselectItem(item)
     }
 
     millercolumns.updateActiveChain()
@@ -308,17 +301,13 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   /** Returns a list of the currently selected items. */
-  getActiveChain(): NodeList<HTMLElement> {
-    return this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]')
-  }
-
-  getActiveChainArray(): Array<HTMLElement> {
+  getActiveChain(): Array<HTMLElement> {
     return Array.prototype.slice.call(this.querySelectorAll('.app-miller-columns__column li[data-selected="true"]'))
   }
 
   /** Returns a list of all columns. */
-  getAllColumns(): NodeList<HTMLElement> {
-    return this.querySelectorAll('.app-miller-columns__column')
+  getAllColumns(): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll('.app-miller-columns__column'))
   }
 
   /** Returns the level of a column. */
@@ -331,18 +320,9 @@ class MillerColumnsElement extends HTMLElement {
     return parseInt(this.dataset.depth)
   }
 
-  /** Set all items on level 1 as root elements. */
-  setRootElements() {
-    const items = this.querySelectorAll('[data-level="1"] li')
-
-    for (const item of items) {
-      item.dataset.root = 'true'
-    }
-  }
-
-  /** Store active items as a NodeList in a chain array. */
+  /** Store active items in a chain array. */
   storeActiveChain() {
-    const chain = this.getActiveChainArray()
+    const chain = this.getActiveChain()
 
     // Store the current chain in a list
     chains.push(chain)
@@ -357,10 +337,10 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
-  /** Remove a NodeList from the chain array. */
+  /** Remove a chain of stored items. */
   removeStoredChain(chain: Array<HTMLElement>) {
     for (const item of chain) {
-      this.unselectItem(item)
+      this.deselectItem(item)
 
       item.dataset.stored = 'false'
       item.classList.remove('app-miller-columns__item--stored')
@@ -369,7 +349,7 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Update active items in the current chain. */
   updateActiveChain() {
-    const chain = this.getActiveChainArray()
+    const chain = this.getActiveChain()
 
     // Store the current chain in a list
     if (chains[chains.length - 1]) {
