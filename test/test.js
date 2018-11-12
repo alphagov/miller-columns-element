@@ -15,7 +15,7 @@ describe('govuk-miller-columns', function() {
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
-        <govuk-miller-columns for="taxonomy" breadcrumbs="selected-items">
+        <govuk-miller-columns id="miller-columns" for="taxonomy" breadcrumbs="selected-items">
         <ul id="taxonomy">
         <li>
            <div class="govuk-checkboxes__item">
@@ -551,7 +551,7 @@ describe('govuk-miller-columns', function() {
         </li>
         </ul>
         </govuk-miller-columns>
-        <div id="selected-items"></div>
+        <govuk-breadcrumbs id="selected-items" for="miller-columns"></govuk-breadcrumbs>
       `
       document.body.append(container)
     })
