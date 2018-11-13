@@ -637,36 +637,6 @@ describe('govuk-miller-columns', function() {
       firstBreadcrumbsRemove.click()
     })
 
-    it('creates a new chain when selecting siblings', function() {
-      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
-      const firstItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(1)')
-      // const secondItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(2)')
-
-      const firstLabelL1 = document.querySelector('ul[data-level="1"] li label')
-      const firstLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(1) label')
-      // const secondLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(2) label')
-
-      firstItemL1.click()
-      firstItemL2.click()
-      // secondItemL2.click()
-
-      const firstBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(1)')
-      const firstBreadcrumbsL2 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(2)')
-      // const secondBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(2) li:nth-child(1)')
-      // const secondBreadcrumbsL2 = document.querySelector('#selected-items ol:nth-child(2) li:nth-child(2)')
-
-      assert.equal(firstBreadcrumbsL1.innerHTML.trim(), firstLabelL1.innerHTML.trim())
-      assert.equal(firstBreadcrumbsL2.innerHTML.trim(), firstLabelL2.innerHTML.trim())
-      // assert.equal(secondBreadcrumbsL1.innerHTML.trim(), secondLabelL2.innerHTML.trim())
-      // assert.equal(secondBreadcrumbsL2.innerHTML.trim(), secondItemL2.innerHTML.trim())
-
-      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
-      firstBreadcrumbsRemove.click()
-
-      // const secondBreadcrumbsRemove = document.querySelector('#selected-items ol button')
-      // secondBreadcrumbsRemove.click()
-    })
-
     it('removes a chain from stored breadcrumbs', function() {
       const firstItemL1 = document.querySelector('ul[data-level="1"] li:nth-child(1)')
 
@@ -689,6 +659,34 @@ describe('govuk-miller-columns', function() {
 
       const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
       firstBreadcrumbsRemove.click()
+    })
+
+    it('creates a new chain when selecting siblings', function() {
+      const firstItemL1 = document.querySelector('ul[data-level="1"] li')
+      const firstItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(1)')
+      const secondItemL2 = document.querySelector('ul[data-level="2"] li:nth-child(2)')
+
+      const firstLabelL1 = document.querySelector('ul[data-level="1"] li label')
+      const firstLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(1) label')
+      const secondLabelL2 = document.querySelector('ul[data-level="2"] li:nth-child(2) label')
+
+      firstItemL1.click()
+      firstItemL2.click()
+      secondItemL2.click()
+
+      const firstBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(1)')
+      const firstBreadcrumbsL2 = document.querySelector('#selected-items ol:nth-child(1) li:nth-child(2)')
+      const secondBreadcrumbsL1 = document.querySelector('#selected-items ol:nth-child(2) li:nth-child(1)')
+
+      assert.equal(firstBreadcrumbsL1.innerHTML.trim(), firstLabelL1.innerHTML.trim())
+      assert.equal(firstBreadcrumbsL2.innerHTML.trim(), firstLabelL2.innerHTML.trim())
+      assert.equal(secondBreadcrumbsL1.innerHTML.trim(), secondLabelL2.innerHTML.trim())
+
+      const firstBreadcrumbsRemove = document.querySelector('#selected-items ol button')
+      firstBreadcrumbsRemove.click()
+
+      const secondBreadcrumbsRemove = document.querySelector('#selected-items ol button')
+      secondBreadcrumbsRemove.click()
     })
   })
 })
