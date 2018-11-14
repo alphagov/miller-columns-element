@@ -8,9 +8,14 @@ class MillerColumnsElement extends HTMLElement {
   connectedCallback() {
     // A nested tree list with all items
     const list = this.list
+
+    // Set default values
     this.dataset.chain = '0'
     this.dataset.depth = '0'
     this.dataset.level = '0'
+
+    // Show the columns
+    this.style.display = 'block'
 
     if (list) {
       // Store checked inputs
@@ -147,6 +152,7 @@ class MillerColumnsElement extends HTMLElement {
       const li = input.closest('li')
       if (li instanceof HTMLLIElement) {
         li.dataset.id = input.id
+        li.classList.add('govuk-miller-columns__item')
       }
     }
   }
@@ -186,7 +192,7 @@ class MillerColumnsElement extends HTMLElement {
             if (ancestor) {
               // Mark list items with descendants as parents.
               ancestor.dataset.parent = 'true'
-              ancestor.className = 'govuk-miller-columns__item--parent'
+              ancestor.classList.add('govuk-miller-columns__item--parent')
 
               // Expand the descendants list on click.
               const fn = this.toggleColumn.bind(null, this, ancestor, descendants)
@@ -260,7 +266,7 @@ class MillerColumnsElement extends HTMLElement {
         // Store active chain
         millercolumns.breadcrumbs.storeActiveChain()
         // Increment chain index
-        millercolumns.dataset.chain = (chains.length + 1).toString()
+        millercolumns.dataset.chain = chains.length.toString()
         // Default item click
         item.dataset.chain = millercolumns.dataset.chain
 
@@ -272,7 +278,7 @@ class MillerColumnsElement extends HTMLElement {
         // Store active chain
         millercolumns.breadcrumbs.storeActiveChain()
         // Increment chain index
-        millercolumns.dataset.chain = (chains.length + 1).toString()
+        millercolumns.dataset.chain = chains.length.toString()
         // Default item click
         item.dataset.chain = millercolumns.dataset.chain
         // Toggle the state of the item
@@ -470,7 +476,7 @@ class BreadcrumbsElement extends HTMLElement {
     // Store the current chain in a list
     if (this.millercolumns) {
       const index = this.millercolumns.activeChainIndex
-      if (index) {
+      if (index && this.chain) {
         chains[index] = this.chain
       }
     }
@@ -507,7 +513,9 @@ class BreadcrumbsElement extends HTMLElement {
       const index = this.millercolumns.activeChainIndex
 
       // Store the current chain in a list
-      chains[index] = this.chain
+      if (this.chain) {
+        chains[index] = this.chain
+      }
 
       // If empty chain remove it from the array
       // $FlowFixMe
@@ -531,7 +539,10 @@ class BreadcrumbsElement extends HTMLElement {
         }
       }
     } else {
-      this.innerHTML = 'No selected topics'
+      this.innerHTML = `
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">No selected topics</li>
+      </ol>`
     }
   }
 

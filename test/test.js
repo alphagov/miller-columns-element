@@ -162,7 +162,7 @@ describe('govuk-miller-columns', function() {
       firstBreadcrumbsRemove.click()
 
       const breadcrumbs = document.querySelectorAll('#selected-items ol')
-      assert.equal(breadcrumbs.length, 0)
+      assert.equal(breadcrumbs.length, 1)
     })
 
     it('use checkboxes to illustrate selection', function() {
