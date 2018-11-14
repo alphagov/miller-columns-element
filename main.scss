@@ -132,6 +132,9 @@ $transition-time: 400ms;
 
 // Breadcrumb styling.
 .govuk-breadcrumbs {
+  display: block;
+  margin-bottom: 30px;
+
   .govuk-breadcrumbs__list {
     padding: govuk-spacing(2) 0 govuk-spacing(1);
     border-top: 1px solid govuk-colour("grey-3");
