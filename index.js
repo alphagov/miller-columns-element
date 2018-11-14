@@ -8,9 +8,14 @@ class MillerColumnsElement extends HTMLElement {
   connectedCallback() {
     // A nested tree list with all items
     const list = this.list
+
+    // Set default values
     this.dataset.chain = '0'
     this.dataset.depth = '0'
     this.dataset.level = '0'
+
+    // Show the columns
+    this.style.display = 'block'
 
     if (list) {
       // Store checked inputs
@@ -147,6 +152,7 @@ class MillerColumnsElement extends HTMLElement {
       const li = input.closest('li')
       if (li instanceof HTMLLIElement) {
         li.dataset.id = input.id
+        li.classList.add('govuk-miller-columns__item')
       }
     }
   }
@@ -186,7 +192,7 @@ class MillerColumnsElement extends HTMLElement {
             if (ancestor) {
               // Mark list items with descendants as parents.
               ancestor.dataset.parent = 'true'
-              ancestor.className = 'govuk-miller-columns__item--parent'
+              ancestor.classList.add('govuk-miller-columns__item--parent')
 
               // Expand the descendants list on click.
               const fn = this.toggleColumn.bind(null, this, ancestor, descendants)
@@ -249,61 +255,62 @@ class MillerColumnsElement extends HTMLElement {
 
     if (!(millercolumns.breadcrumbs instanceof BreadcrumbsElement)) return
 
+    // If selecting an upper level or a new item on the same level
+    // and not selected nor stored we start a new chain
     if (
-      // If selecting an upper level or a new item on the same level
-      // and not selected nor stored we start a new chain
       (currentLevel < previousLevel || selectedItems.length > 0) &&
       item.dataset.selected !== 'true' &&
       item.dataset.stored !== 'true'
     ) {
-      if (currentLevel < previousLevel || selectedItems.length > 0) {
-        // Store active chain
-        millercolumns.breadcrumbs.storeActiveChain()
-        // Increment chain index
-        millercolumns.dataset.chain = (chains.length + 1).toString()
-        // Default item click
-        item.dataset.chain = millercolumns.dataset.chain
+      // Store active chain
+      millercolumns.breadcrumbs.storeActiveChain()
+      // Increment chain index
+      millercolumns.dataset.chain = chains.length.toString()
+      // Default item click
+      item.dataset.chain = millercolumns.dataset.chain
+      // Retrieve ancestors
+      const ancestors = millercolumns.getAncestors(item)
+      if (ancestors) {
+        millercolumns.selectItems(ancestors, item.dataset.chain)
+      }
 
-        const ancestors = millercolumns.getAncestors(item)
-        if (ancestors) {
-          millercolumns.selectItems(ancestors, item.dataset.chain)
-        }
-      } else {
-        // Store active chain
-        millercolumns.breadcrumbs.storeActiveChain()
-        // Increment chain index
-        millercolumns.dataset.chain = (chains.length + 1).toString()
-        // Default item click
-        item.dataset.chain = millercolumns.dataset.chain
-        // Toggle the state of the item
+      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
         millercolumns.toggleItem(item)
       }
     } else if (item.dataset.stored === 'true') {
       // If click on a stored item we swap the active chain and not toggle
       millercolumns.breadcrumbs.storeActiveChain()
+      // Make stored chain active
       millercolumns.dataset.chain = item.dataset.chain
       // $FlowFixMe
       millercolumns.breadcrumbs.swapActiveChain()
+      // Retrieve ancestors
+      const ancestors = millercolumns.getAncestors(item)
+      if (ancestors) {
+        millercolumns.selectItems(ancestors, item.dataset.chain)
+      }
     } else {
       // Default item click
       item.dataset.chain = millercolumns.dataset.chain
 
       if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
+        // If not selected nor stored retrieve ancestors and select
         const ancestors = millercolumns.getAncestors(item)
         if (ancestors) {
           millercolumns.selectItems(ancestors, item.dataset.chain)
         }
       } else {
-        // Toggle the state of the item
+        // If selected toggle to remove
         millercolumns.toggleItem(item)
       }
     }
 
-    // If not a parent hide descendant lists
+    // If not a parent hide residual descendants list
     if (item.dataset.parent !== 'true') {
       millercolumns.hideColumns((parseInt(currentLevel) + 1).toString())
     }
 
+    // Update active chain to reflect selection
     millercolumns.breadcrumbs.updateActiveChain()
   }
 
@@ -470,7 +477,7 @@ class BreadcrumbsElement extends HTMLElement {
     // Store the current chain in a list
     if (this.millercolumns) {
       const index = this.millercolumns.activeChainIndex
-      if (index) {
+      if (index && this.chain) {
         chains[index] = this.chain
       }
     }
@@ -507,7 +514,9 @@ class BreadcrumbsElement extends HTMLElement {
       const index = this.millercolumns.activeChainIndex
 
       // Store the current chain in a list
-      chains[index] = this.chain
+      if (this.chain) {
+        chains[index] = this.chain
+      }
 
       // If empty chain remove it from the array
       // $FlowFixMe
@@ -531,7 +540,10 @@ class BreadcrumbsElement extends HTMLElement {
         }
       }
     } else {
-      this.innerHTML = 'No selected topics'
+      this.innerHTML = `
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">No selected topics</li>
+      </ol>`
     }
   }
 
