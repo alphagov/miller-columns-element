@@ -15,23 +15,23 @@ class MillerColumnsElement extends HTMLElement {
     if (list) {
       // Store checked inputs
       const checkboxes = this.checkboxes
-      const breadcrumbs = this.breadcrumbs
 
       // Attach click events for list items
       this.attachClickEvents(list)
 
+      // Load checkbox ids as data-id for list items
+      if (checkboxes) {
+        this.loadIds(checkboxes)
+      }
+
       // Unnest the tree list into columns
       this.unnest(list)
-
-      // If we have checked inputs we reflect their states into list items
-      if (checkboxes && breadcrumbs) {
-        this.loadCheckboxes(checkboxes)
-      }
     }
   }
 
   disconnectedCallback() {}
 
+  /** Returns the associated nested list of items. */
   get list(): ?HTMLUListElement {
     const id = this.getAttribute('for')
     if (!id) return
@@ -39,6 +39,7 @@ class MillerColumnsElement extends HTMLElement {
     return list instanceof HTMLUListElement ? list : null
   }
 
+  /** Returns the associated breadcrumbs element. */
   get breadcrumbs(): ?BreadcrumbsElement {
     const id = this.getAttribute('breadcrumbs')
     if (!id) return
@@ -46,16 +47,106 @@ class MillerColumnsElement extends HTMLElement {
     return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null
   }
 
-  get checkboxes(): Array<HTMLElement> {
+  /** Returns a list of all selected checkboxes for initialisation. */
+  get selectedCheckboxes(): Array<HTMLElement> {
     return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]:checked'))
   }
 
-  /** Click checked boxes. */
+  /** Returns a list of all checkboxes. */
+  get checkboxes(): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]'))
+  }
+
+  /** Returns a list of the currently selected items. */
+  get activeChain(): Array<HTMLElement> {
+    return Array.prototype.slice.call(
+      this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${this.dataset.chain}"]`)
+    )
+  }
+
+  /** Returns the index of the active chain item. */
+  get activeChainIndex(): number {
+    // $FlowFixMe
+    return parseInt(this.dataset.chain)
+  }
+
+  /** Returns the maximum depth of the miller column. */
+  get depth(): number {
+    return parseInt(this.dataset.depth)
+  }
+
+  // Return the level of an element
+  getItemLevel(item: HTMLElement): string {
+    const column = item.closest('ul')
+    let level = '0'
+    if (column instanceof HTMLUListElement) {
+      level = this.getLevel(column).toString()
+    }
+    return level
+  }
+
+  getItemParent(item: HTMLElement): ?HTMLElement {
+    const column = item.closest('ul')
+    // $FlowFixMe
+    const parent = document.querySelector(`[data-id="${column.dataset.parent}"]`)
+    return parent
+  }
+
+  /** Returns a list of items from the same chain. */
+  getChain(chain: string): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${chain}"]`))
+  }
+
+  /** Returns a list of selected items from a column/level. */
+  getSelectedItems(level: string): Array<HTMLElement> {
+    return Array.prototype.slice.call(
+      this.querySelectorAll(`.govuk-miller-columns__column[data-level="${level}"] li[data-selected="true"]`)
+    )
+  }
+
+  /** Returns a list of ancestors for a specified item. */
+  getAncestors(item: ?HTMLElement): Array<HTMLElement> {
+    const ancestors = []
+    // item = this.getItemParent(item)
+    while (item) {
+      if (item instanceof HTMLElement) {
+        ancestors.push(item)
+        item = this.getItemParent(item)
+      }
+    }
+    return ancestors.reverse()
+  }
+
+  /** Returns a list of all columns. */
+  getAllColumns(): Array<HTMLElement> {
+    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'))
+  }
+
+  /** Returns the level of a column. */
+  getLevel(column: HTMLElement): number {
+    return parseInt(column.dataset.level)
+  }
+
+  /** Click list items with checkedboxes. */
   loadCheckboxes(inputs: Array<HTMLElement>) {
     for (const input of inputs) {
       const li = input.closest('li')
-      if (li) {
+      if (li instanceof HTMLLIElement) {
         li.dispatchEvent(new MouseEvent('click'))
+        if (this.breadcrumbs) {
+          this.breadcrumbs.storeActiveChain()
+          this.dataset.chain = (chains.length + 1).toString()
+        }
+      }
+    }
+  }
+
+  /** Load checkboxes ids to list items so we can use them determine ancestors. */
+  loadIds(inputs: Array<HTMLElement>) {
+    for (const input of inputs) {
+      const li = input.closest('li')
+      if (li instanceof HTMLLIElement) {
+        li.dataset.id = input.id
       }
     }
   }
@@ -108,6 +199,7 @@ class MillerColumnsElement extends HTMLElement {
 
             // Hide columns.
             descendants.dataset.collapse = 'true'
+            descendants.dataset.parent = ancestor.dataset.id
             descendants.className = 'govuk-miller-columns__column govuk-miller-columns__column--collapse'
             // Causes item siblings to have a flattened DOM lineage.
             millercolumns.insertAdjacentElement('beforeend', descendants)
@@ -155,23 +247,38 @@ class MillerColumnsElement extends HTMLElement {
 
     millercolumns.dataset.level = currentLevel
 
+    if (!(millercolumns.breadcrumbs instanceof BreadcrumbsElement)) return
+
     if (
       // If selecting an upper level or a new item on the same level
       // and not selected nor stored we start a new chain
       (currentLevel < previousLevel || selectedItems.length > 0) &&
-      millercolumns.breadcrumbs &&
       item.dataset.selected !== 'true' &&
       item.dataset.stored !== 'true'
     ) {
-      // Store active chain
-      millercolumns.breadcrumbs.storeActiveChain()
-      // Increment chain index
-      millercolumns.dataset.chain = (parseInt(millercolumns.dataset.chain) + 1).toString()
-      // Default item click
-      item.dataset.chain = millercolumns.dataset.chain
-      // Toggle the state of the item
-      millercolumns.toggleItem(item)
-    } else if (millercolumns.breadcrumbs && item.dataset.stored === 'true') {
+      if (currentLevel < previousLevel || selectedItems.length > 0) {
+        // Store active chain
+        millercolumns.breadcrumbs.storeActiveChain()
+        // Increment chain index
+        millercolumns.dataset.chain = (chains.length + 1).toString()
+        // Default item click
+        item.dataset.chain = millercolumns.dataset.chain
+
+        const ancestors = millercolumns.getAncestors(item)
+        if (ancestors) {
+          millercolumns.selectItems(ancestors, item.dataset.chain)
+        }
+      } else {
+        // Store active chain
+        millercolumns.breadcrumbs.storeActiveChain()
+        // Increment chain index
+        millercolumns.dataset.chain = (chains.length + 1).toString()
+        // Default item click
+        item.dataset.chain = millercolumns.dataset.chain
+        // Toggle the state of the item
+        millercolumns.toggleItem(item)
+      }
+    } else if (item.dataset.stored === 'true') {
       // If click on a stored item we swap the active chain and not toggle
       millercolumns.breadcrumbs.storeActiveChain()
       millercolumns.dataset.chain = item.dataset.chain
@@ -180,13 +287,24 @@ class MillerColumnsElement extends HTMLElement {
     } else {
       // Default item click
       item.dataset.chain = millercolumns.dataset.chain
-      // Toggle the state of the item
-      millercolumns.toggleItem(item)
+
+      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
+        const ancestors = millercolumns.getAncestors(item)
+        if (ancestors) {
+          millercolumns.selectItems(ancestors, item.dataset.chain)
+        }
+      } else {
+        // Toggle the state of the item
+        millercolumns.toggleItem(item)
+      }
     }
 
-    if (millercolumns.breadcrumbs) {
-      millercolumns.breadcrumbs.updateActiveChain()
+    // If not a parent hide descendant lists
+    if (item.dataset.parent !== 'true') {
+      millercolumns.hideColumns((parseInt(currentLevel) + 1).toString())
     }
+
+    millercolumns.breadcrumbs.updateActiveChain()
   }
 
   /** Toggle list item. */
@@ -206,6 +324,14 @@ class MillerColumnsElement extends HTMLElement {
     const input = item.querySelector('input[type=checkbox]')
     if (input) {
       input.setAttribute('checked', 'checked')
+    }
+  }
+
+  /** Select a list of items. */
+  selectItems(items: Array<HTMLElement>, index: string) {
+    for (const item of items) {
+      this.selectItem(item)
+      item.dataset.chain = index
     }
   }
 
@@ -238,16 +364,15 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Hides all columns at a higher or equal level with the specified one. */
   hideColumns(level: string) {
-    const millercolumns = this
     const levelInt = parseInt(level)
-    const depth = this.getDepth()
+    const depth = this.depth
     const columnSelectors = []
 
     for (let i = levelInt; i <= depth; i++) {
       columnSelectors.push(`[data-level='${i.toString()}']`)
     }
 
-    const lists = millercolumns.querySelectorAll(columnSelectors.join(', '))
+    const lists = this.querySelectorAll(columnSelectors.join(', '))
     for (const item of lists) {
       item.dataset.collapse = 'true'
       item.classList.add('govuk-miller-columns__column--collapse')
@@ -260,7 +385,7 @@ class MillerColumnsElement extends HTMLElement {
   removeAllChildren(level: string) {
     const millercolumns = this
     const levelInt = parseInt(level)
-    const depth = this.getDepth()
+    const depth = this.depth
     const itemSelectors = []
 
     for (let i = levelInt; i <= depth; i++) {
@@ -281,7 +406,7 @@ class MillerColumnsElement extends HTMLElement {
   animateColumns(column: HTMLElement) {
     const millercolumns = this
     const level = this.getLevel(column)
-    const depth = this.getDepth()
+    const depth = this.depth
 
     if (level >= depth - 1) {
       const selectors = []
@@ -299,7 +424,7 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Reset column width. */
   resetAnimation(level: number) {
-    const depth = this.getDepth()
+    const depth = this.depth
 
     if (level < depth) {
       const allLists = this.getAllColumns()
@@ -307,53 +432,6 @@ class MillerColumnsElement extends HTMLElement {
         list.classList.remove('govuk-miller-columns__column--narrow')
       }
     }
-  }
-
-  // Return the level of an element
-  getItemLevel(item: HTMLElement): string {
-    const column = item.closest('ul')
-    // $FlowFixMe
-    return this.getLevel(column).toString()
-  }
-
-  /** Returns a list of the currently selected items. */
-  getActiveChain(): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${this.dataset.chain}"]`)
-    )
-  }
-
-  /** Returns the index of the active chain item. */
-  getActiveChainIndex(): number {
-    // $FlowFixMe
-    return parseInt(this.dataset.chain)
-  }
-
-  /** Returns a list of items from the same chain. */
-  getChain(chain: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${chain}"]`))
-  }
-
-  /** Returns a list of selected items from a column/level. */
-  getSelectedItems(level: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column[data-level="${level}"] li[data-selected="true"]`)
-    )
-  }
-
-  /** Returns a list of all columns. */
-  getAllColumns(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'))
-  }
-
-  /** Returns the level of a column. */
-  getLevel(column: HTMLElement): number {
-    return parseInt(column.dataset.level)
-  }
-
-  /** Returns the maximum depth of the miller column. */
-  getDepth(): number {
-    return parseInt(this.dataset.depth)
   }
 }
 
@@ -367,7 +445,7 @@ class BreadcrumbsElement extends HTMLElement {
 
   connectedCallback() {
     if (this.millercolumns) {
-      this.millercolumns.loadCheckboxes(this.millercolumns.checkboxes)
+      this.millercolumns.loadCheckboxes(this.millercolumns.selectedCheckboxes)
     }
     this.renderChains()
   }
@@ -384,14 +462,14 @@ class BreadcrumbsElement extends HTMLElement {
 
   get chain(): ?Array<HTMLElement> {
     if (!this.millercolumns) return
-    return this.millercolumns.getActiveChain()
+    return this.millercolumns.activeChain
   }
 
   /** Store active items in a chain array. */
   storeActiveChain() {
     // Store the current chain in a list
     if (this.millercolumns) {
-      const index = this.millercolumns.getActiveChainIndex()
+      const index = this.millercolumns.activeChainIndex
       if (index) {
         chains[index] = this.chain
       }
@@ -426,7 +504,7 @@ class BreadcrumbsElement extends HTMLElement {
   /** Update active items in the current chain. */
   updateActiveChain() {
     if (this.millercolumns) {
-      const index = this.millercolumns.getActiveChainIndex()
+      const index = this.millercolumns.activeChainIndex
 
       // Store the current chain in a list
       chains[index] = this.chain
@@ -500,8 +578,7 @@ class BreadcrumbsElement extends HTMLElement {
     if (Array.isArray(chains[chainIndex])) {
       breadcrumbs.removeStoredChain(chains[chainIndex])
 
-      // chains.splice(chainIndex, 1)
-      chains[chainIndex] = undefined
+      chains.splice(chainIndex, 1)
 
       // If active chain hide revealed columns
       if (chainIndex === chains.length) {
