@@ -11,6 +11,8 @@
     <main class="govuk-main-wrapper">
       <h1 class="govuk-heading-xl">govuk-miller-columns element</h1>
       <p class="govuk-body">Express a hierarchy by showing selectable lists of the items in each hierarchy level.<br/>Selection of any item shows that item’s children in the next list.</p>
+      <h2 class="govuk-heading-m">Selected topics</h2>
+      <govuk-breadcrumbs class="govuk-breadcrumbs" id="selected-items" for="miller-columns"></govuk-breadcrumbs>
       <govuk-miller-columns id="miller-columns" class="govuk-miller-columns" for="taxonomy" breadcrumbs="selected-items">
         <ul id="taxonomy">
           <li>
@@ -8127,8 +8129,6 @@
           </li>
         </ul>
       </govuk-miller-columns>
-      <h2 class="govuk-heading-m">Selected topics</h2>
-      <govuk-breadcrumbs class="govuk-breadcrumbs" for="miller-columns" id="selected-items"></govuk-breadcrumbs>
     </main>
   </div>
   <script src="../dist/index.umd.js"></script>
