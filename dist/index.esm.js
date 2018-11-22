@@ -1,8 +1,4 @@
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -16,143 +12,86 @@ function _CustomElement() {
 Object.setPrototypeOf(_CustomElement.prototype, HTMLElement.prototype);
 Object.setPrototypeOf(_CustomElement, HTMLElement);
 
-var MillerColumnsElement = function (_CustomElement2) {
-  _inherits(MillerColumnsElement, _CustomElement2);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  function MillerColumnsElement() {
-    _classCallCheck(this, MillerColumnsElement);
+function nodesToArray(nodes) {
+  return Array.prototype.slice.call(nodes);
+}
 
-    return _possibleConstructorReturn(this, (MillerColumnsElement.__proto__ || Object.getPrototypeOf(MillerColumnsElement)).call(this));
+var Taxonomy = function () {
+  function Taxonomy(taxons, millerColumns) {
+    _classCallCheck(this, Taxonomy);
+
+    this.taxons = taxons;
+    this.millerColumns = millerColumns;
+    this.active = this.selectedTaxons[0];
   }
 
-  _createClass(MillerColumnsElement, [{
-    key: 'connectedCallback',
-    value: function connectedCallback() {
-      // A nested tree list with all items
-      var list = this.list;
-
-      // Set default values
-      this.dataset.chain = '0';
-      this.dataset.depth = '0';
-      this.dataset.level = '0';
-
-      // Show the columns
-      this.style.display = 'block';
-
-      if (list) {
-        // Store checked inputs
-        var checkboxes = this.checkboxes;
-
-        // Attach click events for list items
-        this.attachClickEvents(list);
-
-        // Load checkbox ids as data-id for list items
-        if (checkboxes) {
-          this.loadIds(checkboxes);
+  _createClass(Taxonomy, [{
+    key: 'toggleSelection',
+    value: function toggleSelection(taxon) {
+      // if this is the active taxon or a parent of it we deselect
+      if (taxon === this.active || taxon.parentOf(this.active)) {
+        taxon.deselect();
+        if (taxon.parent) {
+          taxon.parent.select();
         }
-
-        // Unnest the tree list into columns
-        this.unnest(list);
-      }
-    }
-  }, {
-    key: 'disconnectedCallback',
-    value: function disconnectedCallback() {}
-
-    /** Returns the associated nested list of items. */
-
-  }, {
-    key: 'getItemLevel',
-
-
-    // Return the level of an element
-    value: function getItemLevel(item) {
-      var column = item.closest('ul');
-      var level = '0';
-      if (column instanceof HTMLUListElement) {
-        level = this.getLevel(column).toString();
-      }
-      return level;
-    }
-  }, {
-    key: 'getItemParent',
-    value: function getItemParent(item) {
-      var column = item.closest('ul');
-      // $FlowFixMe
-      var parent = document.querySelector('[data-id="' + column.dataset.parent + '"]');
-      return parent;
-    }
-
-    /** Returns a list of items from the same chain. */
-
-  }, {
-    key: 'getChain',
-    value: function getChain(chain) {
-      return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column li[data-chain="' + chain + '"]'));
-    }
-
-    /** Returns a list of selected items from a column/level. */
-
-  }, {
-    key: 'getSelectedItems',
-    value: function getSelectedItems(level) {
-      return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column[data-level="' + level + '"] li[data-selected="true"]'));
-    }
-
-    /** Returns a list of ancestors for a specified item. */
-
-  }, {
-    key: 'getAncestors',
-    value: function getAncestors(item) {
-      var ancestors = [];
-      // item = this.getItemParent(item)
-      while (item) {
-        if (item instanceof HTMLElement) {
-          ancestors.push(item);
-          item = this.getItemParent(item);
+        this.active = taxon.parent;
+      } else if (taxon.selected || taxon.selectedChildren.length) {
+        // if this is a selected taxon with children we make it active to allow
+        // picking the children
+        if (taxon.children.length) {
+          this.active = taxon;
+        } else {
+          // otherwise we deselect it as we take the click as they can't be
+          // traversing
+          taxon.deselect();
+          if (taxon.parent) {
+            taxon.parent.select();
+          }
+          this.active = taxon.parent;
         }
+      } else {
+        // otherwise this is a new selection
+        taxon.select();
+        this.active = taxon;
       }
-      return ancestors.reverse();
+
+      this.millerColumns.update();
     }
-
-    /** Returns a list of all columns. */
-
   }, {
-    key: 'getAllColumns',
-    value: function getAllColumns() {
-      return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'));
+    key: 'removeTopic',
+    value: function removeTopic(taxon) {
+      taxon.deselect();
+      // determine which topic to mark as active, if any
+      this.active = this.determineActiveFromRemoved(taxon);
+      this.millerColumns.update();
     }
-
-    /** Returns the level of a column. */
-
   }, {
-    key: 'getLevel',
-    value: function getLevel(column) {
-      return parseInt(column.dataset.level);
-    }
+    key: 'determineActiveFromRemoved',
+    value: function determineActiveFromRemoved(taxon) {
+      // if there is already an active item with selected children lets not
+      // change anything
+      if (this.active && (this.active.selected || this.active.selectedChildren.length)) {
+        return this.active;
+      }
 
-    /** Click list items with checkedboxes. */
-
-  }, {
-    key: 'loadCheckboxes',
-    value: function loadCheckboxes(inputs) {
+      // see if there is a parent with selected taxons, that feels like the most
+      // natural place to end up
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = inputs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var input = _step.value;
+        for (var _iterator = taxon.parents.reverse()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var parent = _step.value;
 
-          var li = input.closest('li');
-          if (li instanceof HTMLLIElement) {
-            li.dispatchEvent(new MouseEvent('click'));
-            if (this.breadcrumbs) {
-              this.breadcrumbs.storeActiveChain();
-              this.dataset.chain = (chains.length + 1).toString();
-            }
+          if (parent.selectedChildren.length) {
+            return parent;
           }
         }
+
+        // if we've still not got one we'll go for the first selected one
       } catch (err) {
         _didIteratorError = true;
         _iteratorError = err;
@@ -167,25 +106,52 @@ var MillerColumnsElement = function (_CustomElement2) {
           }
         }
       }
+
+      return this.selectedTaxons[0];
     }
-
-    /** Load checkboxes ids to list items so we can use them determine ancestors. */
-
   }, {
-    key: 'loadIds',
-    value: function loadIds(inputs) {
+    key: 'selectedTaxons',
+    get: function get() {
+      return this.taxons.reduce(function (memo, taxon) {
+        if (taxon.selected) {
+          memo.push(taxon);
+        }
+
+        return memo.concat(taxon.selectedChildren);
+      }, []);
+    }
+  }]);
+
+  return Taxonomy;
+}();
+
+var Taxon = function () {
+  _createClass(Taxon, null, [{
+    key: 'fromList',
+    value: function fromList(list) {
+      var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      var taxons = [];
+      if (!list) {
+        return taxons;
+      }
+
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = inputs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var input = _step2.value;
+        for (var _iterator2 = list.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var item = _step2.value;
 
-          var li = input.closest('li');
-          if (li instanceof HTMLLIElement) {
-            li.dataset.id = input.id;
-            li.classList.add('govuk-miller-columns__item');
+          var label = item.querySelector('label');
+          var checkbox = item.querySelector('input');
+          if (label instanceof HTMLLabelElement && checkbox instanceof HTMLInputElement) {
+            var childList = item.querySelector('ul');
+            childList = childList instanceof HTMLUListElement ? childList : null;
+
+            var taxon = new Taxon(label, checkbox, childList, parent);
+            taxons.push(taxon);
           }
         }
       } catch (err) {
@@ -202,256 +168,219 @@ var MillerColumnsElement = function (_CustomElement2) {
           }
         }
       }
+
+      return taxons;
     }
+  }]);
 
-    /** Convert nested lists into columns using breadth-first traversal. */
+  function Taxon(label, checkbox, childList, parent) {
+    _classCallCheck(this, Taxon);
 
-  }, {
-    key: 'unnest',
-    value: function unnest(root) {
-      var millercolumns = this;
+    this.label = label;
+    this.checkbox = checkbox;
+    this.parent = parent;
+    this.children = Taxon.fromList(childList, this);
 
-      var queue = [];
-      var node = void 0;
-      var listItems = void 0;
-      var depth = 1;
+    if (!this.children.length && this.checkbox.checked) {
+      this.selected = true;
+      if (this.parent) {
+        this.parent.childWasSelected();
+      }
+    }
+  }
 
-      // Push the root unordered list item into the queue.
-      root.className = 'govuk-miller-columns__column';
-      root.dataset.level = '1';
-      queue.push(root);
-
-      while (queue.length) {
-        node = queue.shift();
-
-        if (node.children) {
-          listItems = node.children;
-
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-
-          try {
-            for (var _iterator3 = listItems[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var listItem = _step3.value;
-
-              var descendants = listItem.querySelector('ul');
-              var ancestor = listItem;
-
-              if (descendants) {
-                // Store level and depth.
-                var level = parseInt(node.dataset.level) + 1;
-                descendants.dataset.level = level.toString();
-                if (level > depth) depth = level;
-
-                queue.push(descendants);
-
-                if (ancestor) {
-                  // Mark list items with descendants as parents.
-                  ancestor.dataset.parent = 'true';
-                  ancestor.classList.add('govuk-miller-columns__item--parent');
-
-                  // Expand the descendants list on click.
-                  var fn = this.toggleColumn.bind(null, this, ancestor, descendants);
-                  ancestor.addEventListener('click', fn, false);
-
-                  // Attach event listeners.
-                  var keys = [' ', 'Enter'];
-                  ancestor.addEventListener('keydown', this.keydown(fn, keys), false);
-                }
-
-                // Hide columns.
-                descendants.dataset.collapse = 'true';
-                descendants.dataset.parent = ancestor.dataset.id;
-                descendants.className = 'govuk-miller-columns__column govuk-miller-columns__column--collapse';
-                // Causes item siblings to have a flattened DOM lineage.
-                millercolumns.insertAdjacentElement('beforeend', descendants);
-              }
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-        }
+  _createClass(Taxon, [{
+    key: 'parentOf',
+    value: function parentOf(other) {
+      if (!other) {
+        return false;
       }
 
-      this.dataset.depth = depth.toString();
-    }
-
-    /** Attach click events for list items. */
-
-  }, {
-    key: 'attachClickEvents',
-    value: function attachClickEvents(root) {
-      var items = root.querySelectorAll('li');
-
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
-
-      try {
-        for (var _iterator4 = items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var item = _step4.value;
-
-          var fn = this.clickItem.bind(null, this, item);
-          item.addEventListener('click', fn, false);
-
-          var keys = [' ', 'Enter'];
-          item.addEventListener('keydown', this.keydown(fn, keys));
-
-          item.tabIndex = 0;
+      return this.children.reduce(function (memo, taxon) {
+        if (memo) {
+          return true;
         }
-      } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
-      } finally {
+
+        return taxon === other || taxon.parentOf(other);
+      }, false);
+    }
+  }, {
+    key: 'withParents',
+    value: function withParents() {
+      return this.parents.concat([this]);
+    }
+  }, {
+    key: 'select',
+    value: function select() {
+      // if already selected or a child is selected do nothing
+      if (this.selected || this.selectedChildren.length) {
+        return;
+      }
+      this.selected = true;
+      this.checkbox.checked = true;
+      if (this.parent) {
+        this.parent.childWasSelected();
+      }
+    }
+  }, {
+    key: 'deselect',
+    value: function deselect() {
+      if (this.selected) {
+        var deepestFirst = this.withParents().reverse();
+
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
+
         try {
-          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-            _iterator4.return();
+          for (var _iterator3 = deepestFirst[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var taxon = _step3.value;
+
+            // if the parent has selected children it should remain ticked
+            if (taxon.selectedChildren.length) {
+              break;
+            } else {
+              taxon.selected = false;
+              taxon.checkbox.checked = false;
+            }
           }
+        } catch (err) {
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
         } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
+          try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+              _iterator3.return();
+            }
+          } finally {
+            if (_didIteratorError3) {
+              throw _iteratorError3;
+            }
+          }
+        }
+
+        return;
+      }
+
+      var selectedChildren = this.selectedChildren;
+      if (selectedChildren.length) {
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+          for (var _iterator4 = selectedChildren[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var child = _step4.value;
+
+            child.deselect();
+          }
+        } catch (err) {
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+              _iterator4.return();
+            }
+          } finally {
+            if (_didIteratorError4) {
+              throw _iteratorError4;
+            }
           }
         }
       }
     }
-
-    /** Attach key events for lists. */
-
   }, {
-    key: 'keydown',
-    value: function keydown(fn, keys) {
-      return function (event) {
-        if (keys.indexOf(event.key) >= 0) {
-          event.preventDefault();
-          fn(event);
-        }
-      };
+    key: 'childWasSelected',
+    value: function childWasSelected() {
+      // we need each checkbox to be selected for the UI
+      this.checkbox.checked = true;
+      this.selected = false;
+      if (this.parent) {
+        this.parent.childWasSelected();
+      }
     }
-
-    /** Click list item. */
-
   }, {
-    key: 'clickItem',
-    value: function clickItem(millercolumns, item) {
-      // Set the current level
-      var currentLevel = millercolumns.getItemLevel(item);
-      var previousLevel = millercolumns.dataset.level;
-
-      // Determine existing selections on the column
-      var selectedItems = millercolumns.getSelectedItems(currentLevel);
-
-      millercolumns.dataset.level = currentLevel;
-
-      if (!(millercolumns.breadcrumbs instanceof BreadcrumbsElement)) return;
-
-      // If selecting an upper level or a new item on the same level
-      // and not selected nor stored we start a new chain
-      if ((currentLevel < previousLevel || selectedItems.length > 0) && item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-        // Store active chain
-        millercolumns.breadcrumbs.storeActiveChain();
-        // Increment chain index
-        millercolumns.dataset.chain = chains.length.toString();
-        // Default item click
-        item.dataset.chain = millercolumns.dataset.chain;
-        // Retrieve ancestors
-        var ancestors = millercolumns.getAncestors(item);
-        if (ancestors) {
-          millercolumns.selectItems(ancestors, item.dataset.chain);
+    key: 'selectedChildren',
+    get: function get() {
+      return this.children.reduce(function (memo, taxon) {
+        var selected = taxon.selectedChildren;
+        if (taxon.selected) {
+          selected.push(taxon);
         }
-
-        if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-          millercolumns.toggleItem(item);
-        }
-      } else if (item.dataset.stored === 'true') {
-        // If click on a stored item we swap the active chain and not toggle
-        millercolumns.breadcrumbs.storeActiveChain();
-        // Make stored chain active
-        millercolumns.dataset.chain = item.dataset.chain;
-        // $FlowFixMe
-        millercolumns.breadcrumbs.swapActiveChain();
-        // Retrieve ancestors
-        var _ancestors = millercolumns.getAncestors(item);
-        if (_ancestors) {
-          millercolumns.selectItems(_ancestors, item.dataset.chain);
-        }
+        return memo.concat(selected);
+      }, []);
+    }
+  }, {
+    key: 'parents',
+    get: function get() {
+      if (this.parent) {
+        return this.parent.parents.concat([this.parent]);
       } else {
-        // Default item click
-        item.dataset.chain = millercolumns.dataset.chain;
+        return [];
+      }
+    }
+  }]);
 
-        if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-          // If not selected nor stored retrieve ancestors and select
-          var _ancestors2 = millercolumns.getAncestors(item);
-          if (_ancestors2) {
-            millercolumns.selectItems(_ancestors2, item.dataset.chain);
-          }
-        } else {
-          // If selected toggle to remove
-          millercolumns.toggleItem(item);
+  return Taxon;
+}();
+
+var MillerColumnsElement = function (_CustomElement2) {
+  _inherits(MillerColumnsElement, _CustomElement2);
+
+  function MillerColumnsElement() {
+    _classCallCheck(this, MillerColumnsElement);
+
+    var _this = _possibleConstructorReturn(this, (MillerColumnsElement.__proto__ || Object.getPrototypeOf(MillerColumnsElement)).call(this));
+
+    _this.classNames = {
+      column: 'govuk-miller-columns__column',
+      columnCollapse: 'govuk-miller-columns__column--collapse',
+      columnNarrow: 'govuk-miller-columns__column--narrow',
+      item: 'govuk-miller-columns__item',
+      itemParent: 'govuk-miller-columns__item--parent',
+      itemSelected: 'govuk-miller-columns__item--selected',
+      itemStored: 'govuk-miller-columns__item--stored'
+    };
+    return _this;
+  }
+
+  _createClass(MillerColumnsElement, [{
+    key: 'connectedCallback',
+    value: function connectedCallback() {
+      var source = document.getElementById(this.getAttribute('for') || '');
+      if (source) {
+        this.taxonomy = new Taxonomy(Taxon.fromList(source), this);
+        this.renderTaxonomyColumn(this.taxonomy.taxons, true);
+        this.update();
+        if (source.parentNode) {
+          source.parentNode.removeChild(source);
         }
+        this.style.display = 'block';
       }
-
-      // If not a parent hide residual descendants list
-      if (item.dataset.parent !== 'true') {
-        millercolumns.hideColumns((parseInt(currentLevel) + 1).toString());
-      }
-
-      // Update active chain to reflect selection
-      millercolumns.breadcrumbs.updateActiveChain();
     }
-
-    /** Toggle list item. */
-
   }, {
-    key: 'toggleItem',
-    value: function toggleItem(item) {
-      if (item.dataset.selected === 'true') {
-        this.deselectItem(item);
+    key: 'renderTaxonomyColumn',
+    value: function renderTaxonomyColumn(taxons) {
+      var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+      var ul = document.createElement('ul');
+      ul.className = this.classNames.column;
+      if (root) {
+        ul.dataset.root = 'true';
       } else {
-        this.selectItem(item);
+        ul.classList.add(this.classNames.columnCollapse);
       }
-    }
-
-    /** Select list item. */
-
-  }, {
-    key: 'selectItem',
-    value: function selectItem(item) {
-      item.dataset.selected = 'true';
-      item.classList.add('govuk-miller-columns__item--selected');
-
-      var input = item.querySelector('input[type=checkbox]');
-      if (input) {
-        input.setAttribute('checked', 'checked');
-      }
-    }
-
-    /** Select a list of items. */
-
-  }, {
-    key: 'selectItems',
-    value: function selectItems(items, index) {
+      this.appendChild(ul);
       var _iteratorNormalCompletion5 = true;
       var _didIteratorError5 = false;
       var _iteratorError5 = undefined;
 
       try {
-        for (var _iterator5 = items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var item = _step5.value;
+        for (var _iterator5 = taxons[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var taxon = _step5.value;
 
-          this.selectItem(item);
-          item.dataset.chain = index;
+          this.renderTaxon(taxon, ul);
         }
       } catch (err) {
         _didIteratorError5 = true;
@@ -468,64 +397,64 @@ var MillerColumnsElement = function (_CustomElement2) {
         }
       }
     }
-
-    /** Remove list item selection. */
-
   }, {
-    key: 'deselectItem',
-    value: function deselectItem(item) {
-      item.dataset.selected = 'false';
-      item.dataset.stored = 'false';
-      item.removeAttribute('data-chain');
-      item.classList.remove('govuk-miller-columns__item--selected');
-      item.classList.remove('govuk-miller-columns__item--stored');
-
-      var input = item.querySelector('input[type=checkbox]');
-      if (input) {
-        input.removeAttribute('checked');
+    key: 'renderTaxon',
+    value: function renderTaxon(taxon, list) {
+      var li = document.createElement('li');
+      li.classList.add(this.classNames.item);
+      var div = document.createElement('div');
+      div.className = 'govuk-checkboxes__item';
+      div.appendChild(taxon.checkbox);
+      div.appendChild(taxon.label);
+      li.appendChild(div);
+      list.appendChild(li);
+      this.attachEvents(li, taxon);
+      if (taxon.children.length) {
+        li.classList.add(this.classNames.itemParent);
+        this.renderTaxonomyColumn(taxon.children);
       }
     }
-
-    /** Reveal the column associated with a parent item. */
-
   }, {
-    key: 'toggleColumn',
-    value: function toggleColumn(millercolumns, item, column) {
-      millercolumns.hideColumns(column.dataset.level);
-      if (item.dataset.selected === 'true' || item.dataset.stored === 'true') {
-        column.dataset.collapse = 'false';
-        column.classList.remove('govuk-miller-columns__column--collapse');
-        millercolumns.animateColumns(column);
-      } else {
-        // Ensure children are removed
-        millercolumns.removeAllChildren(column.dataset.level);
+    key: 'attachEvents',
+    value: function attachEvents(trigger, taxon) {
+      trigger.tabIndex = 0;
+      var fn = this.selectTaxon.bind(this, taxon);
+      trigger.addEventListener('click', fn, false);
+    }
+  }, {
+    key: 'selectTaxon',
+    value: function selectTaxon(taxon) {
+      this.taxonomy.toggleSelection(taxon);
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.showStoredTaxons(this.taxonomy.selectedTaxons);
+      this.showActiveTaxon(this.taxonomy.active);
+
+      if (this.breadcrumbs) {
+        this.breadcrumbs.update(this.taxonomy);
       }
     }
-
-    /** Hides all columns at a higher or equal level with the specified one. */
-
   }, {
-    key: 'hideColumns',
-    value: function hideColumns(level) {
-      var levelInt = parseInt(level);
-      var depth = this.depth;
-      var columnSelectors = [];
+    key: 'showStoredTaxons',
+    value: function showStoredTaxons(taxons) {
+      var storedItems = this.itemsForStoredTaxons(taxons);
+      var currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored));
 
-      for (var i = levelInt; i <= depth; i++) {
-        columnSelectors.push('[data-level=\'' + i.toString() + '\']');
-      }
-
-      var lists = this.querySelectorAll(columnSelectors.join(', '));
       var _iteratorNormalCompletion6 = true;
       var _didIteratorError6 = false;
       var _iteratorError6 = undefined;
 
       try {
-        for (var _iterator6 = lists[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+        for (var _iterator6 = currentlyStored.concat(storedItems)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
           var item = _step6.value;
 
-          item.dataset.collapse = 'true';
-          item.classList.add('govuk-miller-columns__column--collapse');
+          if (storedItems.indexOf(item) !== -1) {
+            item.classList.add(this.classNames.itemStored);
+          } else {
+            item.classList.remove(this.classNames.itemStored);
+          }
         }
       } catch (err) {
         _didIteratorError6 = true;
@@ -541,34 +470,30 @@ var MillerColumnsElement = function (_CustomElement2) {
           }
         }
       }
-
-      this.resetAnimation(levelInt);
     }
-
-    /** Remove selections at a higher or equal level with the specified one. */
-
   }, {
-    key: 'removeAllChildren',
-    value: function removeAllChildren(level) {
-      var millercolumns = this;
-      var levelInt = parseInt(level);
-      var depth = this.depth;
-      var itemSelectors = [];
+    key: 'showActiveTaxon',
+    value: function showActiveTaxon(taxon) {
+      var activeItems = this.itemsForActiveTaxon(taxon);
+      var currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected));
 
-      for (var i = levelInt; i <= depth; i++) {
-        itemSelectors.push('[data-level=\'' + i.toString() + '\'] li');
-      }
-
-      var items = millercolumns.querySelectorAll(itemSelectors.join(', '));
       var _iteratorNormalCompletion7 = true;
       var _didIteratorError7 = false;
       var _iteratorError7 = undefined;
 
       try {
-        for (var _iterator7 = items[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+        for (var _iterator7 = currentlyActive.concat(activeItems)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
           var item = _step7.value;
 
-          millercolumns.deselectItem(item);
+          if (!item) {
+            continue;
+          }
+
+          if (activeItems.indexOf(item) !== -1) {
+            item.classList.add(this.classNames.itemSelected);
+          } else {
+            item.classList.remove(this.classNames.itemSelected);
+          }
         }
       } catch (err) {
         _didIteratorError7 = true;
@@ -585,73 +510,68 @@ var MillerColumnsElement = function (_CustomElement2) {
         }
       }
 
-      if (millercolumns.breadcrumbs) {
-        millercolumns.breadcrumbs.updateActiveChain();
-      }
-    }
+      var allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column));
+      var columnsToShow = this.columnsForActiveTaxon(taxon);
 
-    /** Ensure the viewport shows the entire newly expanded item. */
+      var _iteratorNormalCompletion8 = true;
+      var _didIteratorError8 = false;
+      var _iteratorError8 = undefined;
 
-  }, {
-    key: 'animateColumns',
-    value: function animateColumns(column) {
-      var millercolumns = this;
-      var level = this.getLevel(column);
-      var depth = this.depth;
+      try {
+        for (var _iterator8 = allColumns[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+          var _item = _step8.value;
 
-      if (level >= depth - 1) {
-        var selectors = [];
-
-        for (var i = 1; i < level; i++) {
-          selectors.push('[data-level=\'' + i.toString() + '\']');
+          // we always want to show the root column
+          if (_item.dataset.root === 'true') {
+            continue;
+          }
+          if (columnsToShow.indexOf(_item) !== -1) {
+            _item.classList.remove(this.classNames.columnCollapse);
+          } else {
+            _item.classList.add(this.classNames.columnCollapse);
+          }
         }
-
-        var lists = millercolumns.querySelectorAll(selectors.join(', '));
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
-
+      } catch (err) {
+        _didIteratorError8 = true;
+        _iteratorError8 = err;
+      } finally {
         try {
-          for (var _iterator8 = lists[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var item = _step8.value;
-
-            item.classList.add('govuk-miller-columns__column--narrow');
+          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+            _iterator8.return();
           }
-        } catch (err) {
-          _didIteratorError8 = true;
-          _iteratorError8 = err;
         } finally {
-          try {
-            if (!_iteratorNormalCompletion8 && _iterator8.return) {
-              _iterator8.return();
-            }
-          } finally {
-            if (_didIteratorError8) {
-              throw _iteratorError8;
-            }
+          if (_didIteratorError8) {
+            throw _iteratorError8;
           }
         }
       }
-    }
 
-    /** Reset column width. */
+      if (columnsToShow.length > 3) {
+        // make all but the last column narrow
+        for (var index = 0; index < columnsToShow.length; index++) {
+          var col = columnsToShow[index];
 
-  }, {
-    key: 'resetAnimation',
-    value: function resetAnimation(level) {
-      var depth = this.depth;
+          if (!col) {
+            continue;
+          }
 
-      if (level < depth) {
-        var allLists = this.getAllColumns();
+          if (index === columnsToShow.length - 1) {
+            col.classList.remove(this.classNames.columnNarrow);
+          } else {
+            col.classList.add(this.classNames.columnNarrow);
+          }
+        }
+      } else {
+        // make sure none of the columns are narrow
         var _iteratorNormalCompletion9 = true;
         var _didIteratorError9 = false;
         var _iteratorError9 = undefined;
 
         try {
-          for (var _iterator9 = allLists[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-            var list = _step9.value;
+          for (var _iterator9 = allColumns[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var _col = _step9.value;
 
-            list.classList.remove('govuk-miller-columns__column--narrow');
+            _col.classList.remove(this.classNames.columnNarrow);
           }
         } catch (err) {
           _didIteratorError9 = true;
@@ -670,124 +590,37 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
     }
   }, {
-    key: 'list',
-    get: function get() {
-      var id = this.getAttribute('for');
-      if (!id) return;
-      var list = document.getElementById(id);
-      return list instanceof HTMLUListElement ? list : null;
-    }
+    key: 'itemsForActiveTaxon',
+    value: function itemsForActiveTaxon(taxon) {
+      var _this2 = this;
 
-    /** Returns the associated breadcrumbs element. */
-
-  }, {
-    key: 'breadcrumbs',
-    get: function get() {
-      var id = this.getAttribute('breadcrumbs');
-      if (!id) return;
-      var breadcrumbs = document.getElementById(id);
-      return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null;
-    }
-
-    /** Returns a list of all selected checkboxes for initialisation. */
-
-  }, {
-    key: 'selectedCheckboxes',
-    get: function get() {
-      return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]:checked'));
-    }
-
-    /** Returns a list of all checkboxes. */
-
-  }, {
-    key: 'checkboxes',
-    get: function get() {
-      return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]'));
-    }
-
-    /** Returns a list of the currently selected items. */
-
-  }, {
-    key: 'activeChain',
-    get: function get() {
-      return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column li[data-chain="' + this.dataset.chain + '"]'));
-    }
-
-    /** Returns the index of the active chain item. */
-
-  }, {
-    key: 'activeChainIndex',
-    get: function get() {
-      // $FlowFixMe
-      return parseInt(this.dataset.chain);
-    }
-
-    /** Returns the maximum depth of the miller column. */
-
-  }, {
-    key: 'depth',
-    get: function get() {
-      return parseInt(this.dataset.depth);
-    }
-  }]);
-
-  return MillerColumnsElement;
-}(_CustomElement);
-
-// A list of selected chains
-
-
-var chains = [];
-
-var BreadcrumbsElement = function (_CustomElement3) {
-  _inherits(BreadcrumbsElement, _CustomElement3);
-
-  function BreadcrumbsElement() {
-    _classCallCheck(this, BreadcrumbsElement);
-
-    return _possibleConstructorReturn(this, (BreadcrumbsElement.__proto__ || Object.getPrototypeOf(BreadcrumbsElement)).call(this));
-  }
-
-  _createClass(BreadcrumbsElement, [{
-    key: 'connectedCallback',
-    value: function connectedCallback() {
-      if (this.millercolumns) {
-        this.millercolumns.loadCheckboxes(this.millercolumns.selectedCheckboxes);
-      }
-      this.renderChains();
-    }
-  }, {
-    key: 'disconnectedCallback',
-    value: function disconnectedCallback() {}
-  }, {
-    key: 'storeActiveChain',
-
-
-    /** Store active items in a chain array. */
-    value: function storeActiveChain() {
-      // Store the current chain in a list
-      if (this.millercolumns) {
-        var index = this.millercolumns.activeChainIndex;
-        if (index && this.chain) {
-          chains[index] = this.chain;
-        }
+      if (!taxon) {
+        return [];
       }
 
-      // Convert selected items to stored items
-      if (Array.isArray(this.chain)) {
+      return taxon.withParents().reduce(function (memo, taxon) {
+        var item = taxon.checkbox.closest('.' + _this2.classNames.item);
+        return memo.concat([item]);
+      }, []);
+    }
+  }, {
+    key: 'itemsForStoredTaxons',
+    value: function itemsForStoredTaxons(taxons) {
+      var _this3 = this;
+
+      return taxons.reduce(function (memo, child) {
         var _iteratorNormalCompletion10 = true;
         var _didIteratorError10 = false;
         var _iteratorError10 = undefined;
 
         try {
-          for (var _iterator10 = this.chain[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-            var item = _step10.value;
+          for (var _iterator10 = child.withParents()[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+            var taxon = _step10.value;
 
-            item.dataset.selected = 'false';
-            item.classList.remove('govuk-miller-columns__item--selected');
-
-            item.dataset.stored = 'true';
-            item.classList.add('govuk-miller-columns__item--stored');
+            var item = taxon.checkbox.closest('.' + _this3.classNames.item);
+            if (item instanceof HTMLElement) {
+              memo.push(item);
+            }
           }
         } catch (err) {
           _didIteratorError10 = true;
@@ -803,29 +636,78 @@ var BreadcrumbsElement = function (_CustomElement3) {
             }
           }
         }
+
+        return memo;
+      }, []);
+    }
+  }, {
+    key: 'columnsForActiveTaxon',
+    value: function columnsForActiveTaxon(taxon) {
+      if (!taxon) {
+        return [];
+      }
+
+      var columnSelector = '.' + this.classNames.column;
+      var columns = taxon.withParents().reduce(function (memo, taxon) {
+        var column = taxon.checkbox.closest(columnSelector);
+        return memo.concat([column]);
+      }, []);
+
+      // we'll want to show the next column too
+      if (taxon.children.length) {
+        columns.push(taxon.children[0].checkbox.closest(columnSelector));
+      }
+      return columns;
+    }
+  }, {
+    key: 'breadcrumbs',
+    get: function get() {
+      var breadcrumbs = document.getElementById(this.getAttribute('breadcrumbs') || '');
+      return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null;
+    }
+  }]);
+
+  return MillerColumnsElement;
+}(_CustomElement);
+
+var BreadcrumbsElement = function (_CustomElement3) {
+  _inherits(BreadcrumbsElement, _CustomElement3);
+
+  function BreadcrumbsElement() {
+    _classCallCheck(this, BreadcrumbsElement);
+
+    return _possibleConstructorReturn(this, (BreadcrumbsElement.__proto__ || Object.getPrototypeOf(BreadcrumbsElement)).call(this));
+  }
+
+  _createClass(BreadcrumbsElement, [{
+    key: 'connectedCallback',
+    value: function connectedCallback() {
+      this.list = document.createElement('ol');
+      this.list.className = 'govuk-breadcrumbs__list';
+      this.appendChild(this.list);
+      if (this.millerColumns && this.millerColumns.taxonomy) {
+        this.update(this.millerColumns.taxonomy);
       }
     }
-
-    /** Swap selected items with stored items in a chain array. */
-
   }, {
-    key: 'swapActiveChain',
-    value: function swapActiveChain() {
-      // Convert stored items into selected items
-      if (Array.isArray(this.chain)) {
+    key: 'update',
+    value: function update(taxonomy) {
+      this.taxonomy = taxonomy;
+      var selectedTaxons = taxonomy.selectedTaxons;
+      while (this.list.lastChild) {
+        this.list.removeChild(this.list.lastChild);
+      }
+
+      if (selectedTaxons.length) {
         var _iteratorNormalCompletion11 = true;
         var _didIteratorError11 = false;
         var _iteratorError11 = undefined;
 
         try {
-          for (var _iterator11 = this.chain[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-            var item = _step11.value;
+          for (var _iterator11 = selectedTaxons[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var taxon = _step11.value;
 
-            item.dataset.selected = 'true';
-            item.classList.add('govuk-miller-columns__item--selected');
-
-            item.dataset.stored = 'false';
-            item.classList.remove('govuk-miller-columns__item--stored');
+            this.addSelectedTaxon(taxon);
           }
         } catch (err) {
           _didIteratorError11 = true;
@@ -841,208 +723,77 @@ var BreadcrumbsElement = function (_CustomElement3) {
             }
           }
         }
-      }
-    }
-
-    /** Update active items in the current chain. */
-
-  }, {
-    key: 'updateActiveChain',
-    value: function updateActiveChain() {
-      if (this.millercolumns) {
-        var index = this.millercolumns.activeChainIndex;
-
-        // Store the current chain in a list
-        if (this.chain) {
-          chains[index] = this.chain;
-        }
-
-        // If empty chain remove it from the array
-        // $FlowFixMe
-        if (chains[index].length === 0) {
-          this.removeChain(this, index);
-        }
-      }
-
-      this.renderChains();
-    }
-
-    /** Update the breadcrumbs element. */
-
-  }, {
-    key: 'renderChains',
-    value: function renderChains() {
-      if (chains.length) {
-        this.innerHTML = '';
-        var _iteratorNormalCompletion12 = true;
-        var _didIteratorError12 = false;
-        var _iteratorError12 = undefined;
-
-        try {
-          for (var _iterator12 = chains.entries()[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-            var _step12$value = _slicedToArray(_step12.value, 2),
-                index = _step12$value[0],
-                chainItem = _step12$value[1];
-
-            // $FlowFixMe
-            if (chainItem && chainItem.length) {
-              // $FlowFixMe
-              this.addChain(chainItem, index);
-            }
-          }
-        } catch (err) {
-          _didIteratorError12 = true;
-          _iteratorError12 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion12 && _iterator12.return) {
-              _iterator12.return();
-            }
-          } finally {
-            if (_didIteratorError12) {
-              throw _iteratorError12;
-            }
-          }
-        }
       } else {
-        this.innerHTML = '\n      <ol class="govuk-breadcrumbs__list">\n        <li class="govuk-breadcrumbs__list-item">No selected topics</li>\n      </ol>';
+        var li = document.createElement('li');
+        li.className = 'govuk-breadcrumbs__list-item';
+        li.textContent = 'No selected topics';
+        this.list.appendChild(li);
       }
     }
-
-    /** Add a breadcrumbs. */
-
   }, {
-    key: 'addChain',
-    value: function addChain(chain, index) {
-      var chainElement = document.createElement('ol');
-      chainElement.classList.add('govuk-breadcrumbs__list');
-      chainElement.dataset.chain = index.toString();
-      this.updateChain(chainElement, chain);
-
-      // Add a remove link to the chainElement
-      var removeButton = document.createElement('button');
-      removeButton.dataset.chain = index.toString();
-      removeButton.classList.add('govuk-link');
-      removeButton.innerHTML = 'Remove topic';
-      var fn = this.removeChain.bind(null, this, index);
-      removeButton.addEventListener('click', fn, false);
-
-      chainElement.appendChild(removeButton);
-
-      this.appendChild(chainElement);
+    key: 'addSelectedTaxon',
+    value: function addSelectedTaxon(taxon) {
+      var li = document.createElement('li');
+      li.className = 'govuk-breadcrumbs__list-item';
+      li.appendChild(this.breadcrumbsElement(taxon));
+      li.appendChild(this.removeTopicElement(taxon));
+      this.list.appendChild(li);
     }
-
-    /** Update a breadcrumbs. */
-
   }, {
-    key: 'updateChain',
-    value: function updateChain(chainElement, chain) {
-      chainElement.innerHTML = '';
-      var _iteratorNormalCompletion13 = true;
-      var _didIteratorError13 = false;
-      var _iteratorError13 = undefined;
+    key: 'breadcrumbsElement',
+    value: function breadcrumbsElement(taxon) {
+      var ol = document.createElement('ol');
+      ol.className = 'govuk-breadcrumbs__breadcrumbs';
+      var _iteratorNormalCompletion12 = true;
+      var _didIteratorError12 = false;
+      var _iteratorError12 = undefined;
 
       try {
-        for (var _iterator13 = chain[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-          var item = _step13.value;
+        for (var _iterator12 = taxon.withParents()[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+          var current = _step12.value;
 
-          var breadcrumb = document.createElement('li');
-
-          var label = item.querySelector('label');
-          if (label) {
-            breadcrumb.innerHTML = label.innerHTML;
-          } else {
-            breadcrumb.innerHTML = item.innerHTML;
-          }
-
-          breadcrumb.classList.add('govuk-breadcrumbs__list-item');
-          chainElement.appendChild(breadcrumb);
+          var li = document.createElement('li');
+          li.className = 'govuk-breadcrumbs__breadcrumbs-item';
+          li.textContent = current.label.textContent;
+          ol.appendChild(li);
         }
       } catch (err) {
-        _didIteratorError13 = true;
-        _iteratorError13 = err;
+        _didIteratorError12 = true;
+        _iteratorError12 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion13 && _iterator13.return) {
-            _iterator13.return();
+          if (!_iteratorNormalCompletion12 && _iterator12.return) {
+            _iterator12.return();
           }
         } finally {
-          if (_didIteratorError13) {
-            throw _iteratorError13;
+          if (_didIteratorError12) {
+            throw _iteratorError12;
           }
         }
       }
-    }
 
-    /** Remove a breadcrumbs. */
-
-  }, {
-    key: 'removeChain',
-    value: function removeChain(breadcrumbs, chainIndex) {
-      if (Array.isArray(chains[chainIndex])) {
-        breadcrumbs.removeStoredChain(chains[chainIndex]);
-
-        chains.splice(chainIndex, 1);
-
-        // If active chain hide revealed columns
-        if (chainIndex === chains.length) {
-          if (breadcrumbs.millercolumns) {
-            breadcrumbs.millercolumns.hideColumns('2');
-          }
-        }
-
-        breadcrumbs.renderChains();
-      }
-    }
-
-    /** Remove a chain of stored items from the Miller Columns. */
-
-  }, {
-    key: 'removeStoredChain',
-    value: function removeStoredChain(chain) {
-      var _iteratorNormalCompletion14 = true;
-      var _didIteratorError14 = false;
-      var _iteratorError14 = undefined;
-
-      try {
-        for (var _iterator14 = chain[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-          var item = _step14.value;
-
-          if (this.millercolumns) {
-            this.millercolumns.deselectItem(item);
-            item.dataset.stored = 'false';
-            item.classList.remove('govuk-miller-columns__item--stored');
-          }
-        }
-      } catch (err) {
-        _didIteratorError14 = true;
-        _iteratorError14 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion14 && _iterator14.return) {
-            _iterator14.return();
-          }
-        } finally {
-          if (_didIteratorError14) {
-            throw _iteratorError14;
-          }
-        }
-      }
+      return ol;
     }
   }, {
-    key: 'millercolumns',
+    key: 'removeTopicElement',
+    value: function removeTopicElement(taxon) {
+      var _this5 = this;
+
+      var button = document.createElement('button');
+      button.className = 'govuk-breadcrumbs__remove-topic';
+      button.textContent = 'Remove topic';
+      button.addEventListener('click', function () {
+        if (_this5.taxonomy) {
+          _this5.taxonomy.removeTopic(taxon);
+        }
+      });
+      return button;
+    }
+  }, {
+    key: 'millerColumns',
     get: function get() {
-      var id = this.getAttribute('for');
-      if (!id) return;
-      var millercolumns = document.getElementById(id);
-      if (!(millercolumns instanceof MillerColumnsElement)) return;
-      return millercolumns instanceof MillerColumnsElement ? millercolumns : null;
-    }
-  }, {
-    key: 'chain',
-    get: function get() {
-      if (!this.millercolumns) return;
-      return this.millercolumns.activeChain;
+      var millerColumns = document.getElementById(this.getAttribute('for') || '');
+      return millerColumns instanceof MillerColumnsElement ? millerColumns : null;
     }
   }]);
 
