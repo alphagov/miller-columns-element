@@ -810,4 +810,4 @@ if (!window.customElements.get('govuk-breadcrumbs')) {
   window.customElements.define('govuk-breadcrumbs', BreadcrumbsElement);
 }
 
-export default MillerColumnsElement;
+export { MillerColumnsElement, BreadcrumbsElement };

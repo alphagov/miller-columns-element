@@ -869,5 +869,6 @@
     window.customElements.define('govuk-breadcrumbs', BreadcrumbsElement);
   }
 
-  exports.default = MillerColumnsElement;
+  exports.MillerColumnsElement = MillerColumnsElement;
+  exports.BreadcrumbsElement = BreadcrumbsElement;
 });
