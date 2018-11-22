@@ -19,71 +19,71 @@ function nodesToArray(nodes) {
 }
 
 var Taxonomy = function () {
-  function Taxonomy(taxons, millerColumns) {
+  function Taxonomy(topics, millerColumns) {
     _classCallCheck(this, Taxonomy);
 
-    this.taxons = taxons;
+    this.topics = topics;
     this.millerColumns = millerColumns;
-    this.active = this.selectedTaxons[0];
+    this.active = this.selectedTopics[0];
   }
 
   _createClass(Taxonomy, [{
     key: 'toggleSelection',
-    value: function toggleSelection(taxon) {
-      // if this is the active taxon or a parent of it we deselect
-      if (taxon === this.active || taxon.parentOf(this.active)) {
-        taxon.deselect();
-        if (taxon.parent) {
-          taxon.parent.select();
+    value: function toggleSelection(topic) {
+      // if this is the active topic or a parent of it we deselect
+      if (topic === this.active || topic.parentOf(this.active)) {
+        topic.deselect();
+        if (topic.parent) {
+          topic.parent.select();
         }
-        this.active = taxon.parent;
-      } else if (taxon.selected || taxon.selectedChildren.length) {
-        // if this is a selected taxon with children we make it active to allow
+        this.active = topic.parent;
+      } else if (topic.selected || topic.selectedChildren.length) {
+        // if this is a selected topic with children we make it active to allow
         // picking the children
-        if (taxon.children.length) {
-          this.active = taxon;
+        if (topic.children.length) {
+          this.active = topic;
         } else {
           // otherwise we deselect it as we take the click as they can't be
           // traversing
-          taxon.deselect();
-          if (taxon.parent) {
-            taxon.parent.select();
+          topic.deselect();
+          if (topic.parent) {
+            topic.parent.select();
           }
-          this.active = taxon.parent;
+          this.active = topic.parent;
         }
       } else {
         // otherwise this is a new selection
-        taxon.select();
-        this.active = taxon;
+        topic.select();
+        this.active = topic;
       }
 
       this.millerColumns.update();
     }
   }, {
     key: 'removeTopic',
-    value: function removeTopic(taxon) {
-      taxon.deselect();
+    value: function removeTopic(topic) {
+      topic.deselect();
       // determine which topic to mark as active, if any
-      this.active = this.determineActiveFromRemoved(taxon);
+      this.active = this.determineActiveFromRemoved(topic);
       this.millerColumns.update();
     }
   }, {
     key: 'determineActiveFromRemoved',
-    value: function determineActiveFromRemoved(taxon) {
+    value: function determineActiveFromRemoved(topic) {
       // if there is already an active item with selected children lets not
       // change anything
       if (this.active && (this.active.selected || this.active.selectedChildren.length)) {
         return this.active;
       }
 
-      // see if there is a parent with selected taxons, that feels like the most
+      // see if there is a parent with selected topics, that feels like the most
       // natural place to end up
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = taxon.parents.reverse()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = topic.parents.reverse()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var parent = _step.value;
 
           if (parent.selectedChildren.length) {
@@ -107,17 +107,17 @@ var Taxonomy = function () {
         }
       }
 
-      return this.selectedTaxons[0];
+      return this.selectedTopics[0];
     }
   }, {
-    key: 'selectedTaxons',
+    key: 'selectedTopics',
     get: function get() {
-      return this.taxons.reduce(function (memo, taxon) {
-        if (taxon.selected) {
-          memo.push(taxon);
+      return this.topics.reduce(function (memo, topic) {
+        if (topic.selected) {
+          memo.push(topic);
         }
 
-        return memo.concat(taxon.selectedChildren);
+        return memo.concat(topic.selectedChildren);
       }, []);
     }
   }]);
@@ -125,15 +125,15 @@ var Taxonomy = function () {
   return Taxonomy;
 }();
 
-var Taxon = function () {
-  _createClass(Taxon, null, [{
+var Topic = function () {
+  _createClass(Topic, null, [{
     key: 'fromList',
     value: function fromList(list) {
       var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-      var taxons = [];
+      var topics = [];
       if (!list) {
-        return taxons;
+        return topics;
       }
 
       var _iteratorNormalCompletion2 = true;
@@ -150,8 +150,8 @@ var Taxon = function () {
             var childList = item.querySelector('ul');
             childList = childList instanceof HTMLUListElement ? childList : null;
 
-            var taxon = new Taxon(label, checkbox, childList, parent);
-            taxons.push(taxon);
+            var topic = new Topic(label, checkbox, childList, parent);
+            topics.push(topic);
           }
         }
       } catch (err) {
@@ -169,17 +169,17 @@ var Taxon = function () {
         }
       }
 
-      return taxons;
+      return topics;
     }
   }]);
 
-  function Taxon(label, checkbox, childList, parent) {
-    _classCallCheck(this, Taxon);
+  function Topic(label, checkbox, childList, parent) {
+    _classCallCheck(this, Topic);
 
     this.label = label;
     this.checkbox = checkbox;
     this.parent = parent;
-    this.children = Taxon.fromList(childList, this);
+    this.children = Topic.fromList(childList, this);
 
     if (!this.children.length && this.checkbox.checked) {
       this.selected = true;
@@ -189,19 +189,19 @@ var Taxon = function () {
     }
   }
 
-  _createClass(Taxon, [{
+  _createClass(Topic, [{
     key: 'parentOf',
     value: function parentOf(other) {
       if (!other) {
         return false;
       }
 
-      return this.children.reduce(function (memo, taxon) {
+      return this.children.reduce(function (memo, topic) {
         if (memo) {
           return true;
         }
 
-        return taxon === other || taxon.parentOf(other);
+        return topic === other || topic.parentOf(other);
       }, false);
     }
   }, {
@@ -234,14 +234,14 @@ var Taxon = function () {
 
         try {
           for (var _iterator3 = deepestFirst[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var taxon = _step3.value;
+            var topic = _step3.value;
 
             // if the parent has selected children it should remain ticked
-            if (taxon.selectedChildren.length) {
+            if (topic.selectedChildren.length) {
               break;
             } else {
-              taxon.selected = false;
-              taxon.checkbox.checked = false;
+              topic.selected = false;
+              topic.checkbox.checked = false;
             }
           }
         } catch (err) {
@@ -303,10 +303,10 @@ var Taxon = function () {
   }, {
     key: 'selectedChildren',
     get: function get() {
-      return this.children.reduce(function (memo, taxon) {
-        var selected = taxon.selectedChildren;
-        if (taxon.selected) {
-          selected.push(taxon);
+      return this.children.reduce(function (memo, topic) {
+        var selected = topic.selectedChildren;
+        if (topic.selected) {
+          selected.push(topic);
         }
         return memo.concat(selected);
       }, []);
@@ -322,7 +322,7 @@ var Taxon = function () {
     }
   }]);
 
-  return Taxon;
+  return Topic;
 }();
 
 var MillerColumnsElement = function (_CustomElement2) {
@@ -350,8 +350,8 @@ var MillerColumnsElement = function (_CustomElement2) {
     value: function connectedCallback() {
       var source = document.getElementById(this.getAttribute('for') || '');
       if (source) {
-        this.taxonomy = new Taxonomy(Taxon.fromList(source), this);
-        this.renderTaxonomyColumn(this.taxonomy.taxons, true);
+        this.taxonomy = new Taxonomy(Topic.fromList(source), this);
+        this.renderTaxonomyColumn(this.taxonomy.topics, true);
         this.update();
         if (source.parentNode) {
           source.parentNode.removeChild(source);
@@ -361,7 +361,7 @@ var MillerColumnsElement = function (_CustomElement2) {
     }
   }, {
     key: 'renderTaxonomyColumn',
-    value: function renderTaxonomyColumn(taxons) {
+    value: function renderTaxonomyColumn(topics) {
       var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
       var ul = document.createElement('ul');
@@ -377,10 +377,10 @@ var MillerColumnsElement = function (_CustomElement2) {
       var _iteratorError5 = undefined;
 
       try {
-        for (var _iterator5 = taxons[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var taxon = _step5.value;
+        for (var _iterator5 = topics[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var topic = _step5.value;
 
-          this.renderTaxon(taxon, ul);
+          this.renderTopic(topic, ul);
         }
       } catch (err) {
         _didIteratorError5 = true;
@@ -398,57 +398,57 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
     }
   }, {
-    key: 'renderTaxon',
-    value: function renderTaxon(taxon, list) {
+    key: 'renderTopic',
+    value: function renderTopic(topic, list) {
       var li = document.createElement('li');
       li.classList.add(this.classNames.item);
       var div = document.createElement('div');
       div.className = 'govuk-checkboxes__item';
-      div.appendChild(taxon.checkbox);
-      div.appendChild(taxon.label);
+      div.appendChild(topic.checkbox);
+      div.appendChild(topic.label);
       li.appendChild(div);
       list.appendChild(li);
-      this.attachEvents(li, taxon);
-      if (taxon.children.length) {
+      this.attachEvents(li, topic);
+      if (topic.children.length) {
         li.classList.add(this.classNames.itemParent);
-        this.renderTaxonomyColumn(taxon.children);
+        this.renderTaxonomyColumn(topic.children);
       }
     }
   }, {
     key: 'attachEvents',
-    value: function attachEvents(trigger, taxon) {
+    value: function attachEvents(trigger, topic) {
       var _this2 = this;
 
       trigger.tabIndex = 0;
       trigger.addEventListener('click', function () {
-        return _this2.selectTaxon(taxon);
+        return _this2.selectTopic(topic);
       }, false);
       trigger.addEventListener('keydown', function (event) {
         if ([' ', 'Enter'].indexOf(event.key) !== -1) {
           event.preventDefault();
-          _this2.selectTaxon(taxon);
+          _this2.selectTopic(topic);
         }
       }, false);
     }
   }, {
-    key: 'selectTaxon',
-    value: function selectTaxon(taxon) {
-      this.taxonomy.toggleSelection(taxon);
+    key: 'selectTopic',
+    value: function selectTopic(topic) {
+      this.taxonomy.toggleSelection(topic);
     }
   }, {
     key: 'update',
     value: function update() {
-      this.showStoredTaxons(this.taxonomy.selectedTaxons);
-      this.showActiveTaxon(this.taxonomy.active);
+      this.showStoredTopics(this.taxonomy.selectedTopics);
+      this.showActiveTopic(this.taxonomy.active);
 
       if (this.selectedElement) {
         this.selectedElement.update(this.taxonomy);
       }
     }
   }, {
-    key: 'showStoredTaxons',
-    value: function showStoredTaxons(taxons) {
-      var storedItems = this.itemsForStoredTaxons(taxons);
+    key: 'showStoredTopics',
+    value: function showStoredTopics(topics) {
+      var storedItems = this.itemsForStoredTopics(topics);
       var currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored));
 
       var _iteratorNormalCompletion6 = true;
@@ -481,9 +481,9 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
     }
   }, {
-    key: 'showActiveTaxon',
-    value: function showActiveTaxon(taxon) {
-      var activeItems = this.itemsForActiveTaxon(taxon);
+    key: 'showActiveTopic',
+    value: function showActiveTopic(topic) {
+      var activeItems = this.itemsForActiveTopic(topic);
       var currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected));
 
       var _iteratorNormalCompletion7 = true;
@@ -520,7 +520,7 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
 
       var allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column));
-      var columnsToShow = this.columnsForActiveTaxon(taxon);
+      var columnsToShow = this.columnsForActiveTopic(topic);
 
       var _iteratorNormalCompletion8 = true;
       var _didIteratorError8 = false;
@@ -599,34 +599,34 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
     }
   }, {
-    key: 'itemsForActiveTaxon',
-    value: function itemsForActiveTaxon(taxon) {
+    key: 'itemsForActiveTopic',
+    value: function itemsForActiveTopic(topic) {
       var _this3 = this;
 
-      if (!taxon) {
+      if (!topic) {
         return [];
       }
 
-      return taxon.withParents().reduce(function (memo, taxon) {
-        var item = taxon.checkbox.closest('.' + _this3.classNames.item);
+      return topic.withParents().reduce(function (memo, topic) {
+        var item = topic.checkbox.closest('.' + _this3.classNames.item);
         return memo.concat([item]);
       }, []);
     }
   }, {
-    key: 'itemsForStoredTaxons',
-    value: function itemsForStoredTaxons(taxons) {
+    key: 'itemsForStoredTopics',
+    value: function itemsForStoredTopics(topics) {
       var _this4 = this;
 
-      return taxons.reduce(function (memo, child) {
+      return topics.reduce(function (memo, child) {
         var _iteratorNormalCompletion10 = true;
         var _didIteratorError10 = false;
         var _iteratorError10 = undefined;
 
         try {
           for (var _iterator10 = child.withParents()[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-            var taxon = _step10.value;
+            var topic = _step10.value;
 
-            var item = taxon.checkbox.closest('.' + _this4.classNames.item);
+            var item = topic.checkbox.closest('.' + _this4.classNames.item);
             if (item instanceof HTMLElement) {
               memo.push(item);
             }
@@ -650,21 +650,21 @@ var MillerColumnsElement = function (_CustomElement2) {
       }, []);
     }
   }, {
-    key: 'columnsForActiveTaxon',
-    value: function columnsForActiveTaxon(taxon) {
-      if (!taxon) {
+    key: 'columnsForActiveTopic',
+    value: function columnsForActiveTopic(topic) {
+      if (!topic) {
         return [];
       }
 
       var columnSelector = '.' + this.classNames.column;
-      var columns = taxon.withParents().reduce(function (memo, taxon) {
-        var column = taxon.checkbox.closest(columnSelector);
+      var columns = topic.withParents().reduce(function (memo, topic) {
+        var column = topic.checkbox.closest(columnSelector);
         return memo.concat([column]);
       }, []);
 
       // we'll want to show the next column too
-      if (taxon.children.length) {
-        columns.push(taxon.children[0].checkbox.closest(columnSelector));
+      if (topic.children.length) {
+        columns.push(topic.children[0].checkbox.closest(columnSelector));
       }
       return columns;
     }
@@ -702,21 +702,21 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
     key: 'update',
     value: function update(taxonomy) {
       this.taxonomy = taxonomy;
-      var selectedTaxons = taxonomy.selectedTaxons;
+      var selectedTopics = taxonomy.selectedTopics;
       while (this.list.lastChild) {
         this.list.removeChild(this.list.lastChild);
       }
 
-      if (selectedTaxons.length) {
+      if (selectedTopics.length) {
         var _iteratorNormalCompletion11 = true;
         var _didIteratorError11 = false;
         var _iteratorError11 = undefined;
 
         try {
-          for (var _iterator11 = selectedTaxons[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-            var taxon = _step11.value;
+          for (var _iterator11 = selectedTopics[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var topic = _step11.value;
 
-            this.addSelectedTaxon(taxon);
+            this.addSelectedTopic(topic);
           }
         } catch (err) {
           _didIteratorError11 = true;
@@ -740,17 +740,17 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       }
     }
   }, {
-    key: 'addSelectedTaxon',
-    value: function addSelectedTaxon(taxon) {
+    key: 'addSelectedTopic',
+    value: function addSelectedTopic(topic) {
       var li = document.createElement('li');
       li.className = 'govuk-miller-columns-selected__list-item';
-      li.appendChild(this.breadcrumbsElement(taxon));
-      li.appendChild(this.removeTopicElement(taxon));
+      li.appendChild(this.breadcrumbsElement(topic));
+      li.appendChild(this.removeTopicElement(topic));
       this.list.appendChild(li);
     }
   }, {
     key: 'breadcrumbsElement',
-    value: function breadcrumbsElement(taxon) {
+    value: function breadcrumbsElement(topic) {
       var div = document.createElement('div');
       div.className = 'govuk-breadcrumbs';
       var ol = document.createElement('ol');
@@ -760,7 +760,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       var _iteratorError12 = undefined;
 
       try {
-        for (var _iterator12 = taxon.withParents()[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+        for (var _iterator12 = topic.withParents()[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
           var current = _step12.value;
 
           var li = document.createElement('li');
@@ -788,7 +788,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
     }
   }, {
     key: 'removeTopicElement',
-    value: function removeTopicElement(taxon) {
+    value: function removeTopicElement(topic) {
       var _this6 = this;
 
       var button = document.createElement('button');
@@ -796,7 +796,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       button.textContent = 'Remove topic';
       button.addEventListener('click', function () {
         if (_this6.taxonomy) {
-          _this6.taxonomy.removeTopic(taxon);
+          _this6.taxonomy.removeTopic(topic);
         }
       });
       return button;

@@ -5,88 +5,88 @@ function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>
 }
 
 class Taxonomy {
-  taxons: Array<Taxon>
+  topics: Array<Topic>
   millerColumns: MillerColumnsElement
-  active: ?Taxon
-  constructor(taxons: Array<Taxon>, millerColumns: MillerColumnsElement) {
-    this.taxons = taxons
+  active: ?Topic
+  constructor(topics: Array<Topic>, millerColumns: MillerColumnsElement) {
+    this.topics = topics
     this.millerColumns = millerColumns
-    this.active = this.selectedTaxons[0]
+    this.active = this.selectedTopics[0]
   }
 
-  get selectedTaxons(): Array<Taxon> {
-    return this.taxons.reduce((memo, taxon) => {
-      if (taxon.selected) {
-        memo.push(taxon)
+  get selectedTopics(): Array<Topic> {
+    return this.topics.reduce((memo, topic) => {
+      if (topic.selected) {
+        memo.push(topic)
       }
 
-      return memo.concat(taxon.selectedChildren)
+      return memo.concat(topic.selectedChildren)
     }, [])
   }
 
-  toggleSelection(taxon: Taxon) {
-    // if this is the active taxon or a parent of it we deselect
-    if (taxon === this.active || taxon.parentOf(this.active)) {
-      taxon.deselect()
-      if (taxon.parent) {
-        taxon.parent.select()
+  toggleSelection(topic: Topic) {
+    // if this is the active topic or a parent of it we deselect
+    if (topic === this.active || topic.parentOf(this.active)) {
+      topic.deselect()
+      if (topic.parent) {
+        topic.parent.select()
       }
-      this.active = taxon.parent
-    } else if (taxon.selected || taxon.selectedChildren.length) {
-      // if this is a selected taxon with children we make it active to allow
+      this.active = topic.parent
+    } else if (topic.selected || topic.selectedChildren.length) {
+      // if this is a selected topic with children we make it active to allow
       // picking the children
-      if (taxon.children.length) {
-        this.active = taxon
+      if (topic.children.length) {
+        this.active = topic
       } else {
         // otherwise we deselect it as we take the click as they can't be
         // traversing
-        taxon.deselect()
-        if (taxon.parent) {
-          taxon.parent.select()
+        topic.deselect()
+        if (topic.parent) {
+          topic.parent.select()
         }
-        this.active = taxon.parent
+        this.active = topic.parent
       }
     } else {
       // otherwise this is a new selection
-      taxon.select()
-      this.active = taxon
+      topic.select()
+      this.active = topic
     }
 
     this.millerColumns.update()
   }
 
-  removeTopic(taxon: Taxon) {
-    taxon.deselect()
+  removeTopic(topic: Topic) {
+    topic.deselect()
     // determine which topic to mark as active, if any
-    this.active = this.determineActiveFromRemoved(taxon)
+    this.active = this.determineActiveFromRemoved(topic)
     this.millerColumns.update()
   }
 
-  determineActiveFromRemoved(taxon: Taxon): ?Taxon {
+  determineActiveFromRemoved(topic: Topic): ?Topic {
     // if there is already an active item with selected children lets not
     // change anything
     if (this.active && (this.active.selected || this.active.selectedChildren.length)) {
       return this.active
     }
 
-    // see if there is a parent with selected taxons, that feels like the most
+    // see if there is a parent with selected topics, that feels like the most
     // natural place to end up
-    for (const parent of taxon.parents.reverse()) {
+    for (const parent of topic.parents.reverse()) {
       if (parent.selectedChildren.length) {
         return parent
       }
     }
 
     // if we've still not got one we'll go for the first selected one
-    return this.selectedTaxons[0]
+    return this.selectedTopics[0]
   }
 }
 
-class Taxon {
-  static fromList(list: ?HTMLElement, parent: ?Taxon = null) {
-    const taxons = []
+class Topic {
+  static fromList(list: ?HTMLElement, parent: ?Topic = null) {
+    const topics = []
     if (!list) {
-      return taxons
+      return topics
     }
 
     for (const item of list.children) {
@@ -96,25 +96,25 @@ class Taxon {
         let childList = item.querySelector('ul')
         childList = childList instanceof HTMLUListElement ? childList : null
 
-        const taxon = new Taxon(label, checkbox, childList, parent)
-        taxons.push(taxon)
+        const topic = new Topic(label, checkbox, childList, parent)
+        topics.push(topic)
       }
     }
 
-    return taxons
+    return topics
   }
 
   label: HTMLLabelElement
   checkbox: HTMLInputElement
-  children: Array<Taxon>
-  parent: ?Taxon
+  children: Array<Topic>
+  parent: ?Topic
   selected: boolean
 
-  constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Taxon) {
+  constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Topic) {
     this.label = label
     this.checkbox = checkbox
     this.parent = parent
-    this.children = Taxon.fromList(childList, this)
+    this.children = Topic.fromList(childList, this)
 
     if (!this.children.length && this.checkbox.checked) {
       this.selected = true
@@ -124,17 +124,17 @@ class Taxon {
     }
   }
 
-  get selectedChildren(): Array<Taxon> {
-    return this.children.reduce((memo, taxon) => {
-      const selected = taxon.selectedChildren
-      if (taxon.selected) {
-        selected.push(taxon)
+  get selectedChildren(): Array<Topic> {
+    return this.children.reduce((memo, topic) => {
+      const selected = topic.selectedChildren
+      if (topic.selected) {
+        selected.push(topic)
       }
       return memo.concat(selected)
     }, [])
   }
 
-  get parents(): Array<Taxon> {
+  get parents(): Array<Topic> {
     if (this.parent) {
       return this.parent.parents.concat([this.parent])
     } else {
@@ -142,21 +142,21 @@ class Taxon {
     }
   }
 
-  parentOf(other: ?Taxon): boolean {
+  parentOf(other: ?Topic): boolean {
     if (!other) {
       return false
     }
 
-    return this.children.reduce((memo, taxon) => {
+    return this.children.reduce((memo, topic) => {
       if (memo) {
         return true
       }
 
-      return taxon === other || taxon.parentOf(other)
+      return topic === other || topic.parentOf(other)
     }, false)
   }
 
-  withParents(): Array<Taxon> {
+  withParents(): Array<Topic> {
     return this.parents.concat([this])
   }
 
@@ -176,13 +176,13 @@ class Taxon {
     if (this.selected) {
       const deepestFirst = this.withParents().reverse()
 
-      for (const taxon of deepestFirst) {
+      for (const topic of deepestFirst) {
         // if the parent has selected children it should remain ticked
-        if (taxon.selectedChildren.length) {
+        if (topic.selectedChildren.length) {
           break
         } else {
-          taxon.selected = false
-          taxon.checkbox.checked = false
+          topic.selected = false
+          topic.checkbox.checked = false
         }
       }
 
@@ -227,8 +227,8 @@ class MillerColumnsElement extends HTMLElement {
   connectedCallback() {
     const source = document.getElementById(this.getAttribute('for') || '')
     if (source) {
-      this.taxonomy = new Taxonomy(Taxon.fromList(source), this)
-      this.renderTaxonomyColumn(this.taxonomy.taxons, true)
+      this.taxonomy = new Taxonomy(Topic.fromList(source), this)
+      this.renderTaxonomyColumn(this.taxonomy.topics, true)
       this.update()
       if (source.parentNode) {
         source.parentNode.removeChild(source)
@@ -242,7 +242,7 @@ class MillerColumnsElement extends HTMLElement {
     return selected instanceof MillerColumnsSelectedElement ? selected : null
   }
 
-  renderTaxonomyColumn(taxons: Array<Taxon>, root: boolean = false) {
+  renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
     const ul = document.createElement('ul')
     ul.className = this.classNames.column
     if (root) {
@@ -251,57 +251,57 @@ class MillerColumnsElement extends HTMLElement {
       ul.classList.add(this.classNames.columnCollapse)
     }
     this.appendChild(ul)
-    for (const taxon of taxons) {
-      this.renderTaxon(taxon, ul)
+    for (const topic of topics) {
+      this.renderTopic(topic, ul)
     }
   }
 
-  renderTaxon(taxon: Taxon, list: HTMLElement) {
+  renderTopic(topic: Topic, list: HTMLElement) {
     const li = document.createElement('li')
     li.classList.add(this.classNames.item)
     const div = document.createElement('div')
     div.className = 'govuk-checkboxes__item'
-    div.appendChild(taxon.checkbox)
-    div.appendChild(taxon.label)
+    div.appendChild(topic.checkbox)
+    div.appendChild(topic.label)
     li.appendChild(div)
     list.appendChild(li)
-    this.attachEvents(li, taxon)
-    if (taxon.children.length) {
+    this.attachEvents(li, topic)
+    if (topic.children.length) {
       li.classList.add(this.classNames.itemParent)
-      this.renderTaxonomyColumn(taxon.children)
+      this.renderTaxonomyColumn(topic.children)
     }
   }
 
-  attachEvents(trigger: HTMLElement, taxon: Taxon) {
+  attachEvents(trigger: HTMLElement, topic: Topic) {
     trigger.tabIndex = 0
-    trigger.addEventListener('click', () => this.selectTaxon(taxon), false)
+    trigger.addEventListener('click', () => this.selectTopic(topic), false)
     trigger.addEventListener(
       'keydown',
       (event: KeyboardEvent) => {
         if ([' ', 'Enter'].indexOf(event.key) !== -1) {
           event.preventDefault()
-          this.selectTaxon(taxon)
+          this.selectTopic(topic)
         }
       },
       false
     )
   }
 
-  selectTaxon(taxon: Taxon) {
-    this.taxonomy.toggleSelection(taxon)
+  selectTopic(topic: Topic) {
+    this.taxonomy.toggleSelection(topic)
   }
 
   update() {
-    this.showStoredTaxons(this.taxonomy.selectedTaxons)
-    this.showActiveTaxon(this.taxonomy.active)
+    this.showStoredTopics(this.taxonomy.selectedTopics)
+    this.showActiveTopic(this.taxonomy.active)
 
     if (this.selectedElement) {
       this.selectedElement.update(this.taxonomy)
     }
   }
 
-  showStoredTaxons(taxons: Array<Taxon>) {
-    const storedItems = this.itemsForStoredTaxons(taxons)
+  showStoredTopics(topics: Array<Topic>) {
+    const storedItems = this.itemsForStoredTopics(topics)
     const currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored))
 
     for (const item of currentlyStored.concat(storedItems)) {
@@ -313,8 +313,8 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
-  showActiveTaxon(taxon: ?Taxon) {
-    const activeItems = this.itemsForActiveTaxon(taxon)
+  showActiveTopic(topic: ?Topic) {
+    const activeItems = this.itemsForActiveTopic(topic)
     const currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected))
 
     for (const item of currentlyActive.concat(activeItems)) {
@@ -330,7 +330,7 @@ class MillerColumnsElement extends HTMLElement {
     }
 
     const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
-    const columnsToShow = this.columnsForActiveTaxon(taxon)
+    const columnsToShow = this.columnsForActiveTopic(topic)
 
     for (const item of allColumns) {
       // we always want to show the root column
@@ -367,21 +367,21 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
-  itemsForActiveTaxon(taxon: ?Taxon) {
-    if (!taxon) {
+  itemsForActiveTopic(topic: ?Topic) {
+    if (!topic) {
       return []
     }
 
-    return taxon.withParents().reduce((memo, taxon) => {
-      const item = taxon.checkbox.closest(`.${this.classNames.item}`)
+    return topic.withParents().reduce((memo, topic) => {
+      const item = topic.checkbox.closest(`.${this.classNames.item}`)
       return memo.concat([item])
     }, [])
   }
 
-  itemsForStoredTaxons(taxons: Array<Taxon>): Array<HTMLElement> {
-    return taxons.reduce((memo, child) => {
-      for (const taxon of child.withParents()) {
-        const item = taxon.checkbox.closest(`.${this.classNames.item}`)
+  itemsForStoredTopics(topics: Array<Topic>): Array<HTMLElement> {
+    return topics.reduce((memo, child) => {
+      for (const topic of child.withParents()) {
+        const item = topic.checkbox.closest(`.${this.classNames.item}`)
         if (item instanceof HTMLElement) {
           memo.push(item)
         }
@@ -391,20 +391,20 @@ class MillerColumnsElement extends HTMLElement {
     }, [])
   }
 
-  columnsForActiveTaxon(taxon: ?Taxon) {
-    if (!taxon) {
+  columnsForActiveTopic(topic: ?Topic) {
+    if (!topic) {
       return []
     }
 
     const columnSelector = `.${this.classNames.column}`
-    const columns = taxon.withParents().reduce((memo, taxon) => {
-      const column = taxon.checkbox.closest(columnSelector)
+    const columns = topic.withParents().reduce((memo, topic) => {
+      const column = topic.checkbox.closest(columnSelector)
       return memo.concat([column])
     }, [])
 
     // we'll want to show the next column too
-    if (taxon.children.length) {
-      columns.push(taxon.children[0].checkbox.closest(columnSelector))
+    if (topic.children.length) {
+      columns.push(topic.children[0].checkbox.closest(columnSelector))
     }
     return columns
   }
@@ -434,14 +434,14 @@ class MillerColumnsSelectedElement extends HTMLElement {
 
   update(taxonomy: Taxonomy) {
     this.taxonomy = taxonomy
-    const selectedTaxons = taxonomy.selectedTaxons
+    const selectedTopics = taxonomy.selectedTopics
     while (this.list.lastChild) {
       this.list.removeChild(this.list.lastChild)
     }
 
-    if (selectedTaxons.length) {
-      for (const taxon of selectedTaxons) {
-        this.addSelectedTaxon(taxon)
+    if (selectedTopics.length) {
+      for (const topic of selectedTopics) {
+        this.addSelectedTopic(topic)
       }
     } else {
       const li = document.createElement('li')
@@ -451,20 +451,20 @@ class MillerColumnsSelectedElement extends HTMLElement {
     }
   }
 
-  addSelectedTaxon(taxon: Taxon) {
+  addSelectedTopic(topic: Topic) {
     const li = document.createElement('li')
     li.className = 'govuk-miller-columns-selected__list-item'
-    li.appendChild(this.breadcrumbsElement(taxon))
-    li.appendChild(this.removeTopicElement(taxon))
+    li.appendChild(this.breadcrumbsElement(topic))
+    li.appendChild(this.removeTopicElement(topic))
     this.list.appendChild(li)
   }
 
-  breadcrumbsElement(taxon: Taxon): HTMLElement {
+  breadcrumbsElement(topic: Topic): HTMLElement {
     const div = document.createElement('div')
     div.className = 'govuk-breadcrumbs'
     const ol = document.createElement('ol')
     ol.className = 'govuk-breadcrumbs__list'
-    for (const current of taxon.withParents()) {
+    for (const current of topic.withParents()) {
       const li = document.createElement('li')
       li.className = 'govuk-breadcrumbs__list-item'
       li.textContent = current.label.textContent
@@ -474,13 +474,13 @@ class MillerColumnsSelectedElement extends HTMLElement {
     return div
   }
 
-  removeTopicElement(taxon: Taxon): HTMLElement {
+  removeTopicElement(topic: Topic): HTMLElement {
     const button = document.createElement('button')
     button.className = 'govuk-miller-columns-selected__remove-topic'
     button.textContent = 'Remove topic'
     button.addEventListener('click', () => {
       if (this.taxonomy) {
-        this.taxonomy.removeTopic(taxon)
+        this.taxonomy.removeTopic(topic)
       }
     })
     return button
