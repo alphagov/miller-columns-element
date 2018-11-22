@@ -237,9 +237,9 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
-  get breadcrumbs(): ?BreadcrumbsElement {
-    const breadcrumbs = document.getElementById(this.getAttribute('breadcrumbs') || '')
-    return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null
+  get selectedElement(): ?MillerColumnsSelectedElement {
+    const selected = document.getElementById(this.getAttribute('selected') || '')
+    return selected instanceof MillerColumnsSelectedElement ? selected : null
   }
 
   renderTaxonomyColumn(taxons: Array<Taxon>, root: boolean = false) {
@@ -286,8 +286,8 @@ class MillerColumnsElement extends HTMLElement {
     this.showStoredTaxons(this.taxonomy.selectedTaxons)
     this.showActiveTaxon(this.taxonomy.active)
 
-    if (this.breadcrumbs) {
-      this.breadcrumbs.update(this.taxonomy)
+    if (this.selectedElement) {
+      this.selectedElement.update(this.taxonomy)
     }
   }
 
@@ -401,7 +401,7 @@ class MillerColumnsElement extends HTMLElement {
   }
 }
 
-class BreadcrumbsElement extends HTMLElement {
+class MillerColumnsSelectedElement extends HTMLElement {
   list: HTMLElement
   taxonomy: ?Taxonomy
 
@@ -411,14 +411,14 @@ class BreadcrumbsElement extends HTMLElement {
 
   connectedCallback() {
     this.list = document.createElement('ol')
-    this.list.className = 'govuk-breadcrumbs__list'
+    this.list.className = 'govuk-miller-columns-selected__list'
     this.appendChild(this.list)
-    if (this.millerColumns && this.millerColumns.taxonomy) {
-      this.update(this.millerColumns.taxonomy)
+    if (this.millerColumnsElement && this.millerColumnsElement.taxonomy) {
+      this.update(this.millerColumnsElement.taxonomy)
     }
   }
 
-  get millerColumns(): ?MillerColumnsElement {
+  get millerColumnsElement(): ?MillerColumnsElement {
     const millerColumns = document.getElementById(this.getAttribute('for') || '')
     return millerColumns instanceof MillerColumnsElement ? millerColumns : null
   }
@@ -436,7 +436,7 @@ class BreadcrumbsElement extends HTMLElement {
       }
     } else {
       const li = document.createElement('li')
-      li.className = 'govuk-breadcrumbs__list-item'
+      li.className = 'govuk-miller-columns-selected__list-item'
       li.textContent = 'No selected topics'
       this.list.appendChild(li)
     }
@@ -444,7 +444,7 @@ class BreadcrumbsElement extends HTMLElement {
 
   addSelectedTaxon(taxon: Taxon) {
     const li = document.createElement('li')
-    li.className = 'govuk-breadcrumbs__list-item'
+    li.className = 'govuk-miller-columns-selected__list-item'
     li.appendChild(this.breadcrumbsElement(taxon))
     li.appendChild(this.removeTopicElement(taxon))
     this.list.appendChild(li)
@@ -452,10 +452,10 @@ class BreadcrumbsElement extends HTMLElement {
 
   breadcrumbsElement(taxon: Taxon): HTMLElement {
     const ol = document.createElement('ol')
-    ol.className = 'govuk-breadcrumbs__breadcrumbs'
+    ol.className = 'govuk-miller-columns-selected__breadcrumbs'
     for (const current of taxon.withParents()) {
       const li = document.createElement('li')
-      li.className = 'govuk-breadcrumbs__breadcrumbs-item'
+      li.className = 'govuk-miller-columns-selected__breadcrumbs-item'
       li.textContent = current.label.textContent
       ol.appendChild(li)
     }
@@ -464,7 +464,7 @@ class BreadcrumbsElement extends HTMLElement {
 
   removeTopicElement(taxon: Taxon): HTMLElement {
     const button = document.createElement('button')
-    button.className = 'govuk-breadcrumbs__remove-topic'
+    button.className = 'govuk-miller-columns-selected__remove-topic'
     button.textContent = 'Remove topic'
     button.addEventListener('click', () => {
       if (this.taxonomy) {
@@ -480,9 +480,9 @@ if (!window.customElements.get('govuk-miller-columns')) {
   window.customElements.define('govuk-miller-columns', MillerColumnsElement)
 }
 
-if (!window.customElements.get('govuk-breadcrumbs')) {
-  window.BreadcrumbsElement = BreadcrumbsElement
-  window.customElements.define('govuk-breadcrumbs', BreadcrumbsElement)
+if (!window.customElements.get('govuk-miller-columns-selected')) {
+  window.MillerColumnsSelectedElement = MillerColumnsSelectedElement
+  window.customElements.define('govuk-miller-columns-selected', MillerColumnsSelectedElement)
 }
 
-export {MillerColumnsElement, BreadcrumbsElement}
+export {MillerColumnsElement, MillerColumnsSelectedElement}

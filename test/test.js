@@ -15,8 +15,8 @@ describe('govuk-miller-columns', function() {
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
-        <govuk-breadcrumbs id="selected-items" for="miller-columns"></govuk-breadcrumbs>
-        <govuk-miller-columns id="miller-columns" for="taxonomy" breadcrumbs="selected-items">
+        <govuk-miller-columns-selected id="selected-items" for="miller-columns"></govuk-miller-columns-selected>
+        <govuk-miller-columns id="miller-columns" for="taxonomy" selected="selected-items">
         <ul id="taxonomy">
         <li>
            <div class="govuk-checkboxes__item">
@@ -118,29 +118,29 @@ describe('govuk-miller-columns', function() {
       assert.isFalse(firstItemL2.querySelector('input').checked)
     })
 
-    it('shows active items in breadcrumb', function() {
+    it('shows active items in selected items', function() {
       const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
       const firstLabelL1 = firstItemL1.querySelector('label')
       const firstItemL2 = document.querySelector('ul:nth-of-type(2) li')
       const firstLabelL2 = firstItemL2.querySelector('label')
       firstItemL1.click()
       firstItemL2.click()
-      const breadcrumbs = document.querySelector('#selected-items ol')
-      assert.equal(breadcrumbs.childNodes.length, 1)
-      assert.isTrue(breadcrumbs.textContent.includes(firstLabelL1.textContent))
-      assert.isTrue(breadcrumbs.textContent.includes(firstLabelL2.textContent))
+      const selected = document.querySelector('#selected-items ol')
+      assert.equal(selected.childNodes.length, 1)
+      assert.isTrue(selected.textContent.includes(firstLabelL1.textContent))
+      assert.isTrue(selected.textContent.includes(firstLabelL2.textContent))
     })
 
-    it('removes a chain from stored breadcrumbs', function() {
+    it('removes a chain from stored selected items', function() {
       const firstItemL1 = document.querySelector('ul li')
 
       firstItemL1.click()
 
-      const firstBreadcrumbsRemove = document.querySelector('#selected-items button')
-      firstBreadcrumbsRemove.click()
+      const firstItemRemove = document.querySelector('#selected-items button')
+      firstItemRemove.click()
 
-      const breadcrumbs = document.querySelector('#selected-items')
-      assert.equal(breadcrumbs.textContent, 'No selected topics')
+      const selectedItems = document.querySelector('#selected-items')
+      assert.equal(selectedItems.textContent, 'No selected topics')
     })
 
     it('creates entries of selected item for adjacent topics', function() {
@@ -155,10 +155,10 @@ describe('govuk-miller-columns', function() {
       firstItemL2.click()
       secondItemL2.click()
 
-      const breadcrumbs = document.querySelector('#selected-items ol')
-      assert.equal(breadcrumbs.childNodes.length, 2)
-      assert.isTrue(breadcrumbs.textContent.includes(firstLabelL2.textContent))
-      assert.isTrue(breadcrumbs.textContent.includes(secondLabelL2.textContent))
+      const selectedItems = document.querySelector('#selected-items ol')
+      assert.equal(selectedItems.childNodes.length, 2)
+      assert.isTrue(selectedItems.textContent.includes(firstLabelL2.textContent))
+      assert.isTrue(selectedItems.textContent.includes(secondLabelL2.textContent))
     })
   })
 })
