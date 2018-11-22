@@ -451,15 +451,18 @@ class MillerColumnsSelectedElement extends HTMLElement {
   }
 
   breadcrumbsElement(taxon: Taxon): HTMLElement {
+    const div = document.createElement('div')
+    div.className = 'govuk-breadcrumbs'
     const ol = document.createElement('ol')
-    ol.className = 'govuk-miller-columns-selected__breadcrumbs'
+    ol.className = 'govuk-breadcrumbs__list'
     for (const current of taxon.withParents()) {
       const li = document.createElement('li')
-      li.className = 'govuk-miller-columns-selected__breadcrumbs-item'
+      li.className = 'govuk-breadcrumbs__list-item'
       li.textContent = current.label.textContent
       ol.appendChild(li)
     }
-    return ol
+    div.appendChild(ol)
+    return div
   }
 
   removeTopicElement(taxon: Taxon): HTMLElement {

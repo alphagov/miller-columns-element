@@ -801,8 +801,10 @@
     }, {
       key: 'breadcrumbsElement',
       value: function breadcrumbsElement(taxon) {
+        var div = document.createElement('div');
+        div.className = 'govuk-breadcrumbs';
         var ol = document.createElement('ol');
-        ol.className = 'govuk-miller-columns-selected__breadcrumbs';
+        ol.className = 'govuk-breadcrumbs__list';
         var _iteratorNormalCompletion12 = true;
         var _didIteratorError12 = false;
         var _iteratorError12 = undefined;
@@ -812,7 +814,7 @@
             var current = _step12.value;
 
             var li = document.createElement('li');
-            li.className = 'govuk-miller-columns-selected__breadcrumbs-item';
+            li.className = 'govuk-breadcrumbs__list-item';
             li.textContent = current.label.textContent;
             ol.appendChild(li);
           }
@@ -831,7 +833,8 @@
           }
         }
 
-        return ol;
+        div.appendChild(ol);
+        return div;
       }
     }, {
       key: 'removeTopicElement',
