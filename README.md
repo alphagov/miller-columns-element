@@ -46,6 +46,12 @@ npm install
 npm test
 ```
 
+To continuously build files while developing run:
+
+```
+npm run watch
+```
+
 ## License
 
 Distributed under the MIT license. See LICENSE for details.

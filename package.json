@@ -9,6 +9,9 @@
   "files": [
     "dist"
   ],
+  "watch": {
+    "build": ["index.js", "main.scss"]
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "lint": "sass-lint main.scss -v -q && eslint index.js test/ && flow check",
@@ -19,7 +22,8 @@
     "build": "npm run build-css && npm run build-umd && npm run build-esm",
     "pretest": "npm run build && npm run lint",
     "test": "karma start test/karma.config.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "watch": "npm-watch"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -38,6 +42,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^5.0.5",
     "node-sass": "^4.9.4",
+    "npm-watch": "^0.4.0",
     "sass-lint": "^1.12.1"
   }
 }
