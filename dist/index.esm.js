@@ -417,9 +417,18 @@ var MillerColumnsElement = function (_CustomElement2) {
   }, {
     key: 'attachEvents',
     value: function attachEvents(trigger, taxon) {
+      var _this2 = this;
+
       trigger.tabIndex = 0;
-      var fn = this.selectTaxon.bind(this, taxon);
-      trigger.addEventListener('click', fn, false);
+      trigger.addEventListener('click', function () {
+        return _this2.selectTaxon(taxon);
+      }, false);
+      trigger.addEventListener('keydown', function (event) {
+        if ([' ', 'Enter'].indexOf(event.key) !== -1) {
+          event.preventDefault();
+          _this2.selectTaxon(taxon);
+        }
+      }, false);
     }
   }, {
     key: 'selectTaxon',
@@ -592,21 +601,21 @@ var MillerColumnsElement = function (_CustomElement2) {
   }, {
     key: 'itemsForActiveTaxon',
     value: function itemsForActiveTaxon(taxon) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (!taxon) {
         return [];
       }
 
       return taxon.withParents().reduce(function (memo, taxon) {
-        var item = taxon.checkbox.closest('.' + _this2.classNames.item);
+        var item = taxon.checkbox.closest('.' + _this3.classNames.item);
         return memo.concat([item]);
       }, []);
     }
   }, {
     key: 'itemsForStoredTaxons',
     value: function itemsForStoredTaxons(taxons) {
-      var _this3 = this;
+      var _this4 = this;
 
       return taxons.reduce(function (memo, child) {
         var _iteratorNormalCompletion10 = true;
@@ -617,7 +626,7 @@ var MillerColumnsElement = function (_CustomElement2) {
           for (var _iterator10 = child.withParents()[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
             var taxon = _step10.value;
 
-            var item = taxon.checkbox.closest('.' + _this3.classNames.item);
+            var item = taxon.checkbox.closest('.' + _this4.classNames.item);
             if (item instanceof HTMLElement) {
               memo.push(item);
             }
@@ -780,14 +789,14 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
   }, {
     key: 'removeTopicElement',
     value: function removeTopicElement(taxon) {
-      var _this5 = this;
+      var _this6 = this;
 
       var button = document.createElement('button');
       button.className = 'govuk-miller-columns-selected__remove-topic';
       button.textContent = 'Remove topic';
       button.addEventListener('click', function () {
-        if (_this5.taxonomy) {
-          _this5.taxonomy.removeTopic(taxon);
+        if (_this6.taxonomy) {
+          _this6.taxonomy.removeTopic(taxon);
         }
       });
       return button;

@@ -274,8 +274,17 @@ class MillerColumnsElement extends HTMLElement {
 
   attachEvents(trigger: HTMLElement, taxon: Taxon) {
     trigger.tabIndex = 0
-    const fn = this.selectTaxon.bind(this, taxon)
-    trigger.addEventListener('click', fn, false)
+    trigger.addEventListener('click', () => this.selectTaxon(taxon), false)
+    trigger.addEventListener(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if ([' ', 'Enter'].indexOf(event.key) !== -1) {
+          event.preventDefault()
+          this.selectTaxon(taxon)
+        }
+      },
+      false
+    )
   }
 
   selectTaxon(taxon: Taxon) {
