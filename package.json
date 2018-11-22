@@ -12,12 +12,12 @@
   "scripts": {
     "clean": "rm -rf dist",
     "lint": "sass-lint main.scss -v -q && eslint index.js test/ && flow check",
-    "prebuild": "npm run clean && npm run lint && mkdir dist",
+    "prebuild": "npm run clean && mkdir dist",
     "build-css": "node-sass main.scss dist/main.css",
     "build-umd": "BABEL_ENV=umd babel index.js -o dist/index.umd.js",
     "build-esm": "BABEL_ENV=esm babel index.js -o dist/index.esm.js",
     "build": "npm run build-css && npm run build-umd && npm run build-esm",
-    "pretest": "npm run build",
+    "pretest": "npm run build && npm run lint",
     "test": "karma start test/karma.config.js",
     "prepublishOnly": "npm run build"
   },
