@@ -1,617 +1,477 @@
 /* @flow */
 
-class MillerColumnsElement extends HTMLElement {
-  constructor() {
-    super()
+function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>): Array<HTMLElement> {
+  return Array.prototype.slice.call(nodes)
+}
+
+class Taxonomy {
+  taxons: Array<Taxon>
+  millerColumns: MillerColumnsElement
+  active: ?Taxon
+  constructor(taxons: Array<Taxon>, millerColumns: MillerColumnsElement) {
+    this.taxons = taxons
+    this.millerColumns = millerColumns
+    this.active = this.selectedTaxons[0]
   }
 
-  connectedCallback() {
-    // A nested tree list with all items
-    const list = this.list
-
-    // Set default values
-    this.dataset.chain = '0'
-    this.dataset.depth = '0'
-    this.dataset.level = '0'
-
-    // Show the columns
-    this.style.display = 'block'
-
-    if (list) {
-      // Store checked inputs
-      const checkboxes = this.checkboxes
-
-      // Attach click events for list items
-      this.attachClickEvents(list)
-
-      // Load checkbox ids as data-id for list items
-      if (checkboxes) {
-        this.loadIds(checkboxes)
+  get selectedTaxons(): Array<Taxon> {
+    return this.taxons.reduce((memo, taxon) => {
+      if (taxon.selected) {
+        memo.push(taxon)
       }
 
-      // Unnest the tree list into columns
-      this.unnest(list)
-    }
+      return memo.concat(taxon.selectedChildren)
+    }, [])
   }
 
-  disconnectedCallback() {}
-
-  /** Returns the associated nested list of items. */
-  get list(): ?HTMLUListElement {
-    const id = this.getAttribute('for')
-    if (!id) return
-    const list = document.getElementById(id)
-    return list instanceof HTMLUListElement ? list : null
-  }
-
-  /** Returns the associated breadcrumbs element. */
-  get breadcrumbs(): ?BreadcrumbsElement {
-    const id = this.getAttribute('breadcrumbs')
-    if (!id) return
-    const breadcrumbs = document.getElementById(id)
-    return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null
-  }
-
-  /** Returns a list of all selected checkboxes for initialisation. */
-  get selectedCheckboxes(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]:checked'))
-  }
-
-  /** Returns a list of all checkboxes. */
-  get checkboxes(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]'))
-  }
-
-  /** Returns a list of the currently selected items. */
-  get activeChain(): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${this.dataset.chain}"]`)
-    )
-  }
-
-  /** Returns the index of the active chain item. */
-  get activeChainIndex(): number {
-    // $FlowFixMe
-    return parseInt(this.dataset.chain)
-  }
-
-  /** Returns the maximum depth of the miller column. */
-  get depth(): number {
-    return parseInt(this.dataset.depth)
-  }
-
-  // Return the level of an element
-  getItemLevel(item: HTMLElement): string {
-    const column = item.closest('ul')
-    let level = '0'
-    if (column instanceof HTMLUListElement) {
-      level = this.getLevel(column).toString()
-    }
-    return level
-  }
-
-  getItemParent(item: HTMLElement): ?HTMLElement {
-    const column = item.closest('ul')
-    // $FlowFixMe
-    const parent = document.querySelector(`[data-id="${column.dataset.parent}"]`)
-    return parent
-  }
-
-  /** Returns a list of items from the same chain. */
-  getChain(chain: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${chain}"]`))
-  }
-
-  /** Returns a list of selected items from a column/level. */
-  getSelectedItems(level: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column[data-level="${level}"] li[data-selected="true"]`)
-    )
-  }
-
-  /** Returns a list of ancestors for a specified item. */
-  getAncestors(item: ?HTMLElement): Array<HTMLElement> {
-    const ancestors = []
-    // item = this.getItemParent(item)
-    while (item) {
-      if (item instanceof HTMLElement) {
-        ancestors.push(item)
-        item = this.getItemParent(item)
+  toggleSelection(taxon: Taxon) {
+    // if this is the active taxon or a parent of it we deselect
+    if (taxon === this.active || taxon.parentOf(this.active)) {
+      taxon.deselect()
+      if (taxon.parent) {
+        taxon.parent.select()
       }
-    }
-    return ancestors.reverse()
-  }
-
-  /** Returns a list of all columns. */
-  getAllColumns(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'))
-  }
-
-  /** Returns the level of a column. */
-  getLevel(column: HTMLElement): number {
-    return parseInt(column.dataset.level)
-  }
-
-  /** Click list items with checkedboxes. */
-  loadCheckboxes(inputs: Array<HTMLElement>) {
-    for (const input of inputs) {
-      const li = input.closest('li')
-      if (li instanceof HTMLLIElement) {
-        li.dispatchEvent(new MouseEvent('click'))
-        if (this.breadcrumbs) {
-          this.breadcrumbs.storeActiveChain()
-          this.dataset.chain = (chains.length + 1).toString()
-        }
-      }
-    }
-  }
-
-  /** Load checkboxes ids to list items so we can use them determine ancestors. */
-  loadIds(inputs: Array<HTMLElement>) {
-    for (const input of inputs) {
-      const li = input.closest('li')
-      if (li instanceof HTMLLIElement) {
-        li.dataset.id = input.id
-        li.classList.add('govuk-miller-columns__item')
-      }
-    }
-  }
-
-  /** Convert nested lists into columns using breadth-first traversal. */
-  unnest(root: HTMLUListElement) {
-    const millercolumns = this
-
-    const queue = []
-    let node
-    let listItems
-    let depth = 1
-
-    // Push the root unordered list item into the queue.
-    root.className = 'govuk-miller-columns__column'
-    root.dataset.level = '1'
-    queue.push(root)
-
-    while (queue.length) {
-      node = queue.shift()
-
-      if (node.children) {
-        listItems = node.children
-
-        for (const listItem of listItems) {
-          const descendants = listItem.querySelector('ul')
-          const ancestor = listItem
-
-          if (descendants) {
-            // Store level and depth.
-            const level = parseInt(node.dataset.level) + 1
-            descendants.dataset.level = level.toString()
-            if (level > depth) depth = level
-
-            queue.push(descendants)
-
-            if (ancestor) {
-              // Mark list items with descendants as parents.
-              ancestor.dataset.parent = 'true'
-              ancestor.classList.add('govuk-miller-columns__item--parent')
-
-              // Expand the descendants list on click.
-              const fn = this.toggleColumn.bind(null, this, ancestor, descendants)
-              ancestor.addEventListener('click', fn, false)
-
-              // Attach event listeners.
-              const keys = [' ', 'Enter']
-              ancestor.addEventListener('keydown', this.keydown(fn, keys), false)
-            }
-
-            // Hide columns.
-            descendants.dataset.collapse = 'true'
-            descendants.dataset.parent = ancestor.dataset.id
-            descendants.className = 'govuk-miller-columns__column govuk-miller-columns__column--collapse'
-            // Causes item siblings to have a flattened DOM lineage.
-            millercolumns.insertAdjacentElement('beforeend', descendants)
-          }
-        }
-      }
-    }
-
-    this.dataset.depth = depth.toString()
-  }
-
-  /** Attach click events for list items. */
-  attachClickEvents(root: HTMLUListElement) {
-    const items = root.querySelectorAll('li')
-
-    for (const item of items) {
-      const fn = this.clickItem.bind(null, this, item)
-      item.addEventListener('click', fn, false)
-
-      const keys = [' ', 'Enter']
-      item.addEventListener('keydown', this.keydown(fn, keys))
-
-      item.tabIndex = 0
-    }
-  }
-
-  /** Attach key events for lists. */
-  keydown(fn: Function, keys: Array<string>): Function {
-    return function(event: KeyboardEvent) {
-      if (keys.indexOf(event.key) >= 0) {
-        event.preventDefault()
-        fn(event)
-      }
-    }
-  }
-
-  /** Click list item. */
-  clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
-    // Set the current level
-    const currentLevel = millercolumns.getItemLevel(item)
-    const previousLevel = millercolumns.dataset.level
-
-    // Determine existing selections on the column
-    const selectedItems = millercolumns.getSelectedItems(currentLevel)
-
-    millercolumns.dataset.level = currentLevel
-
-    if (!(millercolumns.breadcrumbs instanceof BreadcrumbsElement)) return
-
-    // If selecting an upper level or a new item on the same level
-    // and not selected nor stored we start a new chain
-    if (
-      (currentLevel < previousLevel || selectedItems.length > 0) &&
-      item.dataset.selected !== 'true' &&
-      item.dataset.stored !== 'true'
-    ) {
-      // Store active chain
-      millercolumns.breadcrumbs.storeActiveChain()
-      // Increment chain index
-      millercolumns.dataset.chain = chains.length.toString()
-      // Default item click
-      item.dataset.chain = millercolumns.dataset.chain
-      // Retrieve ancestors
-      const ancestors = millercolumns.getAncestors(item)
-      if (ancestors) {
-        millercolumns.selectItems(ancestors, item.dataset.chain)
-      }
-
-      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-        millercolumns.toggleItem(item)
-      }
-    } else if (item.dataset.stored === 'true') {
-      // If click on a stored item we swap the active chain and not toggle
-      millercolumns.breadcrumbs.storeActiveChain()
-      // Make stored chain active
-      millercolumns.dataset.chain = item.dataset.chain
-      // $FlowFixMe
-      millercolumns.breadcrumbs.swapActiveChain()
-      // Retrieve ancestors
-      const ancestors = millercolumns.getAncestors(item)
-      if (ancestors) {
-        millercolumns.selectItems(ancestors, item.dataset.chain)
-      }
-    } else {
-      // Default item click
-      item.dataset.chain = millercolumns.dataset.chain
-
-      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-        // If not selected nor stored retrieve ancestors and select
-        const ancestors = millercolumns.getAncestors(item)
-        if (ancestors) {
-          millercolumns.selectItems(ancestors, item.dataset.chain)
-        }
+      this.active = taxon.parent
+    } else if (taxon.selected || taxon.selectedChildren.length) {
+      // if this is a selected taxon with children we make it active to allow
+      // picking the children
+      if (taxon.children.length) {
+        this.active = taxon
       } else {
-        // If selected toggle to remove
-        millercolumns.toggleItem(item)
+        // otherwise we deselect it as we take the click as they can't be
+        // traversing
+        taxon.deselect()
+        if (taxon.parent) {
+          taxon.parent.select()
+        }
+        this.active = taxon.parent
       }
-    }
-
-    // If not a parent hide residual descendants list
-    if (item.dataset.parent !== 'true') {
-      millercolumns.hideColumns((parseInt(currentLevel) + 1).toString())
-    }
-
-    // Update active chain to reflect selection
-    millercolumns.breadcrumbs.updateActiveChain()
-  }
-
-  /** Toggle list item. */
-  toggleItem(item: HTMLElement) {
-    if (item.dataset.selected === 'true') {
-      this.deselectItem(item)
     } else {
-      this.selectItem(item)
+      // otherwise this is a new selection
+      taxon.select()
+      this.active = taxon
+    }
+
+    this.millerColumns.update()
+  }
+
+  removeTopic(taxon: Taxon) {
+    taxon.deselect()
+    // determine which topic to mark as active, if any
+    this.active = this.determineActiveFromRemoved(taxon)
+    this.millerColumns.update()
+  }
+
+  determineActiveFromRemoved(taxon: Taxon): ?Taxon {
+    // if there is already an active item with selected children lets not
+    // change anything
+    if (this.active && (this.active.selected || this.active.selectedChildren.length)) {
+      return this.active
+    }
+
+    // see if there is a parent with selected taxons, that feels like the most
+    // natural place to end up
+    for (const parent of taxon.parents.reverse()) {
+      if (parent.selectedChildren.length) {
+        return parent
+      }
+    }
+
+    // if we've still not got one we'll go for the first selected one
+    return this.selectedTaxons[0]
+  }
+}
+
+class Taxon {
+  static fromList(list: ?HTMLElement, parent: ?Taxon = null) {
+    const taxons = []
+    if (!list) {
+      return taxons
+    }
+
+    for (const item of list.children) {
+      const label = item.querySelector('label')
+      const checkbox = item.querySelector('input')
+      if (label instanceof HTMLLabelElement && checkbox instanceof HTMLInputElement) {
+        let childList = item.querySelector('ul')
+        childList = childList instanceof HTMLUListElement ? childList : null
+
+        const taxon = new Taxon(label, checkbox, childList, parent)
+        taxons.push(taxon)
+      }
+    }
+
+    return taxons
+  }
+
+  label: HTMLLabelElement
+  checkbox: HTMLInputElement
+  children: Array<Taxon>
+  parent: ?Taxon
+  selected: boolean
+
+  constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Taxon) {
+    this.label = label
+    this.checkbox = checkbox
+    this.parent = parent
+    this.children = Taxon.fromList(childList, this)
+
+    if (!this.children.length && this.checkbox.checked) {
+      this.selected = true
+      if (this.parent) {
+        this.parent.childWasSelected()
+      }
     }
   }
 
-  /** Select list item. */
-  selectItem(item: HTMLElement) {
-    item.dataset.selected = 'true'
-    item.classList.add('govuk-miller-columns__item--selected')
-
-    const input = item.querySelector('input[type=checkbox]')
-    if (input) {
-      input.setAttribute('checked', 'checked')
-    }
+  get selectedChildren(): Array<Taxon> {
+    return this.children.reduce((memo, taxon) => {
+      const selected = taxon.selectedChildren
+      if (taxon.selected) {
+        selected.push(taxon)
+      }
+      return memo.concat(selected)
+    }, [])
   }
 
-  /** Select a list of items. */
-  selectItems(items: Array<HTMLElement>, index: string) {
-    for (const item of items) {
-      this.selectItem(item)
-      item.dataset.chain = index
-    }
-  }
-
-  /** Remove list item selection. */
-  deselectItem(item: HTMLElement) {
-    item.dataset.selected = 'false'
-    item.dataset.stored = 'false'
-    item.removeAttribute('data-chain')
-    item.classList.remove('govuk-miller-columns__item--selected')
-    item.classList.remove('govuk-miller-columns__item--stored')
-
-    const input = item.querySelector('input[type=checkbox]')
-    if (input) {
-      input.removeAttribute('checked')
-    }
-  }
-
-  /** Reveal the column associated with a parent item. */
-  toggleColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
-    millercolumns.hideColumns(column.dataset.level)
-    if (item.dataset.selected === 'true' || item.dataset.stored === 'true') {
-      column.dataset.collapse = 'false'
-      column.classList.remove('govuk-miller-columns__column--collapse')
-      millercolumns.animateColumns(column)
+  get parents(): Array<Taxon> {
+    if (this.parent) {
+      return this.parent.parents.concat([this.parent])
     } else {
-      // Ensure children are removed
-      millercolumns.removeAllChildren(column.dataset.level)
+      return []
     }
   }
 
-  /** Hides all columns at a higher or equal level with the specified one. */
-  hideColumns(level: string) {
-    const levelInt = parseInt(level)
-    const depth = this.depth
-    const columnSelectors = []
-
-    for (let i = levelInt; i <= depth; i++) {
-      columnSelectors.push(`[data-level='${i.toString()}']`)
+  parentOf(other: ?Taxon): boolean {
+    if (!other) {
+      return false
     }
 
-    const lists = this.querySelectorAll(columnSelectors.join(', '))
-    for (const item of lists) {
-      item.dataset.collapse = 'true'
-      item.classList.add('govuk-miller-columns__column--collapse')
-    }
-
-    this.resetAnimation(levelInt)
-  }
-
-  /** Remove selections at a higher or equal level with the specified one. */
-  removeAllChildren(level: string) {
-    const millercolumns = this
-    const levelInt = parseInt(level)
-    const depth = this.depth
-    const itemSelectors = []
-
-    for (let i = levelInt; i <= depth; i++) {
-      itemSelectors.push(`[data-level='${i.toString()}'] li`)
-    }
-
-    const items = millercolumns.querySelectorAll(itemSelectors.join(', '))
-    for (const item of items) {
-      millercolumns.deselectItem(item)
-    }
-
-    if (millercolumns.breadcrumbs) {
-      millercolumns.breadcrumbs.updateActiveChain()
-    }
-  }
-
-  /** Ensure the viewport shows the entire newly expanded item. */
-  animateColumns(column: HTMLElement) {
-    const millercolumns = this
-    const level = this.getLevel(column)
-    const depth = this.depth
-
-    if (level >= depth - 1) {
-      const selectors = []
-
-      for (let i = 1; i < level; i++) {
-        selectors.push(`[data-level='${i.toString()}']`)
+    return this.children.reduce((memo, taxon) => {
+      if (memo) {
+        return true
       }
 
-      const lists = millercolumns.querySelectorAll(selectors.join(', '))
-      for (const item of lists) {
-        item.classList.add('govuk-miller-columns__column--narrow')
+      return taxon === other || taxon.parentOf(other)
+    }, false)
+  }
+
+  withParents(): Array<Taxon> {
+    return this.parents.concat([this])
+  }
+
+  select() {
+    // if already selected or a child is selected do nothing
+    if (this.selected || this.selectedChildren.length) {
+      return
+    }
+    this.selected = true
+    this.checkbox.checked = true
+    if (this.parent) {
+      this.parent.childWasSelected()
+    }
+  }
+
+  deselect() {
+    if (this.selected) {
+      const deepestFirst = this.withParents().reverse()
+
+      for (const taxon of deepestFirst) {
+        // if the parent has selected children it should remain ticked
+        if (taxon.selectedChildren.length) {
+          break
+        } else {
+          taxon.selected = false
+          taxon.checkbox.checked = false
+        }
+      }
+
+      return
+    }
+
+    const selectedChildren = this.selectedChildren
+    if (selectedChildren.length) {
+      for (const child of selectedChildren) {
+        child.deselect()
       }
     }
   }
 
-  /** Reset column width. */
-  resetAnimation(level: number) {
-    const depth = this.depth
-
-    if (level < depth) {
-      const allLists = this.getAllColumns()
-      for (const list of allLists) {
-        list.classList.remove('govuk-miller-columns__column--narrow')
-      }
+  childWasSelected() {
+    // we need each checkbox to be selected for the UI
+    this.checkbox.checked = true
+    this.selected = false
+    if (this.parent) {
+      this.parent.childWasSelected()
     }
   }
 }
 
-// A list of selected chains
-const chains = []
+class MillerColumnsElement extends HTMLElement {
+  taxonomy: Taxonomy
+  classNames: Object
+
+  constructor() {
+    super()
+    this.classNames = {
+      column: 'govuk-miller-columns__column',
+      columnCollapse: 'govuk-miller-columns__column--collapse',
+      columnNarrow: 'govuk-miller-columns__column--narrow',
+      item: 'govuk-miller-columns__item',
+      itemParent: 'govuk-miller-columns__item--parent',
+      itemSelected: 'govuk-miller-columns__item--selected',
+      itemStored: 'govuk-miller-columns__item--stored'
+    }
+  }
+
+  connectedCallback() {
+    const source = document.getElementById(this.getAttribute('for') || '')
+    if (source) {
+      this.taxonomy = new Taxonomy(Taxon.fromList(source), this)
+      this.renderTaxonomyColumn(this.taxonomy.taxons, true)
+      this.update()
+      if (source.parentNode) {
+        source.parentNode.removeChild(source)
+      }
+      this.style.display = 'block'
+    }
+  }
+
+  get breadcrumbs(): ?BreadcrumbsElement {
+    const breadcrumbs = document.getElementById(this.getAttribute('breadcrumbs') || '')
+    return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null
+  }
+
+  renderTaxonomyColumn(taxons: Array<Taxon>, root: boolean = false) {
+    const ul = document.createElement('ul')
+    ul.className = this.classNames.column
+    if (root) {
+      ul.dataset.root = 'true'
+    } else {
+      ul.classList.add(this.classNames.columnCollapse)
+    }
+    this.appendChild(ul)
+    for (const taxon of taxons) {
+      this.renderTaxon(taxon, ul)
+    }
+  }
+
+  renderTaxon(taxon: Taxon, list: HTMLElement) {
+    const li = document.createElement('li')
+    li.classList.add(this.classNames.item)
+    const div = document.createElement('div')
+    div.className = 'govuk-checkboxes__item'
+    div.appendChild(taxon.checkbox)
+    div.appendChild(taxon.label)
+    li.appendChild(div)
+    list.appendChild(li)
+    this.attachEvents(li, taxon)
+    if (taxon.children.length) {
+      li.classList.add(this.classNames.itemParent)
+      this.renderTaxonomyColumn(taxon.children)
+    }
+  }
+
+  attachEvents(trigger: HTMLElement, taxon: Taxon) {
+    trigger.tabIndex = 0
+    const fn = this.selectTaxon.bind(this, taxon)
+    trigger.addEventListener('click', fn, false)
+  }
+
+  selectTaxon(taxon: Taxon) {
+    this.taxonomy.toggleSelection(taxon)
+  }
+
+  update() {
+    this.showStoredTaxons(this.taxonomy.selectedTaxons)
+    this.showActiveTaxon(this.taxonomy.active)
+
+    if (this.breadcrumbs) {
+      this.breadcrumbs.update(this.taxonomy)
+    }
+  }
+
+  showStoredTaxons(taxons: Array<Taxon>) {
+    const storedItems = this.itemsForStoredTaxons(taxons)
+    const currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored))
+
+    for (const item of currentlyStored.concat(storedItems)) {
+      if (storedItems.indexOf(item) !== -1) {
+        item.classList.add(this.classNames.itemStored)
+      } else {
+        item.classList.remove(this.classNames.itemStored)
+      }
+    }
+  }
+
+  showActiveTaxon(taxon: ?Taxon) {
+    const activeItems = this.itemsForActiveTaxon(taxon)
+    const currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected))
+
+    for (const item of currentlyActive.concat(activeItems)) {
+      if (!item) {
+        continue
+      }
+
+      if (activeItems.indexOf(item) !== -1) {
+        item.classList.add(this.classNames.itemSelected)
+      } else {
+        item.classList.remove(this.classNames.itemSelected)
+      }
+    }
+
+    const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
+    const columnsToShow = this.columnsForActiveTaxon(taxon)
+
+    for (const item of allColumns) {
+      // we always want to show the root column
+      if (item.dataset.root === 'true') {
+        continue
+      }
+      if (columnsToShow.indexOf(item) !== -1) {
+        item.classList.remove(this.classNames.columnCollapse)
+      } else {
+        item.classList.add(this.classNames.columnCollapse)
+      }
+    }
+
+    if (columnsToShow.length > 3) {
+      // make all but the last column narrow
+      for (let index = 0; index < columnsToShow.length; index++) {
+        const col = columnsToShow[index]
+
+        if (!col) {
+          continue
+        }
+
+        if (index === columnsToShow.length - 1) {
+          col.classList.remove(this.classNames.columnNarrow)
+        } else {
+          col.classList.add(this.classNames.columnNarrow)
+        }
+      }
+    } else {
+      // make sure none of the columns are narrow
+      for (const col of allColumns) {
+        col.classList.remove(this.classNames.columnNarrow)
+      }
+    }
+  }
+
+  itemsForActiveTaxon(taxon: ?Taxon) {
+    if (!taxon) {
+      return []
+    }
+
+    return taxon.withParents().reduce((memo, taxon) => {
+      const item = taxon.checkbox.closest(`.${this.classNames.item}`)
+      return memo.concat([item])
+    }, [])
+  }
+
+  itemsForStoredTaxons(taxons: Array<Taxon>): Array<HTMLElement> {
+    return taxons.reduce((memo, child) => {
+      for (const taxon of child.withParents()) {
+        const item = taxon.checkbox.closest(`.${this.classNames.item}`)
+        if (item instanceof HTMLElement) {
+          memo.push(item)
+        }
+      }
+
+      return memo
+    }, [])
+  }
+
+  columnsForActiveTaxon(taxon: ?Taxon) {
+    if (!taxon) {
+      return []
+    }
+
+    const columnSelector = `.${this.classNames.column}`
+    const columns = taxon.withParents().reduce((memo, taxon) => {
+      const column = taxon.checkbox.closest(columnSelector)
+      return memo.concat([column])
+    }, [])
+
+    // we'll want to show the next column too
+    if (taxon.children.length) {
+      columns.push(taxon.children[0].checkbox.closest(columnSelector))
+    }
+    return columns
+  }
+}
 
 class BreadcrumbsElement extends HTMLElement {
+  list: HTMLElement
+  taxonomy: ?Taxonomy
+
   constructor() {
     super()
   }
 
   connectedCallback() {
-    if (this.millercolumns) {
-      this.millercolumns.loadCheckboxes(this.millercolumns.selectedCheckboxes)
-    }
-    this.renderChains()
-  }
-
-  disconnectedCallback() {}
-
-  get millercolumns(): ?MillerColumnsElement {
-    const id = this.getAttribute('for')
-    if (!id) return
-    const millercolumns = document.getElementById(id)
-    if (!(millercolumns instanceof MillerColumnsElement)) return
-    return millercolumns instanceof MillerColumnsElement ? millercolumns : null
-  }
-
-  get chain(): ?Array<HTMLElement> {
-    if (!this.millercolumns) return
-    return this.millercolumns.activeChain
-  }
-
-  /** Store active items in a chain array. */
-  storeActiveChain() {
-    // Store the current chain in a list
-    if (this.millercolumns) {
-      const index = this.millercolumns.activeChainIndex
-      if (index && this.chain) {
-        chains[index] = this.chain
-      }
-    }
-
-    // Convert selected items to stored items
-    if (Array.isArray(this.chain)) {
-      for (const item of this.chain) {
-        item.dataset.selected = 'false'
-        item.classList.remove('govuk-miller-columns__item--selected')
-
-        item.dataset.stored = 'true'
-        item.classList.add('govuk-miller-columns__item--stored')
-      }
+    this.list = document.createElement('ol')
+    this.list.className = 'govuk-breadcrumbs__list'
+    this.appendChild(this.list)
+    if (this.millerColumns && this.millerColumns.taxonomy) {
+      this.update(this.millerColumns.taxonomy)
     }
   }
 
-  /** Swap selected items with stored items in a chain array. */
-  swapActiveChain() {
-    // Convert stored items into selected items
-    if (Array.isArray(this.chain)) {
-      for (const item of this.chain) {
-        item.dataset.selected = 'true'
-        item.classList.add('govuk-miller-columns__item--selected')
-
-        item.dataset.stored = 'false'
-        item.classList.remove('govuk-miller-columns__item--stored')
-      }
-    }
+  get millerColumns(): ?MillerColumnsElement {
+    const millerColumns = document.getElementById(this.getAttribute('for') || '')
+    return millerColumns instanceof MillerColumnsElement ? millerColumns : null
   }
 
-  /** Update active items in the current chain. */
-  updateActiveChain() {
-    if (this.millercolumns) {
-      const index = this.millercolumns.activeChainIndex
-
-      // Store the current chain in a list
-      if (this.chain) {
-        chains[index] = this.chain
-      }
-
-      // If empty chain remove it from the array
-      // $FlowFixMe
-      if (chains[index].length === 0) {
-        this.removeChain(this, index)
-      }
+  update(taxonomy: Taxonomy) {
+    this.taxonomy = taxonomy
+    const selectedTaxons = taxonomy.selectedTaxons
+    while (this.list.lastChild) {
+      this.list.removeChild(this.list.lastChild)
     }
 
-    this.renderChains()
-  }
-
-  /** Update the breadcrumbs element. */
-  renderChains() {
-    if (chains.length) {
-      this.innerHTML = ''
-      for (const [index, chainItem] of chains.entries()) {
-        // $FlowFixMe
-        if (chainItem && chainItem.length) {
-          // $FlowFixMe
-          this.addChain(chainItem, index)
-        }
+    if (selectedTaxons.length) {
+      for (const taxon of selectedTaxons) {
+        this.addSelectedTaxon(taxon)
       }
     } else {
-      this.innerHTML = `
-      <ol class="govuk-breadcrumbs__list">
-        <li class="govuk-breadcrumbs__list-item">No selected topics</li>
-      </ol>`
+      const li = document.createElement('li')
+      li.className = 'govuk-breadcrumbs__list-item'
+      li.textContent = 'No selected topics'
+      this.list.appendChild(li)
     }
   }
 
-  /** Add a breadcrumbs. */
-  addChain(chain: Array<HTMLElement>, index: number) {
-    const chainElement = document.createElement('ol')
-    chainElement.classList.add('govuk-breadcrumbs__list')
-    chainElement.dataset.chain = index.toString()
-    this.updateChain(chainElement, chain)
-
-    // Add a remove link to the chainElement
-    const removeButton = document.createElement('button')
-    removeButton.dataset.chain = index.toString()
-    removeButton.classList.add('govuk-link')
-    removeButton.innerHTML = 'Remove topic'
-    const fn = this.removeChain.bind(null, this, index)
-    removeButton.addEventListener('click', fn, false)
-
-    chainElement.appendChild(removeButton)
-
-    this.appendChild(chainElement)
+  addSelectedTaxon(taxon: Taxon) {
+    const li = document.createElement('li')
+    li.className = 'govuk-breadcrumbs__list-item'
+    li.appendChild(this.breadcrumbsElement(taxon))
+    li.appendChild(this.removeTopicElement(taxon))
+    this.list.appendChild(li)
   }
 
-  /** Update a breadcrumbs. */
-  updateChain(chainElement: HTMLOListElement, chain: Array<HTMLElement>) {
-    chainElement.innerHTML = ''
-    for (const item of chain) {
-      const breadcrumb = document.createElement('li')
+  breadcrumbsElement(taxon: Taxon): HTMLElement {
+    const ol = document.createElement('ol')
+    ol.className = 'govuk-breadcrumbs__breadcrumbs'
+    for (const current of taxon.withParents()) {
+      const li = document.createElement('li')
+      li.className = 'govuk-breadcrumbs__breadcrumbs-item'
+      li.textContent = current.label.textContent
+      ol.appendChild(li)
+    }
+    return ol
+  }
 
-      const label = item.querySelector('label')
-      if (label) {
-        breadcrumb.innerHTML = label.innerHTML
-      } else {
-        breadcrumb.innerHTML = item.innerHTML
+  removeTopicElement(taxon: Taxon): HTMLElement {
+    const button = document.createElement('button')
+    button.className = 'govuk-breadcrumbs__remove-topic'
+    button.textContent = 'Remove topic'
+    button.addEventListener('click', () => {
+      if (this.taxonomy) {
+        this.taxonomy.removeTopic(taxon)
       }
-
-      breadcrumb.classList.add('govuk-breadcrumbs__list-item')
-      chainElement.appendChild(breadcrumb)
-    }
-  }
-
-  /** Remove a breadcrumbs. */
-  removeChain(breadcrumbs: BreadcrumbsElement, chainIndex) {
-    if (Array.isArray(chains[chainIndex])) {
-      breadcrumbs.removeStoredChain(chains[chainIndex])
-
-      chains.splice(chainIndex, 1)
-
-      // If active chain hide revealed columns
-      if (chainIndex === chains.length) {
-        if (breadcrumbs.millercolumns) {
-          breadcrumbs.millercolumns.hideColumns('2')
-        }
-      }
-
-      breadcrumbs.renderChains()
-    }
-  }
-
-  /** Remove a chain of stored items from the Miller Columns. */
-  removeStoredChain(chain: Array<HTMLElement>) {
-    for (const item of chain) {
-      if (this.millercolumns) {
-        this.millercolumns.deselectItem(item)
-        item.dataset.stored = 'false'
-        item.classList.remove('govuk-miller-columns__item--stored')
-      }
-    }
+    })
+    return button
   }
 }
 
