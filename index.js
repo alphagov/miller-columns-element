@@ -203,19 +203,18 @@ class Topic {
     // if this item is selected explicitly we can deselect it
     if (this.selected) {
       this.deselectSelfAndParents()
-      return
-    }
+    } else {
+      // otherwise we need to find the selected children to start deselecting
+      const selectedChildren = this.selectedChildren
 
-    // otherwise we need to find the selected children to start deselecting
-    const selectedChildren = this.selectedChildren
+      // if we have none it's a no-op
+      if (!selectedChildren.length) {
+        return
+      }
 
-    // if we have none it's a no-op
-    if (!selectedChildren.length) {
-      return
-    }
-
-    for (const child of selectedChildren) {
-      child.deselect()
+      for (const child of selectedChildren) {
+        child.deselect(false)
+      }
     }
 
     if (selectParent && this.parent) {

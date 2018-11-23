@@ -298,38 +298,37 @@ var Topic = function () {
       // if this item is selected explicitly we can deselect it
       if (this.selected) {
         this.deselectSelfAndParents();
-        return;
-      }
+      } else {
+        // otherwise we need to find the selected children to start deselecting
+        var selectedChildren = this.selectedChildren;
 
-      // otherwise we need to find the selected children to start deselecting
-      var selectedChildren = this.selectedChildren;
-
-      // if we have none it's a no-op
-      if (!selectedChildren.length) {
-        return;
-      }
-
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
-
-      try {
-        for (var _iterator4 = selectedChildren[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var child = _step4.value;
-
-          child.deselect();
+        // if we have none it's a no-op
+        if (!selectedChildren.length) {
+          return;
         }
-      } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
-      } finally {
+
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
         try {
-          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-            _iterator4.return();
+          for (var _iterator4 = selectedChildren[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var child = _step4.value;
+
+            child.deselect(false);
           }
+        } catch (err) {
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
         } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
+          try {
+            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+              _iterator4.return();
+            }
+          } finally {
+            if (_didIteratorError4) {
+              throw _iteratorError4;
+            }
           }
         }
       }

@@ -118,6 +118,20 @@ describe('govuk-miller-columns', function() {
       assert.isFalse(firstItemL2.querySelector('input').checked)
     })
 
+    it("doesn't unselect items above the item that was clicked in the tree", function() {
+      const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
+      firstItemL1.click()
+      const firstItemL2 = document.querySelector('ul:not(.govuk-miller-columns__column--collapse):nth-of-type(2) li')
+      firstItemL2.click()
+
+      firstItemL2.click()
+
+      assert.isFalse(firstItemL2.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isFalse(firstItemL2.querySelector('input').checked)
+      assert.isTrue(firstItemL1.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isTrue(firstItemL1.querySelector('input').checked)
+    })
+
     it('shows active items in selected items', function() {
       const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
       const firstLabelL1 = firstItemL1.querySelector('label')
