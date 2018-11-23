@@ -77,6 +77,13 @@
     return Array.prototype.slice.call(nodes);
   }
 
+  /**
+   * This models the taxonomy shown in the miller columns and the current state
+   * of it.
+   * It notifies the miller columns element when it has changed state to update
+   * the UI
+   */
+
   var Taxonomy = function () {
     function Taxonomy(topics, millerColumns) {
       _classCallCheck(this, Taxonomy);
@@ -86,15 +93,19 @@
       this.active = this.selectedTopics[0];
     }
 
+    /** fetches all the topics that are currently selected */
+
+    // At any time there is one or no active topic, the active topic determines
+    // what part of the taxonomy is currently shown to the user (i.e which level)
+    // if this is null a user is shown the root column
+
+
     _createClass(Taxonomy, [{
-      key: 'toggleSelection',
-      value: function toggleSelection(topic) {
+      key: 'topicClicked',
+      value: function topicClicked(topic) {
         // if this is the active topic or a parent of it we deselect
         if (topic === this.active || topic.parentOf(this.active)) {
-          topic.deselect();
-          if (topic.parent) {
-            topic.parent.select();
-          }
+          topic.deselect(true);
           this.active = topic.parent;
         } else if (topic.selected || topic.selectedChildren.length) {
           // if this is a selected topic with children we make it active to allow
@@ -102,12 +113,8 @@
           if (topic.children.length) {
             this.active = topic;
           } else {
-            // otherwise we deselect it as we take the click as they can't be
-            // traversing
-            topic.deselect();
-            if (topic.parent) {
-              topic.parent.select();
-            }
+            // otherwise we deselect it as we know the user can't be traversing
+            topic.deselect(true);
             this.active = topic.parent;
           }
         } else {
@@ -121,7 +128,7 @@
     }, {
       key: 'removeTopic',
       value: function removeTopic(topic) {
-        topic.deselect();
+        topic.deselect(false);
         // determine which topic to mark as active, if any
         this.active = this.determineActiveFromRemoved(topic);
         this.millerColumns.update();
@@ -245,8 +252,13 @@
         if (this.parent) {
           this.parent.childWasSelected();
         }
+      } else {
+        this.selected = false;
       }
     }
+
+    /** The presence of selected children determines whether this item is considered selected */
+
 
     _createClass(Topic, [{
       key: 'parentOf',
@@ -255,13 +267,34 @@
           return false;
         }
 
-        return this.children.reduce(function (memo, topic) {
-          if (memo) {
-            return true;
-          }
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
 
-          return topic === other || topic.parentOf(other);
-        }, false);
+        try {
+          for (var _iterator3 = this.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var topic = _step3.value;
+
+            if (topic === other || topic.parentOf(other)) {
+              return true;
+            }
+          }
+        } catch (err) {
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+              _iterator3.return();
+            }
+          } finally {
+            if (_didIteratorError3) {
+              throw _iteratorError3;
+            }
+          }
+        }
+
+        return false;
       }
     }, {
       key: 'withParents',
@@ -284,67 +317,82 @@
     }, {
       key: 'deselect',
       value: function deselect() {
+        var selectParent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        // if this item is selected explicitly we can deselect it
         if (this.selected) {
-          var deepestFirst = this.withParents().reverse();
-
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-
-          try {
-            for (var _iterator3 = deepestFirst[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var topic = _step3.value;
-
-              // if the parent has selected children it should remain ticked
-              if (topic.selectedChildren.length) {
-                break;
-              } else {
-                topic.selected = false;
-                topic.checkbox.checked = false;
-              }
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-
+          this.deselectSelfAndParents();
           return;
         }
 
+        // otherwise we need to find the selected children to start deselecting
         var selectedChildren = this.selectedChildren;
-        if (selectedChildren.length) {
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
 
+        // if we have none it's a no-op
+        if (!selectedChildren.length) {
+          return;
+        }
+
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+          for (var _iterator4 = selectedChildren[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var child = _step4.value;
+
+            child.deselect();
+          }
+        } catch (err) {
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
+        } finally {
           try {
-            for (var _iterator4 = selectedChildren[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var child = _step4.value;
-
-              child.deselect();
+            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+              _iterator4.return();
             }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
           } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
+            if (_didIteratorError4) {
+              throw _iteratorError4;
+            }
+          }
+        }
+
+        if (selectParent && this.parent) {
+          this.parent.select();
+        }
+      }
+    }, {
+      key: 'deselectSelfAndParents',
+      value: function deselectSelfAndParents() {
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
+
+        try {
+          // loop through the parents only deselecting items that don't have other
+          // selected children
+          for (var _iterator5 = this.withParents().reverse()[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var topic = _step5.value;
+
+            if (topic.selectedChildren.length) {
+              break;
+            } else {
+              topic.selected = false;
+              topic.checkbox.checked = false;
+            }
+          }
+        } catch (err) {
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion5 && _iterator5.return) {
+              _iterator5.return();
+            }
+          } finally {
+            if (_didIteratorError5) {
+              throw _iteratorError5;
             }
           }
         }
@@ -352,7 +400,6 @@
     }, {
       key: 'childWasSelected',
       value: function childWasSelected() {
-        // we need each checkbox to be selected for the UI
         this.checkbox.checked = true;
         this.selected = false;
         if (this.parent) {
@@ -398,8 +445,8 @@
         columnNarrow: 'govuk-miller-columns__column--narrow',
         item: 'govuk-miller-columns__item',
         itemParent: 'govuk-miller-columns__item--parent',
-        itemSelected: 'govuk-miller-columns__item--selected',
-        itemStored: 'govuk-miller-columns__item--stored'
+        itemActive: 'govuk-miller-columns__item--active',
+        itemSelected: 'govuk-miller-columns__item--selected'
       };
       return _this;
     }
@@ -431,98 +478,15 @@
           ul.classList.add(this.classNames.columnCollapse);
         }
         this.appendChild(ul);
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
-
-        try {
-          for (var _iterator5 = topics[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var topic = _step5.value;
-
-            this.renderTopic(topic, ul);
-          }
-        } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-              _iterator5.return();
-            }
-          } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
-            }
-          }
-        }
-      }
-    }, {
-      key: 'renderTopic',
-      value: function renderTopic(topic, list) {
-        var li = document.createElement('li');
-        li.classList.add(this.classNames.item);
-        var div = document.createElement('div');
-        div.className = 'govuk-checkboxes__item';
-        div.appendChild(topic.checkbox);
-        div.appendChild(topic.label);
-        li.appendChild(div);
-        list.appendChild(li);
-        this.attachEvents(li, topic);
-        if (topic.children.length) {
-          li.classList.add(this.classNames.itemParent);
-          this.renderTaxonomyColumn(topic.children);
-        }
-      }
-    }, {
-      key: 'attachEvents',
-      value: function attachEvents(trigger, topic) {
-        var _this2 = this;
-
-        trigger.tabIndex = 0;
-        trigger.addEventListener('click', function () {
-          return _this2.selectTopic(topic);
-        }, false);
-        trigger.addEventListener('keydown', function (event) {
-          if ([' ', 'Enter'].indexOf(event.key) !== -1) {
-            event.preventDefault();
-            _this2.selectTopic(topic);
-          }
-        }, false);
-      }
-    }, {
-      key: 'selectTopic',
-      value: function selectTopic(topic) {
-        this.taxonomy.toggleSelection(topic);
-      }
-    }, {
-      key: 'update',
-      value: function update() {
-        this.showStoredTopics(this.taxonomy.selectedTopics);
-        this.showActiveTopic(this.taxonomy.active);
-
-        if (this.selectedElement) {
-          this.selectedElement.update(this.taxonomy);
-        }
-      }
-    }, {
-      key: 'showStoredTopics',
-      value: function showStoredTopics(topics) {
-        var storedItems = this.itemsForStoredTopics(topics);
-        var currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored));
-
         var _iteratorNormalCompletion6 = true;
         var _didIteratorError6 = false;
         var _iteratorError6 = undefined;
 
         try {
-          for (var _iterator6 = currentlyStored.concat(storedItems)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var item = _step6.value;
+          for (var _iterator6 = topics[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var topic = _step6.value;
 
-            if (storedItems.indexOf(item) !== -1) {
-              item.classList.add(this.classNames.itemStored);
-            } else {
-              item.classList.remove(this.classNames.itemStored);
-            }
+            this.renderTopic(topic, ul);
           }
         } catch (err) {
           _didIteratorError6 = true;
@@ -540,27 +504,71 @@
         }
       }
     }, {
-      key: 'showActiveTopic',
-      value: function showActiveTopic(topic) {
-        var activeItems = this.itemsForActiveTopic(topic);
-        var currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected));
+      key: 'renderTopic',
+      value: function renderTopic(topic, list) {
+        var li = document.createElement('li');
+        li.classList.add(this.classNames.item);
+        var div = document.createElement('div');
+        div.className = 'govuk-checkboxes__item';
+        div.appendChild(topic.checkbox);
+        div.appendChild(topic.label);
+        li.appendChild(div);
+        list.appendChild(li);
+        this.attachEvents(li, topic);
+
+        if (topic.children.length) {
+          li.classList.add(this.classNames.itemParent);
+          this.renderTaxonomyColumn(topic.children);
+        }
+      }
+    }, {
+      key: 'attachEvents',
+      value: function attachEvents(trigger, topic) {
+        var _this2 = this;
+
+        trigger.tabIndex = 0;
+        trigger.addEventListener('click', function () {
+          return _this2.taxonomy.topicClicked(topic);
+        }, false);
+        trigger.addEventListener('keydown', function (event) {
+          if ([' ', 'Enter'].indexOf(event.key) !== -1) {
+            event.preventDefault();
+            _this2.taxonomy.topicClicked(topic);
+          }
+        }, false);
+      }
+    }, {
+      key: 'update',
+      value: function update() {
+        this.showSelectedTopics(this.taxonomy.selectedTopics);
+        this.showActiveTopic(this.taxonomy.active);
+        this.showCurrentColumns(this.taxonomy.active);
+
+        if (this.selectedElement) {
+          this.selectedElement.update(this.taxonomy);
+        }
+      }
+    }, {
+      key: 'updateClassName',
+      value: function updateClassName(className, items) {
+        var currentlyWithClass = nodesToArray(this.getElementsByClassName(className));
 
         var _iteratorNormalCompletion7 = true;
         var _didIteratorError7 = false;
         var _iteratorError7 = undefined;
 
         try {
-          for (var _iterator7 = currentlyActive.concat(activeItems)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+          for (var _iterator7 = currentlyWithClass.concat(items)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
             var item = _step7.value;
 
             if (!item) {
               continue;
             }
 
-            if (activeItems.indexOf(item) !== -1) {
-              item.classList.add(this.classNames.itemSelected);
+            if (items.indexOf(item) !== -1) {
+              item.classList.add(className);
             } else {
-              item.classList.remove(this.classNames.itemSelected);
+              item.classList.remove(className);
             }
           }
         } catch (err) {
@@ -577,153 +585,149 @@
             }
           }
         }
-
-        var allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column));
-        var columnsToShow = this.columnsForActiveTopic(topic);
-
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
-
-        try {
-          for (var _iterator8 = allColumns[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var _item = _step8.value;
-
-            // we always want to show the root column
-            if (_item.dataset.root === 'true') {
-              continue;
-            }
-            if (columnsToShow.indexOf(_item) !== -1) {
-              _item.classList.remove(this.classNames.columnCollapse);
-            } else {
-              _item.classList.add(this.classNames.columnCollapse);
-            }
-          }
-        } catch (err) {
-          _didIteratorError8 = true;
-          _iteratorError8 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion8 && _iterator8.return) {
-              _iterator8.return();
-            }
-          } finally {
-            if (_didIteratorError8) {
-              throw _iteratorError8;
-            }
-          }
-        }
-
-        if (columnsToShow.length > 3) {
-          // make all but the last column narrow
-          for (var index = 0; index < columnsToShow.length; index++) {
-            var col = columnsToShow[index];
-
-            if (!col) {
-              continue;
-            }
-
-            if (index === columnsToShow.length - 1) {
-              col.classList.remove(this.classNames.columnNarrow);
-            } else {
-              col.classList.add(this.classNames.columnNarrow);
-            }
-          }
-        } else {
-          var _iteratorNormalCompletion9 = true;
-          var _didIteratorError9 = false;
-          var _iteratorError9 = undefined;
-
-          try {
-            // make sure none of the columns are narrow
-            for (var _iterator9 = allColumns[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-              var _col = _step9.value;
-
-              _col.classList.remove(this.classNames.columnNarrow);
-            }
-          } catch (err) {
-            _didIteratorError9 = true;
-            _iteratorError9 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                _iterator9.return();
-              }
-            } finally {
-              if (_didIteratorError9) {
-                throw _iteratorError9;
-              }
-            }
-          }
-        }
       }
     }, {
-      key: 'itemsForActiveTopic',
-      value: function itemsForActiveTopic(topic) {
+      key: 'showSelectedTopics',
+      value: function showSelectedTopics(selectedTopics) {
         var _this3 = this;
 
-        if (!topic) {
-          return [];
-        }
-
-        return topic.withParents().reduce(function (memo, topic) {
-          var item = topic.checkbox.closest('.' + _this3.classNames.item);
-          return memo.concat([item]);
-        }, []);
-      }
-    }, {
-      key: 'itemsForStoredTopics',
-      value: function itemsForStoredTopics(topics) {
-        var _this4 = this;
-
-        return topics.reduce(function (memo, child) {
-          var _iteratorNormalCompletion10 = true;
-          var _didIteratorError10 = false;
-          var _iteratorError10 = undefined;
+        var selectedItems = selectedTopics.reduce(function (memo, child) {
+          var _iteratorNormalCompletion8 = true;
+          var _didIteratorError8 = false;
+          var _iteratorError8 = undefined;
 
           try {
-            for (var _iterator10 = child.withParents()[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-              var topic = _step10.value;
+            for (var _iterator8 = child.withParents()[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+              var topic = _step8.value;
 
-              var item = topic.checkbox.closest('.' + _this4.classNames.item);
+              var item = topic.checkbox.closest('.' + _this3.classNames.item);
               if (item instanceof HTMLElement) {
                 memo.push(item);
               }
             }
           } catch (err) {
-            _didIteratorError10 = true;
-            _iteratorError10 = err;
+            _didIteratorError8 = true;
+            _iteratorError8 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                _iterator10.return();
+              if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                _iterator8.return();
               }
             } finally {
-              if (_didIteratorError10) {
-                throw _iteratorError10;
+              if (_didIteratorError8) {
+                throw _iteratorError8;
               }
             }
           }
 
           return memo;
         }, []);
+
+        this.updateClassName(this.classNames.itemSelected, selectedItems);
+      }
+    }, {
+      key: 'showActiveTopic',
+      value: function showActiveTopic(activeTopic) {
+        var _this4 = this;
+
+        var activeItems = void 0;
+
+        if (!activeTopic) {
+          activeItems = [];
+        } else {
+          activeItems = activeTopic.withParents().reduce(function (memo, topic) {
+            var item = topic.checkbox.closest('.' + _this4.classNames.item);
+
+            if (item instanceof HTMLElement) {
+              memo.push(item);
+            }
+
+            return memo;
+          }, []);
+        }
+        this.updateClassName(this.classNames.itemActive, activeItems);
+      }
+    }, {
+      key: 'showCurrentColumns',
+      value: function showCurrentColumns(activeTopic) {
+        var allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column));
+        var columnsToShow = this.columnsForActiveTopic(activeTopic);
+        var narrowThreshold = 3;
+        var showNarrow = columnsToShow.length > narrowThreshold;
+        var _classNames = this.classNames,
+            collapseClass = _classNames.columnCollapse,
+            narrowClass = _classNames.columnNarrow;
+        var _iteratorNormalCompletion9 = true;
+        var _didIteratorError9 = false;
+        var _iteratorError9 = undefined;
+
+        try {
+
+          for (var _iterator9 = allColumns[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var item = _step9.value;
+
+            if (!item) {
+              continue;
+            }
+
+            // we always want to show the root column
+            if (item.dataset.root === 'true') {
+              showNarrow ? item.classList.add(narrowClass) : item.classList.remove(narrowClass);
+              continue;
+            }
+
+            var index = columnsToShow.indexOf(item);
+
+            if (index === -1) {
+              // this is not a column to show
+              item.classList.add(collapseClass);
+            } else if (showNarrow && index < narrowThreshold) {
+              // show this column but narrow
+              item.classList.remove(collapseClass);
+              item.classList.add(narrowClass);
+            } else {
+              // show this column in all it's glory
+              item.classList.remove(collapseClass, narrowClass);
+            }
+          }
+        } catch (err) {
+          _didIteratorError9 = true;
+          _iteratorError9 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion9 && _iterator9.return) {
+              _iterator9.return();
+            }
+          } finally {
+            if (_didIteratorError9) {
+              throw _iteratorError9;
+            }
+          }
+        }
       }
     }, {
       key: 'columnsForActiveTopic',
-      value: function columnsForActiveTopic(topic) {
-        if (!topic) {
+      value: function columnsForActiveTopic(activeTopic) {
+        if (!activeTopic) {
           return [];
         }
 
         var columnSelector = '.' + this.classNames.column;
-        var columns = topic.withParents().reduce(function (memo, topic) {
+        var columns = activeTopic.withParents().reduce(function (memo, topic) {
           var column = topic.checkbox.closest(columnSelector);
-          return memo.concat([column]);
+          if (column instanceof HTMLElement) {
+            memo.push(column);
+          }
+
+          return memo;
         }, []);
 
-        // we'll want to show the next column too
-        if (topic.children.length) {
-          columns.push(topic.children[0].checkbox.closest(columnSelector));
+        // we'll want to show the next column too for the next choices
+        if (activeTopic.children.length) {
+          var nextColumn = activeTopic.children[0].checkbox.closest(columnSelector);
+          if (nextColumn instanceof HTMLElement) {
+            columns.push(nextColumn);
+          }
         }
         return columns;
       }
@@ -762,32 +766,33 @@
       value: function update(taxonomy) {
         this.taxonomy = taxonomy;
         var selectedTopics = taxonomy.selectedTopics;
+        // seems simpler to nuke the list and re-build it
         while (this.list.lastChild) {
           this.list.removeChild(this.list.lastChild);
         }
 
         if (selectedTopics.length) {
-          var _iteratorNormalCompletion11 = true;
-          var _didIteratorError11 = false;
-          var _iteratorError11 = undefined;
+          var _iteratorNormalCompletion10 = true;
+          var _didIteratorError10 = false;
+          var _iteratorError10 = undefined;
 
           try {
-            for (var _iterator11 = selectedTopics[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-              var topic = _step11.value;
+            for (var _iterator10 = selectedTopics[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+              var topic = _step10.value;
 
               this.addSelectedTopic(topic);
             }
           } catch (err) {
-            _didIteratorError11 = true;
-            _iteratorError11 = err;
+            _didIteratorError10 = true;
+            _iteratorError10 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                _iterator11.return();
+              if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                _iterator10.return();
               }
             } finally {
-              if (_didIteratorError11) {
-                throw _iteratorError11;
+              if (_didIteratorError10) {
+                throw _iteratorError10;
               }
             }
           }
@@ -814,13 +819,13 @@
         div.className = 'govuk-breadcrumbs';
         var ol = document.createElement('ol');
         ol.className = 'govuk-breadcrumbs__list';
-        var _iteratorNormalCompletion12 = true;
-        var _didIteratorError12 = false;
-        var _iteratorError12 = undefined;
+        var _iteratorNormalCompletion11 = true;
+        var _didIteratorError11 = false;
+        var _iteratorError11 = undefined;
 
         try {
-          for (var _iterator12 = topic.withParents()[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-            var current = _step12.value;
+          for (var _iterator11 = topic.withParents()[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var current = _step11.value;
 
             var li = document.createElement('li');
             li.className = 'govuk-breadcrumbs__list-item';
@@ -828,16 +833,16 @@
             ol.appendChild(li);
           }
         } catch (err) {
-          _didIteratorError12 = true;
-          _iteratorError12 = err;
+          _didIteratorError11 = true;
+          _iteratorError11 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion12 && _iterator12.return) {
-              _iterator12.return();
+            if (!_iteratorNormalCompletion11 && _iterator11.return) {
+              _iterator11.return();
             }
           } finally {
-            if (_didIteratorError12) {
-              throw _iteratorError12;
+            if (_didIteratorError11) {
+              throw _iteratorError11;
             }
           }
         }

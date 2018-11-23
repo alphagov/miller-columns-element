@@ -4,16 +4,27 @@ function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>
   return Array.prototype.slice.call(nodes)
 }
 
+/**
+ * This models the taxonomy shown in the miller columns and the current state
+ * of it.
+ * It notifies the miller columns element when it has changed state to update
+ * the UI
+ */
 class Taxonomy {
   topics: Array<Topic>
   millerColumns: MillerColumnsElement
+  // At any time there is one or no active topic, the active topic determines
+  // what part of the taxonomy is currently shown to the user (i.e which level)
+  // if this is null a user is shown the root column
   active: ?Topic
+
   constructor(topics: Array<Topic>, millerColumns: MillerColumnsElement) {
     this.topics = topics
     this.millerColumns = millerColumns
     this.active = this.selectedTopics[0]
   }
 
+  /** fetches all the topics that are currently selected */
   get selectedTopics(): Array<Topic> {
     return this.topics.reduce((memo, topic) => {
       if (topic.selected) {
@@ -24,13 +35,11 @@ class Taxonomy {
     }, [])
   }
 
-  toggleSelection(topic: Topic) {
+  /** Handler for a topic in the miller columns being clicked */
+  topicClicked(topic: Topic) {
     // if this is the active topic or a parent of it we deselect
     if (topic === this.active || topic.parentOf(this.active)) {
-      topic.deselect()
-      if (topic.parent) {
-        topic.parent.select()
-      }
+      topic.deselect(true)
       this.active = topic.parent
     } else if (topic.selected || topic.selectedChildren.length) {
       // if this is a selected topic with children we make it active to allow
@@ -38,12 +47,8 @@ class Taxonomy {
       if (topic.children.length) {
         this.active = topic
       } else {
-        // otherwise we deselect it as we take the click as they can't be
-        // traversing
-        topic.deselect()
-        if (topic.parent) {
-          topic.parent.select()
-        }
+        // otherwise we deselect it as we know the user can't be traversing
+        topic.deselect(true)
         this.active = topic.parent
       }
     } else {
@@ -55,13 +60,15 @@ class Taxonomy {
     this.millerColumns.update()
   }
 
+  /** Handler for when a topic is removed via the selected element */
   removeTopic(topic: Topic) {
-    topic.deselect()
+    topic.deselect(false)
     // determine which topic to mark as active, if any
     this.active = this.determineActiveFromRemoved(topic)
     this.millerColumns.update()
   }
 
+  /** Calculate most relevant topic to show user after they've removed a topic */
   determineActiveFromRemoved(topic: Topic): ?Topic {
     // if there is already an active item with selected children lets not
     // change anything
@@ -82,6 +89,10 @@ class Taxonomy {
   }
 }
 
+/**
+ * Represents a single topic in the taxonomy and knows whether it is currently
+ * selected or not
+ */
 class Topic {
   static fromList(list: ?HTMLElement, parent: ?Topic = null) {
     const topics = []
@@ -108,6 +119,10 @@ class Topic {
   checkbox: HTMLInputElement
   children: Array<Topic>
   parent: ?Topic
+  // Whether this topic is selected, we only allow one item in a branch of the
+  // taxonomy to be selected.
+  // E.g. given education > school > 6th form only one of these can be selected
+  // at a time and the parents are implicity selected from it
   selected: boolean
 
   constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Topic) {
@@ -121,9 +136,12 @@ class Topic {
       if (this.parent) {
         this.parent.childWasSelected()
       }
+    } else {
+      this.selected = false
     }
   }
 
+  /** The presence of selected children determines whether this item is considered selected */
   get selectedChildren(): Array<Topic> {
     return this.children.reduce((memo, topic) => {
       const selected = topic.selectedChildren
@@ -142,24 +160,26 @@ class Topic {
     }
   }
 
+  /** Whether this topic is the parent of a different one */
   parentOf(other: ?Topic): boolean {
     if (!other) {
       return false
     }
 
-    return this.children.reduce((memo, topic) => {
-      if (memo) {
+    for (const topic of this.children) {
+      if (topic === other || topic.parentOf(other)) {
         return true
       }
+    }
 
-      return topic === other || topic.parentOf(other)
-    }, false)
+    return false
   }
 
   withParents(): Array<Topic> {
     return this.parents.concat([this])
   }
 
+  /** Attempts to select this topic assuming it's not alrerady selected or has selected children */
   select() {
     // if already selected or a child is selected do nothing
     if (this.selected || this.selectedChildren.length) {
@@ -172,33 +192,52 @@ class Topic {
     }
   }
 
-  deselect() {
+  /**
+   * Deselects this topic. If this item is not itself selected but a child of it
+   * is then it traverses to that child and deselects it.
+   * Takes an optional argument as to whether to select the parent after deselection
+   * Doing this allows a user to stay in context of their selection in the miller
+   * column element as deselecting the whole tree would take them back to root
+   */
+  deselect(selectParent: boolean = true) {
+    // if this item is selected explicitly we can deselect it
     if (this.selected) {
-      const deepestFirst = this.withParents().reverse()
-
-      for (const topic of deepestFirst) {
-        // if the parent has selected children it should remain ticked
-        if (topic.selectedChildren.length) {
-          break
-        } else {
-          topic.selected = false
-          topic.checkbox.checked = false
-        }
-      }
-
+      this.deselectSelfAndParents()
       return
     }
 
+    // otherwise we need to find the selected children to start deselecting
     const selectedChildren = this.selectedChildren
-    if (selectedChildren.length) {
-      for (const child of selectedChildren) {
-        child.deselect()
+
+    // if we have none it's a no-op
+    if (!selectedChildren.length) {
+      return
+    }
+
+    for (const child of selectedChildren) {
+      child.deselect()
+    }
+
+    if (selectParent && this.parent) {
+      this.parent.select()
+    }
+  }
+
+  deselectSelfAndParents() {
+    // loop through the parents only deselecting items that don't have other
+    // selected children
+    for (const topic of this.withParents().reverse()) {
+      if (topic.selectedChildren.length) {
+        break
+      } else {
+        topic.selected = false
+        topic.checkbox.checked = false
       }
     }
   }
 
+  /** If a child is selected we need to implicitly select all the parents */
   childWasSelected() {
-    // we need each checkbox to be selected for the UI
     this.checkbox.checked = true
     this.selected = false
     if (this.parent) {
@@ -219,8 +258,8 @@ class MillerColumnsElement extends HTMLElement {
       columnNarrow: 'govuk-miller-columns__column--narrow',
       item: 'govuk-miller-columns__item',
       itemParent: 'govuk-miller-columns__item--parent',
-      itemSelected: 'govuk-miller-columns__item--selected',
-      itemStored: 'govuk-miller-columns__item--stored'
+      itemActive: 'govuk-miller-columns__item--active',
+      itemSelected: 'govuk-miller-columns__item--selected'
     }
   }
 
@@ -237,11 +276,13 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
+  /** Returns the element which shows the selections a user has made */
   get selectedElement(): ?MillerColumnsSelectedElement {
     const selected = document.getElementById(this.getAttribute('selected') || '')
     return selected instanceof MillerColumnsSelectedElement ? selected : null
   }
 
+  /** Build and insert a column of the taxonomy */
   renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
     const ul = document.createElement('ul')
     ul.className = this.classNames.column
@@ -256,6 +297,7 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
+  /** Build and insert a list item for a topic */
   renderTopic(topic: Topic, list: HTMLElement) {
     const li = document.createElement('li')
     li.classList.add(this.classNames.item)
@@ -266,120 +308,64 @@ class MillerColumnsElement extends HTMLElement {
     li.appendChild(div)
     list.appendChild(li)
     this.attachEvents(li, topic)
+
     if (topic.children.length) {
       li.classList.add(this.classNames.itemParent)
       this.renderTaxonomyColumn(topic.children)
     }
   }
 
+  /** Sets up the event handling for a list item and a topic */
   attachEvents(trigger: HTMLElement, topic: Topic) {
     trigger.tabIndex = 0
-    trigger.addEventListener('click', () => this.selectTopic(topic), false)
+    trigger.addEventListener('click', () => this.taxonomy.topicClicked(topic), false)
     trigger.addEventListener(
       'keydown',
       (event: KeyboardEvent) => {
         if ([' ', 'Enter'].indexOf(event.key) !== -1) {
           event.preventDefault()
-          this.selectTopic(topic)
+          this.taxonomy.topicClicked(topic)
         }
       },
       false
     )
   }
 
-  selectTopic(topic: Topic) {
-    this.taxonomy.toggleSelection(topic)
-  }
-
+  /** Update this element to show a change in the state */
   update() {
-    this.showStoredTopics(this.taxonomy.selectedTopics)
+    this.showSelectedTopics(this.taxonomy.selectedTopics)
     this.showActiveTopic(this.taxonomy.active)
+    this.showCurrentColumns(this.taxonomy.active)
 
     if (this.selectedElement) {
       this.selectedElement.update(this.taxonomy)
     }
   }
 
-  showStoredTopics(topics: Array<Topic>) {
-    const storedItems = this.itemsForStoredTopics(topics)
-    const currentlyStored = nodesToArray(this.getElementsByClassName(this.classNames.itemStored))
+  /**
+   * Utility method to swap class names over for a group of elements
+   * Takes an array of all elements that should have a class and removes it
+   * from any other items that have it
+   */
+  updateClassName(className: string, items: Array<HTMLElement>) {
+    const currentlyWithClass = nodesToArray(this.getElementsByClassName(className))
 
-    for (const item of currentlyStored.concat(storedItems)) {
-      if (storedItems.indexOf(item) !== -1) {
-        item.classList.add(this.classNames.itemStored)
-      } else {
-        item.classList.remove(this.classNames.itemStored)
-      }
-    }
-  }
-
-  showActiveTopic(topic: ?Topic) {
-    const activeItems = this.itemsForActiveTopic(topic)
-    const currentlyActive = nodesToArray(this.getElementsByClassName(this.classNames.itemSelected))
-
-    for (const item of currentlyActive.concat(activeItems)) {
+    for (const item of currentlyWithClass.concat(items)) {
       if (!item) {
         continue
       }
 
-      if (activeItems.indexOf(item) !== -1) {
-        item.classList.add(this.classNames.itemSelected)
+      if (items.indexOf(item) !== -1) {
+        item.classList.add(className)
       } else {
-        item.classList.remove(this.classNames.itemSelected)
-      }
-    }
-
-    const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
-    const columnsToShow = this.columnsForActiveTopic(topic)
-
-    for (const item of allColumns) {
-      // we always want to show the root column
-      if (item.dataset.root === 'true') {
-        continue
-      }
-      if (columnsToShow.indexOf(item) !== -1) {
-        item.classList.remove(this.classNames.columnCollapse)
-      } else {
-        item.classList.add(this.classNames.columnCollapse)
-      }
-    }
-
-    if (columnsToShow.length > 3) {
-      // make all but the last column narrow
-      for (let index = 0; index < columnsToShow.length; index++) {
-        const col = columnsToShow[index]
-
-        if (!col) {
-          continue
-        }
-
-        if (index === columnsToShow.length - 1) {
-          col.classList.remove(this.classNames.columnNarrow)
-        } else {
-          col.classList.add(this.classNames.columnNarrow)
-        }
-      }
-    } else {
-      // make sure none of the columns are narrow
-      for (const col of allColumns) {
-        col.classList.remove(this.classNames.columnNarrow)
+        item.classList.remove(className)
       }
     }
   }
 
-  itemsForActiveTopic(topic: ?Topic) {
-    if (!topic) {
-      return []
-    }
-
-    return topic.withParents().reduce((memo, topic) => {
-      const item = topic.checkbox.closest(`.${this.classNames.item}`)
-      return memo.concat([item])
-    }, [])
-  }
-
-  itemsForStoredTopics(topics: Array<Topic>): Array<HTMLElement> {
-    return topics.reduce((memo, child) => {
+  /** Given an array of selected topics update the UI */
+  showSelectedTopics(selectedTopics: Array<Topic>) {
+    const selectedItems = selectedTopics.reduce((memo, child) => {
       for (const topic of child.withParents()) {
         const item = topic.checkbox.closest(`.${this.classNames.item}`)
         if (item instanceof HTMLElement) {
@@ -389,22 +375,87 @@ class MillerColumnsElement extends HTMLElement {
 
       return memo
     }, [])
+
+    this.updateClassName(this.classNames.itemSelected, selectedItems)
   }
 
-  columnsForActiveTopic(topic: ?Topic) {
-    if (!topic) {
+  /** Update the topic items for the presence (or not) of an active topic */
+  showActiveTopic(activeTopic: ?Topic) {
+    let activeItems
+
+    if (!activeTopic) {
+      activeItems = []
+    } else {
+      activeItems = activeTopic.withParents().reduce((memo, topic) => {
+        const item = topic.checkbox.closest(`.${this.classNames.item}`)
+
+        if (item instanceof HTMLElement) {
+          memo.push(item)
+        }
+
+        return memo
+      }, [])
+    }
+    this.updateClassName(this.classNames.itemActive, activeItems)
+  }
+
+  /** Change what columns are visible based on the active (or not) topic */
+  showCurrentColumns(activeTopic: ?Topic) {
+    const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
+    const columnsToShow = this.columnsForActiveTopic(activeTopic)
+    const narrowThreshold = 3
+    const showNarrow = columnsToShow.length > narrowThreshold
+    const {columnCollapse: collapseClass, columnNarrow: narrowClass} = this.classNames
+
+    for (const item of allColumns) {
+      if (!item) {
+        continue
+      }
+
+      // we always want to show the root column
+      if (item.dataset.root === 'true') {
+        showNarrow ? item.classList.add(narrowClass) : item.classList.remove(narrowClass)
+        continue
+      }
+
+      const index = columnsToShow.indexOf(item)
+
+      if (index === -1) {
+        // this is not a column to show
+        item.classList.add(collapseClass)
+      } else if (showNarrow && index < narrowThreshold) {
+        // show this column but narrow
+        item.classList.remove(collapseClass)
+        item.classList.add(narrowClass)
+      } else {
+        // show this column in all it's glory
+        item.classList.remove(collapseClass, narrowClass)
+      }
+    }
+  }
+
+  /** Determine which columns should be shown based on the active topic */
+  columnsForActiveTopic(activeTopic: ?Topic): Array<HTMLElement> {
+    if (!activeTopic) {
       return []
     }
 
     const columnSelector = `.${this.classNames.column}`
-    const columns = topic.withParents().reduce((memo, topic) => {
+    const columns = activeTopic.withParents().reduce((memo, topic) => {
       const column = topic.checkbox.closest(columnSelector)
-      return memo.concat([column])
+      if (column instanceof HTMLElement) {
+        memo.push(column)
+      }
+
+      return memo
     }, [])
 
-    // we'll want to show the next column too
-    if (topic.children.length) {
-      columns.push(topic.children[0].checkbox.closest(columnSelector))
+    // we'll want to show the next column too for the next choices
+    if (activeTopic.children.length) {
+      const nextColumn = activeTopic.children[0].checkbox.closest(columnSelector)
+      if (nextColumn instanceof HTMLElement) {
+        columns.push(nextColumn)
+      }
     }
     return columns
   }
@@ -432,9 +483,11 @@ class MillerColumnsSelectedElement extends HTMLElement {
     return millerColumns instanceof MillerColumnsElement ? millerColumns : null
   }
 
+  /** Update the UI to show the selected topics */
   update(taxonomy: Taxonomy) {
     this.taxonomy = taxonomy
     const selectedTopics = taxonomy.selectedTopics
+    // seems simpler to nuke the list and re-build it
     while (this.list.lastChild) {
       this.list.removeChild(this.list.lastChild)
     }

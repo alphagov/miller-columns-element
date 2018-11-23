@@ -72,8 +72,8 @@ $transition-time: 400ms;
   font-size: 24px;
 }
 
-.govuk-miller-columns__item--stored,
-.govuk-miller-columns__item--stored:hover {
+.govuk-miller-columns__item--selected,
+.govuk-miller-columns__item--selected:hover {
   color: govuk-colour("white");
   background-color: govuk-colour("grey-1");
 
@@ -88,8 +88,8 @@ $transition-time: 400ms;
   }
 }
 
-.govuk-miller-columns__item--selected,
-.govuk-miller-columns__item--selected:hover {
+.govuk-miller-columns__item--active,
+.govuk-miller-columns__item--active:hover {
   color: govuk-colour("white");
   background-color: govuk-colour("blue");
 

@@ -95,7 +95,7 @@ describe('govuk-miller-columns', function() {
     it('styles active items', function() {
       const firstItem = document.querySelector('ul li')
       firstItem.click()
-      assert.isTrue(firstItem.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isTrue(firstItem.classList.contains('govuk-miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)
     })
 
