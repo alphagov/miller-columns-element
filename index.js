@@ -252,13 +252,13 @@ class MillerColumnsElement extends HTMLElement {
   constructor() {
     super()
     this.classNames = {
-      column: 'govuk-miller-columns__column',
-      columnCollapse: 'govuk-miller-columns__column--collapse',
-      columnNarrow: 'govuk-miller-columns__column--narrow',
-      item: 'govuk-miller-columns__item',
-      itemParent: 'govuk-miller-columns__item--parent',
-      itemActive: 'govuk-miller-columns__item--active',
-      itemSelected: 'govuk-miller-columns__item--selected'
+      column: 'miller-columns__column',
+      columnCollapse: 'miller-columns__column--collapse',
+      columnNarrow: 'miller-columns__column--narrow',
+      item: 'miller-columns__item',
+      itemParent: 'miller-columns__item--parent',
+      itemActive: 'miller-columns__item--active',
+      itemSelected: 'miller-columns__item--selected'
     }
   }
 
@@ -470,7 +470,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
 
   connectedCallback() {
     this.list = document.createElement('ol')
-    this.list.className = 'govuk-miller-columns-selected__list'
+    this.list.className = 'miller-columns-selected__list'
     this.appendChild(this.list)
     if (this.millerColumnsElement && this.millerColumnsElement.taxonomy) {
       this.update(this.millerColumnsElement.taxonomy)
@@ -497,7 +497,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
       }
     } else {
       const li = document.createElement('li')
-      li.className = 'govuk-miller-columns-selected__list-item'
+      li.className = 'miller-columns-selected__list-item'
       li.textContent = 'No selected topics'
       this.list.appendChild(li)
     }
@@ -505,7 +505,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
 
   addSelectedTopic(topic: Topic) {
     const li = document.createElement('li')
-    li.className = 'govuk-miller-columns-selected__list-item'
+    li.className = 'miller-columns-selected__list-item'
     li.appendChild(this.breadcrumbsElement(topic))
     li.appendChild(this.removeTopicElement(topic))
     this.list.appendChild(li)
@@ -528,7 +528,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
 
   removeTopicElement(topic: Topic): HTMLElement {
     const button = document.createElement('button')
-    button.className = 'govuk-miller-columns-selected__remove-topic'
+    button.className = 'miller-columns-selected__remove-topic'
     button.textContent = 'Remove topic'
     button.addEventListener('click', () => {
       if (this.taxonomy) {
@@ -539,14 +539,14 @@ class MillerColumnsSelectedElement extends HTMLElement {
   }
 }
 
-if (!window.customElements.get('govuk-miller-columns')) {
+if (!window.customElements.get('miller-columns')) {
   window.MillerColumnsElement = MillerColumnsElement
-  window.customElements.define('govuk-miller-columns', MillerColumnsElement)
+  window.customElements.define('miller-columns', MillerColumnsElement)
 }
 
-if (!window.customElements.get('govuk-miller-columns-selected')) {
+if (!window.customElements.get('miller-columns-selected')) {
   window.MillerColumnsSelectedElement = MillerColumnsSelectedElement
-  window.customElements.define('govuk-miller-columns-selected', MillerColumnsSelectedElement)
+  window.customElements.define('miller-columns-selected', MillerColumnsSelectedElement)
 }
 
 export {MillerColumnsElement, MillerColumnsSelectedElement}

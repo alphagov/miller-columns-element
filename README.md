@@ -13,7 +13,7 @@ An npm installation will be available at a future point.
 ## Usage
 
 ```html
-<govuk-miller-columns for="taxonomy" selected="selected-items" id="miller-columns">
+<miller-columns class="miller-columns" for="taxonomy" selected="selected-items" id="miller-columns">
   <ul id="taxonomy">
     <li>Parenting, childcare and children's services</li>
     <ul>
@@ -21,9 +21,9 @@ An npm installation will be available at a future point.
       <li>Childcare and early years</li>
     </ul>
   </ul>
-</govuk-miller-columns>
+</miller-columns>
 
-<govuk-miller-columns-selected id="selected-items" for="miller-columns"></govuk-miller-columns-selected>
+<miller-columns-selected id="selected-items" for="miller-columns" class="miller-columns-selected"></miller-columns-selected>
 
 ```
 

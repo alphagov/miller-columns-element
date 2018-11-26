@@ -1,13 +1,13 @@
-describe('govuk-miller-columns', function() {
+describe('miller-columns', function() {
   describe('element creation', function() {
     it('creates from document.createElement', function() {
-      const el = document.createElement('govuk-miller-columns')
-      assert.equal('GOVUK-MILLER-COLUMNS', el.nodeName)
+      const el = document.createElement('miller-columns')
+      assert.equal('MILLER-COLUMNS', el.nodeName)
     })
 
     it('creates from constructor', function() {
       const el = new window.MillerColumnsElement()
-      assert.equal('GOVUK-MILLER-COLUMNS', el.nodeName)
+      assert.equal('MILLER-COLUMNS', el.nodeName)
     })
   })
 
@@ -15,65 +15,65 @@ describe('govuk-miller-columns', function() {
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
-        <govuk-miller-columns-selected id="selected-items" for="miller-columns"></govuk-miller-columns-selected>
-        <govuk-miller-columns id="miller-columns" for="taxonomy" selected="selected-items">
-        <ul id="taxonomy">
-        <li>
-           <div class="govuk-checkboxes__item">
-              <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
-              <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
-              Parenting, childcare and children's services
-              </label>
-           </div>
-           <ul>
-              <li>
-                 <div class="govuk-checkboxes__item">
-                    <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1">
-                    <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
-                    Divorce, separation and legal issues
-                    </label>
-                 </div>
-                 <ul>
-                    <li>
-                       <div class="govuk-checkboxes__item">
-                          <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
-                          <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
-                          Child custody
-                          </label>
-                       </div>
-                    </li>
-                    <li>
-                       <div class="govuk-checkboxes__item">
-                          <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
-                          <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
-                          Disagreements about parentage
-                          </label>
-                       </div>
-                    </li>
-                 </ul>
-              </li>
-              <li>
-                 <div class="govuk-checkboxes__item">
-                    <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
-                    <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
-                    Childcare and early years
-                    </label>
-                 </div>
-                 <ul>
-                    <li>
-                       <div class="govuk-checkboxes__item">
-                          <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
-                          <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
-                          Local authorities and early years
-                          </label>
-                       </div>
-                    </li>
-                 </ul>
-              </li>
-           </ul>
-        </li>
-        </ul>
-        </govuk-miller-columns>
+        <miller-columns-selected id="selected-items" for="miller-columns"></miller-columns-selected>
+        <miller-columns id="miller-columns" for="taxonomy" selected="selected-items">
+          <ul id="taxonomy">
+          <li>
+             <div class="govuk-checkboxes__item">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
+                <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
+                Parenting, childcare and children's services
+                </label>
+             </div>
+             <ul>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1">
+                      <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
+                      Divorce, separation and legal issues
+                      </label>
+                   </div>
+                   <ul>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
+                            <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
+                            Child custody
+                            </label>
+                         </div>
+                      </li>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
+                            <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
+                            Disagreements about parentage
+                            </label>
+                         </div>
+                      </li>
+                   </ul>
+                </li>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
+                      <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
+                      Childcare and early years
+                      </label>
+                   </div>
+                   <ul>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
+                            <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
+                            Local authorities and early years
+                            </label>
+                         </div>
+                      </li>
+                   </ul>
+                </li>
+             </ul>
+          </li>
+          </ul>
+        </miller-columns>
       `
       document.body.append(container)
     })
@@ -89,22 +89,22 @@ describe('govuk-miller-columns', function() {
 
     it('mark items with children as parents', function() {
       const firstItem = document.querySelector('ul li')
-      assert.isTrue(firstItem.classList.contains('govuk-miller-columns__item--parent'))
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--parent'))
     })
 
     it('styles active items', function() {
       const firstItem = document.querySelector('ul li')
       firstItem.click()
-      assert.isTrue(firstItem.classList.contains('govuk-miller-columns__item--active'))
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)
     })
 
     it('show the child list for active list item', function() {
       const firstItem = document.querySelector('ul li')
       const l2List = document.querySelectorAll('ul')[1]
-      assert.isTrue(l2List.classList.contains('govuk-miller-columns__column--collapse'))
+      assert.isTrue(l2List.classList.contains('miller-columns__column--collapse'))
       firstItem.click()
-      assert.isFalse(l2List.classList.contains('govuk-miller-columns__column--collapse'))
+      assert.isFalse(l2List.classList.contains('miller-columns__column--collapse'))
     })
 
     it('unselect children when item is unselected', function() {
@@ -114,21 +114,21 @@ describe('govuk-miller-columns', function() {
       firstItemL2.click()
       firstItemL1.click()
 
-      assert.isFalse(firstItemL2.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isFalse(firstItemL2.classList.contains('miller-columns__item--selected'))
       assert.isFalse(firstItemL2.querySelector('input').checked)
     })
 
     it("doesn't unselect items above the item that was clicked in the tree", function() {
       const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
       firstItemL1.click()
-      const firstItemL2 = document.querySelector('ul:not(.govuk-miller-columns__column--collapse):nth-of-type(2) li')
+      const firstItemL2 = document.querySelector('ul:not(.miller-columns__column--collapse):nth-of-type(2) li')
       firstItemL2.click()
 
       firstItemL2.click()
 
-      assert.isFalse(firstItemL2.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isFalse(firstItemL2.classList.contains('miller-columns__item--selected'))
       assert.isFalse(firstItemL2.querySelector('input').checked)
-      assert.isTrue(firstItemL1.classList.contains('govuk-miller-columns__item--selected'))
+      assert.isTrue(firstItemL1.classList.contains('miller-columns__item--selected'))
       assert.isTrue(firstItemL1.querySelector('input').checked)
     })
 

@@ -439,13 +439,13 @@
       var _this = _possibleConstructorReturn(this, (MillerColumnsElement.__proto__ || Object.getPrototypeOf(MillerColumnsElement)).call(this));
 
       _this.classNames = {
-        column: 'govuk-miller-columns__column',
-        columnCollapse: 'govuk-miller-columns__column--collapse',
-        columnNarrow: 'govuk-miller-columns__column--narrow',
-        item: 'govuk-miller-columns__item',
-        itemParent: 'govuk-miller-columns__item--parent',
-        itemActive: 'govuk-miller-columns__item--active',
-        itemSelected: 'govuk-miller-columns__item--selected'
+        column: 'miller-columns__column',
+        columnCollapse: 'miller-columns__column--collapse',
+        columnNarrow: 'miller-columns__column--narrow',
+        item: 'miller-columns__item',
+        itemParent: 'miller-columns__item--parent',
+        itemActive: 'miller-columns__item--active',
+        itemSelected: 'miller-columns__item--selected'
       };
       return _this;
     }
@@ -754,7 +754,7 @@
       key: 'connectedCallback',
       value: function connectedCallback() {
         this.list = document.createElement('ol');
-        this.list.className = 'govuk-miller-columns-selected__list';
+        this.list.className = 'miller-columns-selected__list';
         this.appendChild(this.list);
         if (this.millerColumnsElement && this.millerColumnsElement.taxonomy) {
           this.update(this.millerColumnsElement.taxonomy);
@@ -797,7 +797,7 @@
           }
         } else {
           var li = document.createElement('li');
-          li.className = 'govuk-miller-columns-selected__list-item';
+          li.className = 'miller-columns-selected__list-item';
           li.textContent = 'No selected topics';
           this.list.appendChild(li);
         }
@@ -806,7 +806,7 @@
       key: 'addSelectedTopic',
       value: function addSelectedTopic(topic) {
         var li = document.createElement('li');
-        li.className = 'govuk-miller-columns-selected__list-item';
+        li.className = 'miller-columns-selected__list-item';
         li.appendChild(this.breadcrumbsElement(topic));
         li.appendChild(this.removeTopicElement(topic));
         this.list.appendChild(li);
@@ -855,7 +855,7 @@
         var _this6 = this;
 
         var button = document.createElement('button');
-        button.className = 'govuk-miller-columns-selected__remove-topic';
+        button.className = 'miller-columns-selected__remove-topic';
         button.textContent = 'Remove topic';
         button.addEventListener('click', function () {
           if (_this6.taxonomy) {
@@ -875,14 +875,14 @@
     return MillerColumnsSelectedElement;
   }(_CustomElement);
 
-  if (!window.customElements.get('govuk-miller-columns')) {
+  if (!window.customElements.get('miller-columns')) {
     window.MillerColumnsElement = MillerColumnsElement;
-    window.customElements.define('govuk-miller-columns', MillerColumnsElement);
+    window.customElements.define('miller-columns', MillerColumnsElement);
   }
 
-  if (!window.customElements.get('govuk-miller-columns-selected')) {
+  if (!window.customElements.get('miller-columns-selected')) {
     window.MillerColumnsSelectedElement = MillerColumnsSelectedElement;
-    window.customElements.define('govuk-miller-columns-selected', MillerColumnsSelectedElement);
+    window.customElements.define('miller-columns-selected', MillerColumnsSelectedElement);
   }
 
   exports.MillerColumnsElement = MillerColumnsElement;
