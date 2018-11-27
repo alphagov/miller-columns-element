@@ -1,5 +1,5 @@
 @charset "UTF-8";
-.govuk-link, .miller-columns-selected .miller-columns-selected__remove-topic {
+.govuk-link {
   font-family: "nta", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
@@ -37,24 +37,24 @@
   font-style: normal;
   font-display: fallback; }
   @media print {
-    .govuk-link, .miller-columns-selected .miller-columns-selected__remove-topic {
+    .govuk-link {
       font-family: sans-serif; } }
-  .govuk-link:focus, .miller-columns-selected .miller-columns-selected__remove-topic:focus {
+  .govuk-link:focus {
     outline: 3px solid #ffbf47;
     outline-offset: 0;
     background-color: #ffbf47; }
-  .govuk-link:link, .miller-columns-selected .miller-columns-selected__remove-topic:link {
+  .govuk-link:link {
     color: #005ea5; }
-  .govuk-link:visited, .miller-columns-selected .miller-columns-selected__remove-topic:visited {
+  .govuk-link:visited {
     color: #4c2c92; }
-  .govuk-link:hover, .miller-columns-selected .miller-columns-selected__remove-topic:hover {
+  .govuk-link:hover {
     color: #2b8cc4; }
-  .govuk-link:active, .miller-columns-selected .miller-columns-selected__remove-topic:active {
+  .govuk-link:active {
     color: #2b8cc4; }
-  .govuk-link:focus, .miller-columns-selected .miller-columns-selected__remove-topic:focus {
+  .govuk-link:focus {
     color: #0b0c0c; }
   @media print {
-    .govuk-link[href^="/"]::after, .miller-columns-selected .miller-columns-selected__remove-topic[href^="/"]::after, .govuk-link[href^="http://"]::after, .miller-columns-selected .miller-columns-selected__remove-topic[href^="http://"]::after, .govuk-link[href^="https://"]::after, .miller-columns-selected .miller-columns-selected__remove-topic[href^="https://"]::after {
+    .govuk-link[href^="/"]::after, .govuk-link[href^="http://"]::after, .govuk-link[href^="https://"]::after {
       content: " (" attr(href) ")";
       font-size: 90%;
       word-wrap: break-word; } }
@@ -3881,6 +3881,10 @@
     background: transparent;
     text-decoration: underline;
     cursor: pointer; }
+    .miller-columns-selected .miller-columns-selected__remove-topic:focus {
+      outline: 3px solid #ffbf47;
+      outline-offset: 0;
+      background-color: #ffbf47; }
     @media print {
       .miller-columns-selected .miller-columns-selected__remove-topic {
         font-family: sans-serif; } }

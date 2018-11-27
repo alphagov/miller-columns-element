@@ -530,6 +530,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
     const button = document.createElement('button')
     button.className = 'miller-columns-selected__remove-topic'
     button.textContent = 'Remove topic'
+    button.setAttribute('type', 'button')
     button.addEventListener('click', () => {
       if (this.taxonomy) {
         this.taxonomy.removeTopic(topic)

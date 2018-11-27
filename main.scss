@@ -137,7 +137,7 @@ $transition-time: 400ms;
   }
 
   .miller-columns-selected__remove-topic {
-    @extend %govuk-link;
+    @include govuk-focusable-fill;
     @extend %govuk-body-m;
     @include govuk-font($size: 16);
     margin: 0;
