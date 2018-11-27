@@ -873,6 +873,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       var button = document.createElement('button');
       button.className = 'miller-columns-selected__remove-topic';
       button.textContent = 'Remove topic';
+      button.setAttribute('type', 'button');
       button.addEventListener('click', function () {
         if (_this6.taxonomy) {
           _this6.taxonomy.removeTopic(topic);
