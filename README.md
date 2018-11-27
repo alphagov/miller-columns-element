@@ -13,7 +13,7 @@ An npm installation will be available at a future point.
 ## Usage
 
 ```html
-<govuk-miller-columns for="taxonomy" breadcrumbs="selected-items">
+<miller-columns class="miller-columns" for="taxonomy" selected="selected-items" id="miller-columns">
   <ul id="taxonomy">
     <li>Parenting, childcare and children's services</li>
     <ul>
@@ -21,9 +21,10 @@ An npm installation will be available at a future point.
       <li>Childcare and early years</li>
     </ul>
   </ul>
-</govuk-miller-columns>
+</miller-columns>
 
-<div id="selected-items"></div>
+<miller-columns-selected id="selected-items" for="miller-columns" class="miller-columns-selected"></miller-columns-selected>
+
 ```
 
 ## Browser support
@@ -44,6 +45,12 @@ Browsers without native [custom element support][support] require a [polyfill][]
 ```
 npm install
 npm test
+```
+
+To continuously build files while developing run:
+
+```
+npm run watch
 ```
 
 ## License

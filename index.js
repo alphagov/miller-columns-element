@@ -1,628 +1,552 @@
 /* @flow */
 
-class MillerColumnsElement extends HTMLElement {
-  constructor() {
-    super()
+function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>): Array<HTMLElement> {
+  return Array.prototype.slice.call(nodes)
+}
+
+/**
+ * This models the taxonomy shown in the miller columns and the current state
+ * of it.
+ * It notifies the miller columns element when it has changed state to update
+ * the UI
+ */
+class Taxonomy {
+  topics: Array<Topic>
+  millerColumns: MillerColumnsElement
+  // At any time there is one or no active topic, the active topic determines
+  // what part of the taxonomy is currently shown to the user (i.e which level)
+  // if this is null a user is shown the root column
+  active: ?Topic
+
+  constructor(topics: Array<Topic>, millerColumns: MillerColumnsElement) {
+    this.topics = topics
+    this.millerColumns = millerColumns
+    this.active = this.selectedTopics[0]
   }
 
-  connectedCallback() {
-    // A nested tree list with all items
-    const list = this.list
-
-    // Set default values
-    this.dataset.chain = '0'
-    this.dataset.depth = '0'
-    this.dataset.level = '0'
-
-    // Show the columns
-    this.style.display = 'block'
-
-    if (list) {
-      // Store checked inputs
-      const checkboxes = this.checkboxes
-
-      // Attach click events for list items
-      this.attachClickEvents(list)
-
-      // Load checkbox ids as data-id for list items
-      if (checkboxes) {
-        this.loadIds(checkboxes)
+  /** fetches all the topics that are currently selected */
+  get selectedTopics(): Array<Topic> {
+    return this.topics.reduce((memo, topic) => {
+      if (topic.selected) {
+        memo.push(topic)
       }
 
-      // Unnest the tree list into columns
-      this.unnest(list)
-    }
+      return memo.concat(topic.selectedChildren)
+    }, [])
   }
 
-  disconnectedCallback() {}
-
-  /** Returns the associated nested list of items. */
-  get list(): ?HTMLUListElement {
-    const id = this.getAttribute('for')
-    if (!id) return
-    const list = document.getElementById(id)
-    return list instanceof HTMLUListElement ? list : null
-  }
-
-  /** Returns the associated breadcrumbs element. */
-  get breadcrumbs(): ?BreadcrumbsElement {
-    const id = this.getAttribute('breadcrumbs')
-    if (!id) return
-    const breadcrumbs = document.getElementById(id)
-    return breadcrumbs instanceof BreadcrumbsElement ? breadcrumbs : null
-  }
-
-  /** Returns a list of all selected checkboxes for initialisation. */
-  get selectedCheckboxes(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]:checked'))
-  }
-
-  /** Returns a list of all checkboxes. */
-  get checkboxes(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('input[type=checkbox]'))
-  }
-
-  /** Returns a list of the currently selected items. */
-  get activeChain(): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${this.dataset.chain}"]`)
-    )
-  }
-
-  /** Returns the index of the active chain item. */
-  get activeChainIndex(): number {
-    // $FlowFixMe
-    return parseInt(this.dataset.chain)
-  }
-
-  /** Returns the maximum depth of the miller column. */
-  get depth(): number {
-    return parseInt(this.dataset.depth)
-  }
-
-  // Return the level of an element
-  getItemLevel(item: HTMLElement): string {
-    const column = item.closest('ul')
-    let level = '0'
-    if (column instanceof HTMLUListElement) {
-      level = this.getLevel(column).toString()
-    }
-    return level
-  }
-
-  getItemParent(item: HTMLElement): ?HTMLElement {
-    const column = item.closest('ul')
-    // $FlowFixMe
-    const parent = document.querySelector(`[data-id="${column.dataset.parent}"]`)
-    return parent
-  }
-
-  /** Returns a list of items from the same chain. */
-  getChain(chain: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll(`.govuk-miller-columns__column li[data-chain="${chain}"]`))
-  }
-
-  /** Returns a list of selected items from a column/level. */
-  getSelectedItems(level: string): Array<HTMLElement> {
-    return Array.prototype.slice.call(
-      this.querySelectorAll(`.govuk-miller-columns__column[data-level="${level}"] li[data-selected="true"]`)
-    )
-  }
-
-  /** Returns a list of ancestors for a specified item. */
-  getAncestors(item: ?HTMLElement): Array<HTMLElement> {
-    const ancestors = []
-    // item = this.getItemParent(item)
-    while (item) {
-      if (item instanceof HTMLElement) {
-        ancestors.push(item)
-        item = this.getItemParent(item)
-      }
-    }
-    return ancestors.reverse()
-  }
-
-  /** Returns a list of all columns. */
-  getAllColumns(): Array<HTMLElement> {
-    return Array.prototype.slice.call(this.querySelectorAll('.govuk-miller-columns__column'))
-  }
-
-  /** Returns the level of a column. */
-  getLevel(column: HTMLElement): number {
-    return parseInt(column.dataset.level)
-  }
-
-  /** Click list items with checkedboxes. */
-  loadCheckboxes(inputs: Array<HTMLElement>) {
-    for (const input of inputs) {
-      const li = input.closest('li')
-      if (li instanceof HTMLLIElement) {
-        li.dispatchEvent(new MouseEvent('click'))
-        if (this.breadcrumbs) {
-          this.breadcrumbs.storeActiveChain()
-          this.dataset.chain = (chains.length + 1).toString()
-        }
-      }
-    }
-  }
-
-  /** Load checkboxes ids to list items so we can use them determine ancestors. */
-  loadIds(inputs: Array<HTMLElement>) {
-    for (const input of inputs) {
-      const li = input.closest('li')
-      if (li instanceof HTMLLIElement) {
-        li.dataset.id = input.id
-        li.classList.add('govuk-miller-columns__item')
-      }
-    }
-  }
-
-  /** Convert nested lists into columns using breadth-first traversal. */
-  unnest(root: HTMLUListElement) {
-    const millercolumns = this
-
-    const queue = []
-    let node
-    let listItems
-    let depth = 1
-
-    // Push the root unordered list item into the queue.
-    root.className = 'govuk-miller-columns__column'
-    root.dataset.level = '1'
-    queue.push(root)
-
-    while (queue.length) {
-      node = queue.shift()
-
-      if (node.children) {
-        listItems = node.children
-
-        for (const listItem of listItems) {
-          const descendants = listItem.querySelector('ul')
-          const ancestor = listItem
-
-          if (descendants) {
-            // Store level and depth.
-            const level = parseInt(node.dataset.level) + 1
-            descendants.dataset.level = level.toString()
-            if (level > depth) depth = level
-
-            queue.push(descendants)
-
-            if (ancestor) {
-              // Mark list items with descendants as parents.
-              ancestor.dataset.parent = 'true'
-              ancestor.classList.add('govuk-miller-columns__item--parent')
-
-              // Expand the descendants list on click.
-              const fn = this.toggleColumn.bind(null, this, ancestor, descendants)
-              ancestor.addEventListener('click', fn, false)
-
-              // Attach event listeners.
-              const keys = [' ', 'Enter']
-              ancestor.addEventListener('keydown', this.keydown(fn, keys), false)
-            }
-
-            // Hide columns.
-            descendants.dataset.collapse = 'true'
-            descendants.dataset.parent = ancestor.dataset.id
-            descendants.className = 'govuk-miller-columns__column govuk-miller-columns__column--collapse'
-            // Causes item siblings to have a flattened DOM lineage.
-            millercolumns.insertAdjacentElement('beforeend', descendants)
-          }
-        }
-      }
-    }
-
-    this.dataset.depth = depth.toString()
-  }
-
-  /** Attach click events for list items. */
-  attachClickEvents(root: HTMLUListElement) {
-    const items = root.querySelectorAll('li')
-
-    for (const item of items) {
-      const fn = this.clickItem.bind(null, this, item)
-      item.addEventListener('click', fn, false)
-
-      const keys = [' ', 'Enter']
-      item.addEventListener('keydown', this.keydown(fn, keys))
-
-      item.tabIndex = 0
-    }
-  }
-
-  /** Attach key events for lists. */
-  keydown(fn: Function, keys: Array<string>): Function {
-    return function(event: KeyboardEvent) {
-      if (keys.indexOf(event.key) >= 0) {
-        event.preventDefault()
-        fn(event)
-      }
-    }
-  }
-
-  /** Click list item. */
-  clickItem(millercolumns: MillerColumnsElement, item: HTMLElement) {
-    // Set the current level
-    const currentLevel = millercolumns.getItemLevel(item)
-    const previousLevel = millercolumns.dataset.level
-
-    // Determine existing selections on the column
-    const selectedItems = millercolumns.getSelectedItems(currentLevel)
-
-    millercolumns.dataset.level = currentLevel
-
-    if (!(millercolumns.breadcrumbs instanceof BreadcrumbsElement)) return
-
-    // If selecting an upper level or a new item on the same level
-    // and not selected nor stored we start a new chain
-    if (
-      (currentLevel < previousLevel || selectedItems.length > 0) &&
-      item.dataset.selected !== 'true' &&
-      item.dataset.stored !== 'true'
-    ) {
-      // Store active chain
-      millercolumns.breadcrumbs.storeActiveChain()
-      // Increment chain index
-      millercolumns.dataset.chain = chains.length.toString()
-      // Default item click
-      item.dataset.chain = millercolumns.dataset.chain
-      // Retrieve ancestors
-      const ancestors = millercolumns.getAncestors(item)
-      if (ancestors) {
-        millercolumns.selectItems(ancestors, item.dataset.chain)
-      }
-
-      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-        millercolumns.toggleItem(item)
-      }
-    } else if (item.dataset.stored === 'true') {
-      // If click on a stored item we swap the active chain and not toggle
-      millercolumns.breadcrumbs.storeActiveChain()
-      // Make stored chain active
-      millercolumns.dataset.chain = item.dataset.chain
-      // $FlowFixMe
-      millercolumns.breadcrumbs.swapActiveChain()
-      // Retrieve ancestors
-      const ancestors = millercolumns.getAncestors(item)
-      if (ancestors) {
-        millercolumns.selectItems(ancestors, item.dataset.chain)
-      }
-    } else {
-      // Default item click
-      item.dataset.chain = millercolumns.dataset.chain
-
-      if (item.dataset.selected !== 'true' && item.dataset.stored !== 'true') {
-        // If not selected nor stored retrieve ancestors and select
-        const ancestors = millercolumns.getAncestors(item)
-        if (ancestors) {
-          millercolumns.selectItems(ancestors, item.dataset.chain)
-        }
+  /** Handler for a topic in the miller columns being clicked */
+  topicClicked(topic: Topic) {
+    // if this is the active topic or a parent of it we deselect
+    if (topic === this.active || topic.parentOf(this.active)) {
+      topic.deselect(true)
+      this.active = topic.parent
+    } else if (topic.selected || topic.selectedChildren.length) {
+      // if this is a selected topic with children we make it active to allow
+      // picking the children
+      if (topic.children.length) {
+        this.active = topic
       } else {
-        // If selected toggle to remove
-        millercolumns.toggleItem(item)
+        // otherwise we deselect it as we know the user can't be traversing
+        topic.deselect(true)
+        this.active = topic.parent
       }
-    }
-
-    // If not a parent hide residual descendants list
-    if (item.dataset.parent !== 'true') {
-      millercolumns.hideColumns((parseInt(currentLevel) + 1).toString())
-    }
-
-    // Update active chain to reflect selection
-    millercolumns.breadcrumbs.updateActiveChain()
-  }
-
-  /** Toggle list item. */
-  toggleItem(item: HTMLElement) {
-    if (item.dataset.selected === 'true') {
-      this.deselectItem(item)
     } else {
-      this.selectItem(item)
+      // otherwise this is a new selection
+      topic.select()
+      this.active = topic
     }
+
+    this.millerColumns.update()
   }
 
-  /** Select list item. */
-  selectItem(item: HTMLElement) {
-    item.dataset.selected = 'true'
-    item.classList.add('govuk-miller-columns__item--selected')
-
-    const input = item.querySelector('input[type=checkbox]')
-    if (input) {
-      input.setAttribute('checked', 'checked')
-    }
+  /** Handler for when a topic is removed via the selected element */
+  removeTopic(topic: Topic) {
+    topic.deselect(false)
+    // determine which topic to mark as active, if any
+    this.active = this.determineActiveFromRemoved(topic)
+    this.millerColumns.update()
   }
 
-  /** Select a list of items. */
-  selectItems(items: Array<HTMLElement>, index: string) {
-    for (const item of items) {
-      this.selectItem(item)
-      item.dataset.chain = index
-    }
-  }
-
-  /** Remove list item selection. */
-  deselectItem(item: HTMLElement) {
-    item.dataset.selected = 'false'
-    item.dataset.stored = 'false'
-    item.removeAttribute('data-chain')
-    item.classList.remove('govuk-miller-columns__item--selected')
-    item.classList.remove('govuk-miller-columns__item--stored')
-
-    const input = item.querySelector('input[type=checkbox]')
-    if (input) {
-      input.removeAttribute('checked')
-    }
-  }
-
-  /** Reveal the column associated with a parent item. */
-  toggleColumn(millercolumns: MillerColumnsElement, item: HTMLElement, column: HTMLElement) {
-    millercolumns.hideColumns(column.dataset.level)
-    if (item.dataset.selected === 'true' || item.dataset.stored === 'true') {
-      column.dataset.collapse = 'false'
-      column.classList.remove('govuk-miller-columns__column--collapse')
-      millercolumns.animateColumns(column)
-    } else {
-      // Ensure children are removed
-      millercolumns.removeAllChildren(column.dataset.level)
-    }
-  }
-
-  /** Hides all columns at a higher or equal level with the specified one. */
-  hideColumns(level: string) {
-    const levelInt = parseInt(level)
-    const depth = this.depth
-    const columnSelectors = []
-
-    for (let i = levelInt; i <= depth; i++) {
-      columnSelectors.push(`[data-level='${i.toString()}']`)
+  /** Calculate most relevant topic to show user after they've removed a topic */
+  determineActiveFromRemoved(topic: Topic): ?Topic {
+    // if there is already an active item with selected children lets not
+    // change anything
+    if (this.active && (this.active.selected || this.active.selectedChildren.length)) {
+      return this.active
     }
 
-    const lists = this.querySelectorAll(columnSelectors.join(', '))
-    for (const item of lists) {
-      item.dataset.collapse = 'true'
-      item.classList.add('govuk-miller-columns__column--collapse')
-    }
-
-    this.resetAnimation(levelInt)
-  }
-
-  /** Remove selections at a higher or equal level with the specified one. */
-  removeAllChildren(level: string) {
-    const millercolumns = this
-    const levelInt = parseInt(level)
-    const depth = this.depth
-    const itemSelectors = []
-
-    for (let i = levelInt; i <= depth; i++) {
-      itemSelectors.push(`[data-level='${i.toString()}'] li`)
-    }
-
-    const items = millercolumns.querySelectorAll(itemSelectors.join(', '))
-    for (const item of items) {
-      millercolumns.deselectItem(item)
-    }
-
-    if (millercolumns.breadcrumbs) {
-      millercolumns.breadcrumbs.updateActiveChain()
-    }
-  }
-
-  /** Ensure the viewport shows the entire newly expanded item. */
-  animateColumns(column: HTMLElement) {
-    const millercolumns = this
-    const level = this.getLevel(column)
-    const depth = this.depth
-
-    if (level >= depth - 1) {
-      const selectors = []
-
-      for (let i = 1; i < level; i++) {
-        selectors.push(`[data-level='${i.toString()}']`)
-      }
-
-      const lists = millercolumns.querySelectorAll(selectors.join(', '))
-      for (const item of lists) {
-        item.classList.add('govuk-miller-columns__column--narrow')
+    // see if there is a parent with selected topics, that feels like the most
+    // natural place to end up
+    for (const parent of topic.parents.reverse()) {
+      if (parent.selectedChildren.length) {
+        return parent
       }
     }
-  }
 
-  /** Reset column width. */
-  resetAnimation(level: number) {
-    const depth = this.depth
-
-    if (level < depth) {
-      const allLists = this.getAllColumns()
-      for (const list of allLists) {
-        list.classList.remove('govuk-miller-columns__column--narrow')
-      }
-    }
+    // if we've still not got one we'll go for the first selected one
+    return this.selectedTopics[0]
   }
 }
 
-// A list of selected chains
-const chains = []
-
-class BreadcrumbsElement extends HTMLElement {
-  constructor() {
-    super()
-  }
-
-  connectedCallback() {
-    if (this.millercolumns) {
-      this.millercolumns.loadCheckboxes(this.millercolumns.selectedCheckboxes)
-    }
-    this.renderChains()
-  }
-
-  disconnectedCallback() {}
-
-  get millercolumns(): ?MillerColumnsElement {
-    const id = this.getAttribute('for')
-    if (!id) return
-    const millercolumns = document.getElementById(id)
-    if (!(millercolumns instanceof MillerColumnsElement)) return
-    return millercolumns instanceof MillerColumnsElement ? millercolumns : null
-  }
-
-  get chain(): ?Array<HTMLElement> {
-    if (!this.millercolumns) return
-    return this.millercolumns.activeChain
-  }
-
-  /** Store active items in a chain array. */
-  storeActiveChain() {
-    // Store the current chain in a list
-    if (this.millercolumns) {
-      const index = this.millercolumns.activeChainIndex
-      if (index && this.chain) {
-        chains[index] = this.chain
-      }
+/**
+ * Represents a single topic in the taxonomy and knows whether it is currently
+ * selected or not
+ */
+class Topic {
+  static fromList(list: ?HTMLElement, parent: ?Topic = null) {
+    const topics = []
+    if (!list) {
+      return topics
     }
 
-    // Convert selected items to stored items
-    if (Array.isArray(this.chain)) {
-      for (const item of this.chain) {
-        item.dataset.selected = 'false'
-        item.classList.remove('govuk-miller-columns__item--selected')
-
-        item.dataset.stored = 'true'
-        item.classList.add('govuk-miller-columns__item--stored')
-      }
-    }
-  }
-
-  /** Swap selected items with stored items in a chain array. */
-  swapActiveChain() {
-    // Convert stored items into selected items
-    if (Array.isArray(this.chain)) {
-      for (const item of this.chain) {
-        item.dataset.selected = 'true'
-        item.classList.add('govuk-miller-columns__item--selected')
-
-        item.dataset.stored = 'false'
-        item.classList.remove('govuk-miller-columns__item--stored')
-      }
-    }
-  }
-
-  /** Update active items in the current chain. */
-  updateActiveChain() {
-    if (this.millercolumns) {
-      const index = this.millercolumns.activeChainIndex
-
-      // Store the current chain in a list
-      if (this.chain) {
-        chains[index] = this.chain
-      }
-
-      // If empty chain remove it from the array
-      // $FlowFixMe
-      if (chains[index].length === 0) {
-        this.removeChain(this, index)
-      }
-    }
-
-    this.renderChains()
-  }
-
-  /** Update the breadcrumbs element. */
-  renderChains() {
-    if (chains.length) {
-      this.innerHTML = ''
-      for (const [index, chainItem] of chains.entries()) {
-        // $FlowFixMe
-        if (chainItem && chainItem.length) {
-          // $FlowFixMe
-          this.addChain(chainItem, index)
-        }
-      }
-    } else {
-      this.innerHTML = `
-      <ol class="govuk-breadcrumbs__list">
-        <li class="govuk-breadcrumbs__list-item">No selected topics</li>
-      </ol>`
-    }
-  }
-
-  /** Add a breadcrumbs. */
-  addChain(chain: Array<HTMLElement>, index: number) {
-    const chainElement = document.createElement('ol')
-    chainElement.classList.add('govuk-breadcrumbs__list')
-    chainElement.dataset.chain = index.toString()
-    this.updateChain(chainElement, chain)
-
-    // Add a remove link to the chainElement
-    const removeButton = document.createElement('button')
-    removeButton.dataset.chain = index.toString()
-    removeButton.classList.add('govuk-link')
-    removeButton.innerHTML = 'Remove topic'
-    const fn = this.removeChain.bind(null, this, index)
-    removeButton.addEventListener('click', fn, false)
-
-    chainElement.appendChild(removeButton)
-
-    this.appendChild(chainElement)
-  }
-
-  /** Update a breadcrumbs. */
-  updateChain(chainElement: HTMLOListElement, chain: Array<HTMLElement>) {
-    chainElement.innerHTML = ''
-    for (const item of chain) {
-      const breadcrumb = document.createElement('li')
-
+    for (const item of list.children) {
       const label = item.querySelector('label')
-      if (label) {
-        breadcrumb.innerHTML = label.innerHTML
-      } else {
-        breadcrumb.innerHTML = item.innerHTML
-      }
+      const checkbox = item.querySelector('input')
+      if (label instanceof HTMLLabelElement && checkbox instanceof HTMLInputElement) {
+        let childList = item.querySelector('ul')
+        childList = childList instanceof HTMLUListElement ? childList : null
 
-      breadcrumb.classList.add('govuk-breadcrumbs__list-item')
-      chainElement.appendChild(breadcrumb)
+        const topic = new Topic(label, checkbox, childList, parent)
+        topics.push(topic)
+      }
+    }
+
+    return topics
+  }
+
+  label: HTMLLabelElement
+  checkbox: HTMLInputElement
+  children: Array<Topic>
+  parent: ?Topic
+  // Whether this topic is selected, we only allow one item in a branch of the
+  // taxonomy to be selected.
+  // E.g. given education > school > 6th form only one of these can be selected
+  // at a time and the parents are implicity selected from it
+  selected: boolean
+
+  constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Topic) {
+    this.label = label
+    this.checkbox = checkbox
+    this.parent = parent
+    this.children = Topic.fromList(childList, this)
+
+    if (!this.children.length && this.checkbox.checked) {
+      this.selected = true
+      if (this.parent) {
+        this.parent.childWasSelected()
+      }
+    } else {
+      this.selected = false
     }
   }
 
-  /** Remove a breadcrumbs. */
-  removeChain(breadcrumbs: BreadcrumbsElement, chainIndex) {
-    if (Array.isArray(chains[chainIndex])) {
-      breadcrumbs.removeStoredChain(chains[chainIndex])
+  /** The presence of selected children determines whether this item is considered selected */
+  get selectedChildren(): Array<Topic> {
+    return this.children.reduce((memo, topic) => {
+      const selected = topic.selectedChildren
+      if (topic.selected) {
+        selected.push(topic)
+      }
+      return memo.concat(selected)
+    }, [])
+  }
 
-      chains.splice(chainIndex, 1)
+  get parents(): Array<Topic> {
+    if (this.parent) {
+      return this.parent.parents.concat([this.parent])
+    } else {
+      return []
+    }
+  }
 
-      // If active chain hide revealed columns
-      if (chainIndex === chains.length) {
-        if (breadcrumbs.millercolumns) {
-          breadcrumbs.millercolumns.hideColumns('2')
+  /** Whether this topic is the parent of a different one */
+  parentOf(other: ?Topic): boolean {
+    if (!other) {
+      return false
+    }
+
+    for (const topic of this.children) {
+      if (topic === other || topic.parentOf(other)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  withParents(): Array<Topic> {
+    return this.parents.concat([this])
+  }
+
+  /** Attempts to select this topic assuming it's not alrerady selected or has selected children */
+  select() {
+    // if already selected or a child is selected do nothing
+    if (this.selected || this.selectedChildren.length) {
+      return
+    }
+    this.selected = true
+    this.checkbox.checked = true
+    if (this.parent) {
+      this.parent.childWasSelected()
+    }
+  }
+
+  /**
+   * Deselects this topic. If this item is not itself selected but a child of it
+   * is then it traverses to that child and deselects it.
+   * Takes an optional argument as to whether to select the parent after deselection
+   * Doing this allows a user to stay in context of their selection in the miller
+   * column element as deselecting the whole tree would take them back to root
+   */
+  deselect(selectParent: boolean = true) {
+    // if this item is selected explicitly we can deselect it
+    if (this.selected) {
+      this.deselectSelfAndParents()
+    } else {
+      // otherwise we need to find the selected children to start deselecting
+      const selectedChildren = this.selectedChildren
+
+      // if we have none it's a no-op
+      if (!selectedChildren.length) {
+        return
+      }
+
+      for (const child of selectedChildren) {
+        child.deselect(false)
+      }
+    }
+
+    if (selectParent && this.parent) {
+      this.parent.select()
+    }
+  }
+
+  deselectSelfAndParents() {
+    // loop through the parents only deselecting items that don't have other
+    // selected children
+    for (const topic of this.withParents().reverse()) {
+      if (topic.selectedChildren.length) {
+        break
+      } else {
+        topic.selected = false
+        topic.checkbox.checked = false
+      }
+    }
+  }
+
+  /** If a child is selected we need to implicitly select all the parents */
+  childWasSelected() {
+    this.checkbox.checked = true
+    this.selected = false
+    if (this.parent) {
+      this.parent.childWasSelected()
+    }
+  }
+}
+
+class MillerColumnsElement extends HTMLElement {
+  taxonomy: Taxonomy
+  classNames: Object
+
+  constructor() {
+    super()
+    this.classNames = {
+      column: 'miller-columns__column',
+      columnCollapse: 'miller-columns__column--collapse',
+      columnNarrow: 'miller-columns__column--narrow',
+      item: 'miller-columns__item',
+      itemParent: 'miller-columns__item--parent',
+      itemActive: 'miller-columns__item--active',
+      itemSelected: 'miller-columns__item--selected'
+    }
+  }
+
+  connectedCallback() {
+    const source = document.getElementById(this.getAttribute('for') || '')
+    if (source) {
+      this.taxonomy = new Taxonomy(Topic.fromList(source), this)
+      this.renderTaxonomyColumn(this.taxonomy.topics, true)
+      this.update()
+      if (source.parentNode) {
+        source.parentNode.removeChild(source)
+      }
+      this.style.display = 'block'
+    }
+  }
+
+  /** Returns the element which shows the selections a user has made */
+  get selectedElement(): ?MillerColumnsSelectedElement {
+    const selected = document.getElementById(this.getAttribute('selected') || '')
+    return selected instanceof MillerColumnsSelectedElement ? selected : null
+  }
+
+  /** Build and insert a column of the taxonomy */
+  renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
+    const ul = document.createElement('ul')
+    ul.className = this.classNames.column
+    if (root) {
+      ul.dataset.root = 'true'
+    } else {
+      ul.classList.add(this.classNames.columnCollapse)
+    }
+    this.appendChild(ul)
+    for (const topic of topics) {
+      this.renderTopic(topic, ul)
+    }
+  }
+
+  /** Build and insert a list item for a topic */
+  renderTopic(topic: Topic, list: HTMLElement) {
+    const li = document.createElement('li')
+    li.classList.add(this.classNames.item)
+    const div = document.createElement('div')
+    div.className = 'govuk-checkboxes__item'
+    div.appendChild(topic.checkbox)
+    div.appendChild(topic.label)
+    li.appendChild(div)
+    list.appendChild(li)
+    this.attachEvents(li, topic)
+
+    if (topic.children.length) {
+      li.classList.add(this.classNames.itemParent)
+      this.renderTaxonomyColumn(topic.children)
+    }
+  }
+
+  /** Sets up the event handling for a list item and a topic */
+  attachEvents(trigger: HTMLElement, topic: Topic) {
+    trigger.tabIndex = 0
+    trigger.addEventListener('click', () => this.taxonomy.topicClicked(topic), false)
+    trigger.addEventListener(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if ([' ', 'Enter'].indexOf(event.key) !== -1) {
+          event.preventDefault()
+          this.taxonomy.topicClicked(topic)
+        }
+      },
+      false
+    )
+  }
+
+  /** Update this element to show a change in the state */
+  update() {
+    this.showSelectedTopics(this.taxonomy.selectedTopics)
+    this.showActiveTopic(this.taxonomy.active)
+    this.showCurrentColumns(this.taxonomy.active)
+
+    if (this.selectedElement) {
+      this.selectedElement.update(this.taxonomy)
+    }
+  }
+
+  /**
+   * Utility method to swap class names over for a group of elements
+   * Takes an array of all elements that should have a class and removes it
+   * from any other items that have it
+   */
+  updateClassName(className: string, items: Array<HTMLElement>) {
+    const currentlyWithClass = nodesToArray(this.getElementsByClassName(className))
+
+    for (const item of currentlyWithClass.concat(items)) {
+      if (!item) {
+        continue
+      }
+
+      if (items.indexOf(item) !== -1) {
+        item.classList.add(className)
+      } else {
+        item.classList.remove(className)
+      }
+    }
+  }
+
+  /** Given an array of selected topics update the UI */
+  showSelectedTopics(selectedTopics: Array<Topic>) {
+    const selectedItems = selectedTopics.reduce((memo, child) => {
+      for (const topic of child.withParents()) {
+        const item = topic.checkbox.closest(`.${this.classNames.item}`)
+        if (item instanceof HTMLElement) {
+          memo.push(item)
         }
       }
 
-      breadcrumbs.renderChains()
-    }
+      return memo
+    }, [])
+
+    this.updateClassName(this.classNames.itemSelected, selectedItems)
   }
 
-  /** Remove a chain of stored items from the Miller Columns. */
-  removeStoredChain(chain: Array<HTMLElement>) {
-    for (const item of chain) {
-      if (this.millercolumns) {
-        this.millercolumns.deselectItem(item)
-        item.dataset.stored = 'false'
-        item.classList.remove('govuk-miller-columns__item--stored')
+  /** Update the topic items for the presence (or not) of an active topic */
+  showActiveTopic(activeTopic: ?Topic) {
+    let activeItems
+
+    if (!activeTopic) {
+      activeItems = []
+    } else {
+      activeItems = activeTopic.withParents().reduce((memo, topic) => {
+        const item = topic.checkbox.closest(`.${this.classNames.item}`)
+
+        if (item instanceof HTMLElement) {
+          memo.push(item)
+        }
+
+        return memo
+      }, [])
+    }
+    this.updateClassName(this.classNames.itemActive, activeItems)
+  }
+
+  /** Change what columns are visible based on the active (or not) topic */
+  showCurrentColumns(activeTopic: ?Topic) {
+    const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
+    const columnsToShow = this.columnsForActiveTopic(activeTopic)
+    const narrowThreshold = 3
+    const showNarrow = columnsToShow.length > narrowThreshold
+    const {columnCollapse: collapseClass, columnNarrow: narrowClass} = this.classNames
+
+    for (const item of allColumns) {
+      if (!item) {
+        continue
+      }
+
+      // we always want to show the root column
+      if (item.dataset.root === 'true') {
+        showNarrow ? item.classList.add(narrowClass) : item.classList.remove(narrowClass)
+        continue
+      }
+
+      const index = columnsToShow.indexOf(item)
+
+      if (index === -1) {
+        // this is not a column to show
+        item.classList.add(collapseClass)
+      } else if (showNarrow && index < narrowThreshold) {
+        // show this column but narrow
+        item.classList.remove(collapseClass)
+        item.classList.add(narrowClass)
+      } else {
+        // show this column in all it's glory
+        item.classList.remove(collapseClass, narrowClass)
       }
     }
   }
+
+  /** Determine which columns should be shown based on the active topic */
+  columnsForActiveTopic(activeTopic: ?Topic): Array<HTMLElement> {
+    if (!activeTopic) {
+      return []
+    }
+
+    const columnSelector = `.${this.classNames.column}`
+    const columns = activeTopic.withParents().reduce((memo, topic) => {
+      const column = topic.checkbox.closest(columnSelector)
+      if (column instanceof HTMLElement) {
+        memo.push(column)
+      }
+
+      return memo
+    }, [])
+
+    // we'll want to show the next column too for the next choices
+    if (activeTopic.children.length) {
+      const nextColumn = activeTopic.children[0].checkbox.closest(columnSelector)
+      if (nextColumn instanceof HTMLElement) {
+        columns.push(nextColumn)
+      }
+    }
+    return columns
+  }
 }
 
-if (!window.customElements.get('govuk-miller-columns')) {
+class MillerColumnsSelectedElement extends HTMLElement {
+  list: HTMLElement
+  taxonomy: ?Taxonomy
+
+  constructor() {
+    super()
+  }
+
+  connectedCallback() {
+    this.list = document.createElement('ol')
+    this.list.className = 'miller-columns-selected__list'
+    this.appendChild(this.list)
+    if (this.millerColumnsElement && this.millerColumnsElement.taxonomy) {
+      this.update(this.millerColumnsElement.taxonomy)
+    }
+  }
+
+  get millerColumnsElement(): ?MillerColumnsElement {
+    const millerColumns = document.getElementById(this.getAttribute('for') || '')
+    return millerColumns instanceof MillerColumnsElement ? millerColumns : null
+  }
+
+  /** Update the UI to show the selected topics */
+  update(taxonomy: Taxonomy) {
+    this.taxonomy = taxonomy
+    const selectedTopics = taxonomy.selectedTopics
+    // seems simpler to nuke the list and re-build it
+    while (this.list.lastChild) {
+      this.list.removeChild(this.list.lastChild)
+    }
+
+    if (selectedTopics.length) {
+      for (const topic of selectedTopics) {
+        this.addSelectedTopic(topic)
+      }
+    } else {
+      const li = document.createElement('li')
+      li.className = 'miller-columns-selected__list-item'
+      li.textContent = 'No selected topics'
+      this.list.appendChild(li)
+    }
+  }
+
+  addSelectedTopic(topic: Topic) {
+    const li = document.createElement('li')
+    li.className = 'miller-columns-selected__list-item'
+    li.appendChild(this.breadcrumbsElement(topic))
+    li.appendChild(this.removeTopicElement(topic))
+    this.list.appendChild(li)
+  }
+
+  breadcrumbsElement(topic: Topic): HTMLElement {
+    const div = document.createElement('div')
+    div.className = 'govuk-breadcrumbs'
+    const ol = document.createElement('ol')
+    ol.className = 'govuk-breadcrumbs__list'
+    for (const current of topic.withParents()) {
+      const li = document.createElement('li')
+      li.className = 'govuk-breadcrumbs__list-item'
+      li.textContent = current.label.textContent
+      ol.appendChild(li)
+    }
+    div.appendChild(ol)
+    return div
+  }
+
+  removeTopicElement(topic: Topic): HTMLElement {
+    const button = document.createElement('button')
+    button.className = 'miller-columns-selected__remove-topic'
+    button.textContent = 'Remove topic'
+    button.addEventListener('click', () => {
+      if (this.taxonomy) {
+        this.taxonomy.removeTopic(topic)
+      }
+    })
+    return button
+  }
+}
+
+if (!window.customElements.get('miller-columns')) {
   window.MillerColumnsElement = MillerColumnsElement
-  window.customElements.define('govuk-miller-columns', MillerColumnsElement)
+  window.customElements.define('miller-columns', MillerColumnsElement)
 }
 
-if (!window.customElements.get('govuk-breadcrumbs')) {
-  window.BreadcrumbsElement = BreadcrumbsElement
-  window.customElements.define('govuk-breadcrumbs', BreadcrumbsElement)
+if (!window.customElements.get('miller-columns-selected')) {
+  window.MillerColumnsSelectedElement = MillerColumnsSelectedElement
+  window.customElements.define('miller-columns-selected', MillerColumnsSelectedElement)
 }
 
-export default MillerColumnsElement
+export {MillerColumnsElement, MillerColumnsSelectedElement}
