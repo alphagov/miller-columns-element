@@ -3714,6 +3714,10 @@
 .js-enabled .miller-columns {
   display: none; }
 
+.js-enabled .govuk-checkboxes__input,
+.js-enabled .govuk-checkboxes__label {
+  pointer-events: none; }
+
 .miller-columns {
   width: 100%;
   height: 100%;
@@ -3910,12 +3914,10 @@
   top: 5px;
   left: 0;
   width: 26px;
-  height: 26px;
-  pointer-events: none; }
+  height: 26px; }
 
 .miller-columns .govuk-checkboxes__label {
   padding: 8px 5px 2px;
-  pointer-events: none;
   font-family: "nta", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
