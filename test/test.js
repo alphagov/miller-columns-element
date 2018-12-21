@@ -175,4 +175,89 @@ describe('miller-columns', function() {
       assert.isTrue(selectedItems.textContent.includes(secondLabelL2.textContent))
     })
   })
+
+  describe('when loading pre-selected items', function() {
+    beforeEach(function() {
+      const container = document.createElement('div')
+      container.innerHTML = `
+        <miller-columns-selected id="selected-items" for="miller-columns"></miller-columns-selected>
+        <miller-columns id="miller-columns" for="taxonomy" selected="selected-items">
+          <ul id="taxonomy">
+          <li>
+             <div class="govuk-checkboxes__item">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
+                <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
+                Parenting, childcare and children's services
+                </label>
+             </div>
+             <ul>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1" checked>
+                      <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
+                      Divorce, separation and legal issues
+                      </label>
+                   </div>
+                   <ul>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
+                            <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
+                            Child custody
+                            </label>
+                         </div>
+                      </li>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
+                            <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
+                            Disagreements about parentage
+                            </label>
+                         </div>
+                      </li>
+                   </ul>
+                </li>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
+                      <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
+                      Childcare and early years
+                      </label>
+                   </div>
+                   <ul>
+                      <li>
+                         <div class="govuk-checkboxes__item">
+                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
+                            <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
+                            Local authorities and early years
+                            </label>
+                         </div>
+                      </li>
+                   </ul>
+                </li>
+             </ul>
+          </li>
+          </ul>
+        </miller-columns>
+      `
+      document.body.append(container)
+    })
+
+    afterEach(function() {
+      document.body.innerHTML = undefined
+    })
+
+    it('mark items with checked inputs as selected', function() {
+      const selectedCheckbox = document.querySelector('ul li input:checked')
+      const listItem = selectedCheckbox.closest('li')
+      assert.isTrue(listItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(listItem.querySelector('input').checked)
+    })
+
+    it('mark selected item’s parent as selected', function() {
+      const listItem = document.querySelector('ul li')
+      assert.isTrue(listItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(listItem.querySelector('input').checked)
+    })
+  })
 })

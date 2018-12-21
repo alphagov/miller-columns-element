@@ -1,6 +1,6 @@
 {
   "name": "@alphagov/miller-columns-element",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Miller columns element",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
@@ -10,7 +10,10 @@
     "dist"
   ],
   "watch": {
-    "build": ["index.js", "main.scss"]
+    "build": [
+      "index.js",
+      "main.scss"
+    ]
   },
   "scripts": {
     "clean": "rm -rf dist",
