@@ -21,7 +21,7 @@ describe('miller-columns', function() {
           <li>
              <div class="govuk-checkboxes__item">
                 <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
-                <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
+                <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label" id="parenting-childcare-and-childrens-services">
                 Parenting, childcare and children's services
                 </label>
              </div>
@@ -29,7 +29,7 @@ describe('miller-columns', function() {
                 <li>
                    <div class="govuk-checkboxes__item">
                       <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1">
-                      <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
+                      <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label" id="divorce-separation-and-legal-issues">
                       Divorce, separation and legal issues
                       </label>
                    </div>
@@ -37,7 +37,7 @@ describe('miller-columns', function() {
                       <li>
                          <div class="govuk-checkboxes__item">
                             <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
-                            <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
+                            <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label" id="child-custody">
                             Child custody
                             </label>
                          </div>
@@ -45,7 +45,7 @@ describe('miller-columns', function() {
                       <li>
                          <div class="govuk-checkboxes__item">
                             <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
-                            <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
+                            <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label" id="disagreements-about-parentage">
                             Disagreements about parentage
                             </label>
                          </div>
@@ -173,6 +173,29 @@ describe('miller-columns', function() {
       assert.equal(selectedItems.childNodes.length, 2)
       assert.isTrue(selectedItems.textContent.includes(firstLabelL2.textContent))
       assert.isTrue(selectedItems.textContent.includes(secondLabelL2.textContent))
+    })
+
+    it('provides an API to access a list of selected items by name', function() {
+      const elements = [
+        document.getElementById('parenting-childcare-and-childrens-services'),
+        document.getElementById('divorce-separation-and-legal-issues'),
+        document.getElementById('child-custody'),
+        document.getElementById('disagreements-about-parentage')
+      ]
+
+      for (const element of elements) {
+        element.closest('li').click()
+      }
+
+      const millerColumnsSelected = document.querySelector('miller-columns-selected')
+      assert.deepEqual(millerColumnsSelected.selectedTopicNames(), [
+        ["Parenting, childcare and children's services", 'Divorce, separation and legal issues', 'Child custody'],
+        [
+          "Parenting, childcare and children's services",
+          'Divorce, separation and legal issues',
+          'Disagreements about parentage'
+        ]
+      ])
     })
   })
 

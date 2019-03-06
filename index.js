@@ -138,6 +138,10 @@ class Topic {
     }
   }
 
+  get topicName(): string {
+    return this.label.textContent.replace(/(^\s+|\s+$)/g, '')
+  }
+
   /** The presence of selected children determines whether this item is considered selected */
   get selectedChildren(): Array<Topic> {
     return this.children.reduce((memo, topic) => {
@@ -477,6 +481,22 @@ class MillerColumnsSelectedElement extends HTMLElement {
   get millerColumnsElement(): ?MillerColumnsElement {
     const millerColumns = document.getElementById(this.getAttribute('for') || '')
     return millerColumns instanceof MillerColumnsElement ? millerColumns : null
+  }
+
+  /** Used as an API into the underlying data represented */
+  selectedTopicNames(): Array<Array<string>> {
+    if (!this.taxonomy) {
+      return []
+    }
+
+    return this.taxonomy.selectedTopics.map(topic => {
+      const items = []
+      for (const parent of topic.parents) {
+        items.push(parent.topicName)
+      }
+      items.push(topic.topicName)
+      return items
+    })
   }
 
   /** Update the UI to show the selected topics */
