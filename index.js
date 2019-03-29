@@ -5,10 +5,8 @@ function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>
 }
 
 /**
- * This models the taxonomy shown in the miller columns and the current state
- * of it.
- * It notifies the miller columns element when it has changed state to update
- * the UI
+ * This models the taxonomy shown in the miller columns and the current state of it.
+ * It notifies the miller columns element when it has changed state to update the UI
  */
 class Taxonomy {
   topics: Array<Topic>
