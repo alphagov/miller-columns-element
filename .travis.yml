@@ -1,9 +1,17 @@
 language: node_js
 sudo: required
 node_js:
-  - "node"
+- node
 addons:
   chrome: stable
 cache:
   directories:
-    - node_modules
+  - node_modules
+deploy:
+  provider: npm
+  email: govuk-dev@digital.cabinet-office.gov.uk
+  api_key:
+    secure: NSGZHLCgXxpGDJJPqsqpE7UDgvV4emE1yDWK4c/VjDODCRMjxcOvI1HM4S0Jb+8YlvXhqUmZicPhBakVy7XS0VoiPPdmZohaXHAFkm6lrVl5nNyFLt803OAqOLyhh61w+igXYCglS6OZLe9zbQEBDN/bR4jOYGm/hMqKCL3/C3+YNxixKkEWRA6K7KRcipKnlLEV2Zm1CJIxmQtliVRC3t/6ydSrGwtpUposP8knmUzagrv1e+3/iwZvML9+UF3G82FJWTDDATNwbq0LkpuWUvSfmm7LO4ZoW44vn6wuGuWUle7oKDaAiEysx/e5eyLfZ/CQUtaoLk99k6bphTDqkNVnXqdGO/9lnCjoAj5bo+VBPzn9IZVwSttjF9KMtOLIcq0mOUE2p2A68tqOVRSlfPf5vusI96a1lUxSE6YqtCF885oeN4MqVxQ2eq6yl77jmuCIolt9EPKAlvLQ+npMAQKEuxFm4d5DI+1Poc4y4jMzLM5yFg9zOKfSbsYo0cIyPv5DDRxpmLqxfrLX2Kf0duKUFMQKWD+NcEbIIcbStS5ATjxhkeQ5wmA6OA5osRItABkFSWVWm3BJuDnKNlvdC8RB0mJq8hFvMMtRcarY77n5jMirc1fjJZBHdaO0pBEVHIMzfLhQtWlr7LexXJ1jDKhx7K9yhG1n+9YkT0TEFmY=
+  on:
+    tags: true
+    repo: alphagov/miller-columns-element
