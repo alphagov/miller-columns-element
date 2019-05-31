@@ -1,5 +1,3 @@
-@import "node_modules/govuk-frontend/all";
-
 $transition-time: 400ms;
 
 // Hide nested lists if JavaScript is enabled
@@ -31,7 +29,7 @@ $transition-time: 400ms;
   height: 100%;
   margin: 0;
   padding: 0;
-  border-right: 1px solid govuk-colour("grey-3");
+  border-right: 1px solid $govuk-border-colour;
   vertical-align: top;
   white-space: normal;
   transition-duration: $transition-time;
@@ -73,7 +71,7 @@ $transition-time: 400ms;
 .miller-columns__item {
   position: relative;
   margin-bottom: 1px;
-  padding: 3px 9px 9px 9px;
+  padding: 2px 9px;
   list-style: none;
   color: $govuk-text-colour;
   cursor: pointer;
@@ -83,7 +81,7 @@ $transition-time: 400ms;
   &:focus,
   &:hover {
     color: govuk-colour("black");
-    background-color: govuk-colour("grey-3");
+    background-color: $govuk-hover-colour;
   }
 }
 
@@ -92,7 +90,7 @@ $transition-time: 400ms;
   position: absolute;
   top: 50%;
   right: 5px;
-  margin-top: -15px;
+  margin-top: -17px;
   float: right;
   font-size: 24px;
 }
@@ -144,16 +142,16 @@ $transition-time: 400ms;
   .miller-columns-selected__list-item {
     position: relative;
     margin-bottom: 0;
-    padding: govuk-spacing(2) 0 govuk-spacing(1);
-    border-top: 1px solid govuk-colour("grey-3");
+    padding: govuk-spacing(2) 0;
+    border-top: 1px solid $govuk-border-colour;
 
     &:last-child {
-      border-bottom: 1px solid govuk-colour("grey-3");
+      border-bottom: 1px solid $govuk-border-colour;
     }
   }
 
   .govuk-breadcrumbs {
-    display: inline-block;
+    display: block;
     margin: 0;
     margin-right: 110px;
   }
@@ -166,6 +164,7 @@ $transition-time: 400ms;
     @include govuk-focusable-fill;
     @include govuk-font($size: 16);
     position: absolute;
+    top: govuk-spacing(2);
     right: 0;
     margin: 0;
     padding: 0;
@@ -177,41 +176,18 @@ $transition-time: 400ms;
   }
 }
 
-.miller-columns {
+.miller-columns__item {
   .govuk-checkboxes__item {
-    min-height: 26px;
-    margin-bottom: 10px;
-    padding: 0 0 0 30px;
-  }
-
-  .govuk-checkboxes__item:last-child,
-  .govuk-checkboxes__item:last-of-type {
-    margin-bottom: 0;
-  }
-
-  .govuk-checkboxes__input {
-    top: 5px;
-    left: 0;
-    width: 26px;
-    height: 26px;
+    float: none;
   }
 
   .govuk-checkboxes__label {
-    padding: 8px 5px 2px;
-    @include govuk-font($size: 16)
+    @include govuk-font($size: 16);
+    padding: 12px 15px 10px 1px;
   }
 
-  .govuk-checkboxes__input + .govuk-checkboxes__label::before {
-    top: 5px;
-    width: 26px;
-    height: 26px;
-  }
-
-  .govuk-checkboxes__input + .govuk-checkboxes__label::after {
-    top: 12px;
-    left: 5.5px;
-    width: 12px;
-    height: 5px;
-    border-width: 0 0 3px 3px;
+  .govuk-checkboxes__item:hover .govuk-checkboxes__input:focus + .govuk-checkboxes__label::before,
+  .govuk-checkboxes__item:hover .govuk-checkboxes__input:not(:disabled) + .govuk-checkboxes__label::before {
+    box-shadow: none;
   }
 }
