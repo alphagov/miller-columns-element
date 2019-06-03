@@ -197,6 +197,48 @@ describe('miller-columns', function() {
         ]
       ])
     })
+
+    it('provides an API to access a list of all topics as breadcrumbs', function() {
+      const millerColumns = document.querySelector('miller-columns')
+      assert.deepEqual(millerColumns.taxonomyBreadcrumbs(), [
+        {
+          id: 'topic-206b7f3a-49b5-476f-af0f-fd27e2a68473',
+          breadcrumbs: ["Parenting, childcare and children's services"]
+        },
+        {
+          id: 'topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7',
+          breadcrumbs: ["Parenting, childcare and children's services", 'Divorce, separation and legal issues']
+        },
+        {
+          id: 'topic-9ed56732-8600-493e-8467-295233529718',
+          breadcrumbs: [
+            "Parenting, childcare and children's services",
+            'Divorce, separation and legal issues',
+            'Child custody'
+          ]
+        },
+        {
+          id: 'topic-237b2e72-c465-42fe-9293-8b6af21713c0',
+          breadcrumbs: [
+            "Parenting, childcare and children's services",
+            'Divorce, separation and legal issues',
+            'Disagreements about parentage'
+          ]
+        },
+        {
+          id: 'topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae',
+          breadcrumbs: ["Parenting, childcare and children's services", 'Childcare and early years']
+        },
+        {
+          id: 'topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10',
+          breadcrumbs: [
+            "Parenting, childcare and children's services",
+            'Childcare and early years',
+            'Local authorities and early years'
+          ]
+        }
+      ])
+    })
   })
 
   describe('when loading pre-selected items', function() {

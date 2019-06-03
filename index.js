@@ -249,6 +249,7 @@ class Topic {
 class MillerColumnsElement extends HTMLElement {
   taxonomy: Taxonomy
   classNames: Object
+  taxonomyAsBreadcrumbs: Array<Object>
 
   constructor() {
     super()
@@ -282,6 +283,13 @@ class MillerColumnsElement extends HTMLElement {
     return selected instanceof MillerColumnsSelectedElement ? selected : null
   }
 
+  /** Used as an API into the underlying data */
+  taxonomyBreadcrumbs(): Array<Object> {
+    this.taxonomyAsBreadcrumbs = []
+    this.generateTaxonomyBreadcrumbs(this.taxonomyAsBreadcrumbs)
+    return this.taxonomyAsBreadcrumbs
+  }
+
   /** Build and insert a column of the taxonomy */
   renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
     const ul = document.createElement('ul')
@@ -294,6 +302,21 @@ class MillerColumnsElement extends HTMLElement {
     this.appendChild(ul)
     for (const topic of topics) {
       this.renderTopic(topic, ul)
+    }
+  }
+
+  /** Recursive function to store taxonomy items as breadcrumbs lists */
+  generateTaxonomyBreadcrumbs(
+    taxonomyAsBreadcrumbs: Array<Object> = this.taxonomyAsBreadcrumbs,
+    topics: Array<Topic> = this.taxonomy.topics
+  ) {
+    for (const topic of topics) {
+      let breadcrumb = []
+      breadcrumb = topic.withParents().map(item => item.label.textContent.trim())
+      taxonomyAsBreadcrumbs.push({id: topic.checkbox.id, breadcrumbs: breadcrumb})
+      if (topic.children.length) {
+        this.generateTaxonomyBreadcrumbs(taxonomyAsBreadcrumbs, topic.children)
+      }
     }
   }
 
