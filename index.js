@@ -35,6 +35,13 @@ class Taxonomy {
     }, [])
   }
 
+  get flattenedTopics(): Array<Topic> {
+    return this.topics.reduce((memo, topic) => {
+      memo.push(topic)
+      return memo.concat(topic.flattenedChildren)
+    }, [])
+  }
+
   /** Handler for a topic in the miller columns being clicked */
   topicClicked(topic: Topic) {
     // if this is the active topic or a parent of it we deselect
@@ -159,6 +166,13 @@ class Topic {
     } else {
       return []
     }
+  }
+
+  get flattenedChildren(): Array<Topic> {
+    return this.children.reduce((memo, topic) => {
+      memo.push(topic)
+      return memo.concat(topic.flattenedChildren)
+    }, [])
   }
 
   /** Whether this topic is the parent of a different one */
