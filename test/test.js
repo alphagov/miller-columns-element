@@ -197,6 +197,24 @@ describe('miller-columns', function() {
         ]
       ])
     })
+
+    it('provides an API to access the breadcrumb trail of a topic', function() {
+      const firstItemL2 = document.querySelector('miller-columns').taxonomy.topics[0].children[0]
+      assert.deepEqual(firstItemL2.topicNames, [
+        "Parenting, childcare and children's services",
+        'Divorce, separation and legal issues'
+      ])
+    })
+
+    it('provides an API to access children topics in a flat list', function() {
+      const firstItemL1 = document.querySelector('miller-columns').taxonomy.topics[0]
+      assert.equal(firstItemL1.flattenedChildren.length, 5)
+    })
+
+    it('provides an API to access all topics in a flat list', function() {
+      const millerColumns = document.querySelector('miller-columns')
+      assert.equal(millerColumns.taxonomy.flattenedTopics.length, 6)
+    })
   })
 
   describe('when loading pre-selected items', function() {
