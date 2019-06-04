@@ -426,7 +426,7 @@ class MillerColumnsElement extends HTMLElement {
   showCurrentColumns(activeTopic: ?Topic) {
     const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
     const columnsToShow = this.columnsForActiveTopic(activeTopic)
-    const narrowThreshold = 3
+    const narrowThreshold = Math.max(3, columnsToShow.length - 1)
     const showNarrow = columnsToShow.length > narrowThreshold
     const {columnCollapse: collapseClass, columnNarrow: narrowClass} = this.classNames
 
