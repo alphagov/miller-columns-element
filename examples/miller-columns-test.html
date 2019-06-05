@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" class="govuk-template">
+<head>
+  <meta charset="utf-8">
+  <title>govuk-miller-columns examples</title>
+  <link href="../dist/miller-columns.css" rel="stylesheet">
+  <script src="https://unpkg.com/@webcomponents/custom-elements"></script>
+</head>
+<body>
+  <script>
+    document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+  </script>
+  <miller-columns-selected class="miller-columns-selected" id="selected-items" for="miller-columns"></miller-columns-selected>
+  <miller-columns id="miller-columns" class="miller-columns" for="taxonomy" selected="selected-items">
+    <ul id="taxonomy">
+    <li>
+       <div class="govuk-checkboxes__item">
+          <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
+          <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
+          Parenting, childcare and children's services
+          </label>
+       </div>
+       <ul>
+          <li>
+             <div class="govuk-checkboxes__item">
+                <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1" checked>
+                <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
+                Divorce, separation and legal issues
+                </label>
+             </div>
+             <ul>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
+                      <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
+                      Child custody
+                      </label>
+                   </div>
+                </li>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
+                      <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
+                      Disagreements about parentage
+                      </label>
+                   </div>
+                </li>
+             </ul>
+          </li>
+          <li>
+             <div class="govuk-checkboxes__item">
+                <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
+                <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
+                Childcare and early years
+                </label>
+             </div>
+             <ul>
+                <li>
+                   <div class="govuk-checkboxes__item">
+                      <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
+                      <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
+                      Local authorities and early years
+                      </label>
+                   </div>
+                </li>
+             </ul>
+          </li>
+       </ul>
+    </li>
+    </ul>
+  </miller-columns>
+  <script src="../dist/index.umd.js"></script>
+</body>
+</html>
