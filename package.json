@@ -1,7 +1,7 @@
 {
   "name": "miller-columns-element",
-  "version": "0.0.2",
-  "description": "Miller columns element",
+  "version": "0.1.0",
+  "description": "Miller columns (cascading lists) for hierarchical topic selection on GOV.UK taxonomy",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
   "license": "MIT",

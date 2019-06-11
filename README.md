@@ -1,4 +1,4 @@
-# &lt;govuk-miller-columns&gt; element
+# &lt;miller-columns&gt; element
 
 Express a hierarchy by showing selectable lists of the items in each hierarchy level.
 
@@ -6,19 +6,28 @@ Selection of any item shows that item’s children in the next list.
 
 ## Installation
 
-Add the compiled `/dist/index.umd.js` to your application assets.
-
-An npm installation will be available at a future point.
+```
+npm install --save miller-columns-element
+```
 
 ## Usage
 
 ```html
 <miller-columns class="miller-columns" for="taxonomy" selected="selected-items" id="miller-columns">
   <ul id="taxonomy">
-    <li>Parenting, childcare and children's services</li>
+    <li>
+      <input type="checkbox" id="parenting-childcare-and-children-s-services">
+      <label for="parenting-childcare-and-children-s-services">Parenting, childcare and children's services</label>
+    </li>
     <ul>
-      <li>Divorce, separation and legal issues</li>
-      <li>Childcare and early years</li>
+      <li>
+        <input type="checkbox" id="divorce-separation-and-legal-issues">
+        <label for="divorce-separation-and-legal-issues">Divorce, separation and legal issues</label>
+      </li>
+      <li>
+        <input type="checkbox" id="childcare-and-early-years">
+        <label for="childcare-and-early-years">Childcare and early years</label>
+      </li>
     </ul>
   </ul>
 </miller-columns>

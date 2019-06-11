@@ -1,22 +1,40 @@
 language: node_js
 sudo: required
 node_js:
-- node
-addons:
-  chrome: stable
+  - lts/*
+script:
+  - npm run test
+  - npm run build
+after_success:
+  - export LOCAL_VERSION=$(node -p "require('./package.json').version")
+  - export REMOTE_VERSION=$(npm view miller-columns-element version)
+  - export GIT_TAG=$(git tag | grep $LOCAL_VERSION)
+  - export GIT_REMOTE=https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG
+deploy:
+  # This deploy requires a Github personal access token, so if this breaks it
+  # could be that the developer has left GDS.
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    keep_history: true
+    local_dir: examples
+    on:
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: git tag $LOCAL_VERSION && git push $GIT_REMOTE --tags
+    on:
+      branch: master
+      condition: -z $GIT_TAG
+  - provider: npm
+    skip_cleanup: true
+    email: govuk-dev@digital.cabinet-office.gov.uk
+    api_key: $NPM_TOKEN
+    on:
+      branch: master
+      condition: $LOCAL_VERSION != $REMOTE_VERSION
 cache:
   directories:
-  - node_modules
-before_deploy:
-- npm run build
-deploy:
-  skip_cleanup: true
-  provider: npm
-  email: govuk-dev@digital.cabinet-office.gov.uk
-  api_key:
-    secure: ewLr7GVaTNLHp3P3jsKtehX5IAC3QUegyOTRYza3kiZg5liOlL4tUKNEJocSah48r0+d/4HQYWVH+GcREV/Boe73nSu/l6TzFj4aL8Gz5UJo0oQ7ZdXNJEqd6lQGhjYRpYI7pBIEKIifOAuXS6BBL6+EwrJyWmA9qaQ362oZYPqy7ColLXNulOu8jpt5CtmRXdPuCG5LyoYYZ/BFyarh8tAtczA/x/oNXCM49Ua4AZd+JbRmNLzdZ/mwxty8oOiFM4oPQ/JhMHLvxA0CSt30VvVfSGdwTT+EIA7IaQs6RpRIBzcepZ4m5G6C4CmwFHKQ5ZKw2jJ4nG5kpvcHL4MmC9NrMxeQEm4FHZ4qzBGy7QHTjKaCpvM2EvIe6NQr0u1wGrJX7V24e5zzhg3LQAOKPc/hfCJDhFjyN2J7AqSGuV1nLYxwow00x2D56hjn5evnrLqSSES54c85f3FZvCDSnulMk9vyesWudyJEnsYjJOVt63xuJ/te/x+1GK9p8N4Pmi9wvP8S9VFELXxkiis+psQm4OOxsW3pXXJY5alKfLEB7Xj0E5YC0zaUGSoSz8S6D5HbW6AbT7O9mKO8LYbpbJrE+ThpgjFOV3ExMawmDCd7OOkNIpwO1tWKkyZ28LZRHeF4PImsOMUOA4G0K7KrQ1mwI2OwmoPSlKC3a8RV8Fk=
-  on:
-    tags: true
-    repo: alphagov/miller-columns-element
+    - node_modules
 notifications:
   email: false
