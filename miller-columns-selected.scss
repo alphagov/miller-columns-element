@@ -1,0 +1,53 @@
+@import "node_modules/govuk-frontend/settings/all";
+@import "node_modules/govuk-frontend/tools/all";
+@import "node_modules/govuk-frontend/helpers/all";
+@import "node_modules/govuk-frontend/components/breadcrumbs/breadcrumbs";
+
+.miller-columns-selected {
+  @include govuk-responsive-margin(6, "bottom");
+  display: block;
+
+  .govuk-breadcrumbs {
+    display: block;
+    margin: 0;
+    margin-right: 110px;
+  }
+
+  .govuk-breadcrumbs__list-item {
+    margin-bottom: 0;
+  }
+}
+
+.miller-columns-selected__list {
+  @include govuk-font($size: 16);
+  @include govuk-text-colour;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.miller-columns-selected__list-item {
+  position: relative;
+  margin-bottom: 0;
+  padding: govuk-spacing(2) 0;
+  border-top: 1px solid $govuk-border-colour;
+
+  &:last-child {
+    border-bottom: 1px solid $govuk-border-colour;
+  }
+}
+
+.miller-columns-selected__remove-topic {
+  @include govuk-focusable-fill;
+  @include govuk-font($size: 16);
+  position: absolute;
+  top: govuk-spacing(2);
+  right: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: $govuk-link-colour;
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
+}

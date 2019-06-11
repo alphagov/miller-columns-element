@@ -325,6 +325,7 @@ class MillerColumnsElement extends HTMLElement {
   renderTopic(topic: Topic, list: HTMLElement) {
     const li = document.createElement('li')
     li.classList.add(this.classNames.item)
+    li.classList.add('govuk-checkboxes--small')
     const div = document.createElement('div')
     div.className = 'govuk-checkboxes__item'
     div.appendChild(topic.checkbox)
