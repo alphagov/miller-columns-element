@@ -278,6 +278,7 @@ class MillerColumnsElement extends HTMLElement {
     this.classNames = {
       column: 'miller-columns__column',
       columnCollapse: 'miller-columns__column--collapse',
+      columnMedium: 'miller-columns__column--medium',
       columnNarrow: 'miller-columns__column--narrow',
       item: 'miller-columns__item',
       itemParent: 'miller-columns__item--parent',
@@ -428,7 +429,8 @@ class MillerColumnsElement extends HTMLElement {
     const columnsToShow = this.columnsForActiveTopic(activeTopic)
     const narrowThreshold = Math.max(3, columnsToShow.length - 1)
     const showNarrow = columnsToShow.length > narrowThreshold
-    const {columnCollapse: collapseClass, columnNarrow: narrowClass} = this.classNames
+    const showMedium = showNarrow && narrowThreshold === 3
+    const {columnCollapse: collapseClass, columnNarrow: narrowClass, columnMedium: mediumClass} = this.classNames
 
     for (const item of allColumns) {
       if (!item) {
@@ -437,7 +439,12 @@ class MillerColumnsElement extends HTMLElement {
 
       // we always want to show the root column
       if (item.dataset.root === 'true') {
-        showNarrow ? item.classList.add(narrowClass) : item.classList.remove(narrowClass)
+        item.classList.remove(narrowClass, mediumClass)
+        if (showMedium) {
+          item.classList.add(mediumClass)
+        } else if (showNarrow) {
+          item.classList.add(narrowClass)
+        }
         continue
       }
 
@@ -448,11 +455,15 @@ class MillerColumnsElement extends HTMLElement {
         item.classList.add(collapseClass)
       } else if (showNarrow && index < narrowThreshold) {
         // show this column but narrow
-        item.classList.remove(collapseClass)
-        item.classList.add(narrowClass)
+        item.classList.remove(collapseClass, narrowClass, mediumClass)
+        if (showMedium) {
+          item.classList.add(mediumClass)
+        } else if (showNarrow) {
+          item.classList.add(narrowClass)
+        }
       } else {
         // show this column in all it's glory
-        item.classList.remove(collapseClass, narrowClass)
+        item.classList.remove(collapseClass, narrowClass, mediumClass)
       }
     }
   }

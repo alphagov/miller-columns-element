@@ -52,6 +52,20 @@ $transition-time: 400ms;
   }
 }
 
+.miller-columns__column--medium {
+  width: 22.2%;
+  overflow-x: hidden;
+
+  .miller-columns__item,
+  .miller-columns__item label {
+    white-space: nowrap;
+  }
+
+  .miller-columns__item--parent:after {
+    display: none;
+  }
+}
+
 .miller-columns__column--collapse {
   display: none;
 }
