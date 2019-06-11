@@ -35,6 +35,13 @@ class Taxonomy {
     }, [])
   }
 
+  get flattenedTopics(): Array<Topic> {
+    return this.topics.reduce((memo, topic) => {
+      memo.push(topic)
+      return memo.concat(topic.flattenedChildren)
+    }, [])
+  }
+
   /** Handler for a topic in the miller columns being clicked */
   topicClicked(topic: Topic) {
     // if this is the active topic or a parent of it we deselect
@@ -142,6 +149,15 @@ class Topic {
     return this.label.textContent.replace(/(^\s+|\s+$)/g, '')
   }
 
+  get topicNames(): Array<string> {
+    const items = []
+    for (const parent of this.parents) {
+      items.push(parent.topicName)
+    }
+    items.push(this.topicName)
+    return items
+  }
+
   /** The presence of selected children determines whether this item is considered selected */
   get selectedChildren(): Array<Topic> {
     return this.children.reduce((memo, topic) => {
@@ -159,6 +175,13 @@ class Topic {
     } else {
       return []
     }
+  }
+
+  get flattenedChildren(): Array<Topic> {
+    return this.children.reduce((memo, topic) => {
+      memo.push(topic)
+      return memo.concat(topic.flattenedChildren)
+    }, [])
   }
 
   /** Whether this topic is the parent of a different one */
@@ -489,14 +512,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
       return []
     }
 
-    return this.taxonomy.selectedTopics.map(topic => {
-      const items = []
-      for (const parent of topic.parents) {
-        items.push(parent.topicName)
-      }
-      items.push(topic.topicName)
-      return items
-    })
+    return this.taxonomy.selectedTopics.map(topic => topic.topicNames)
   }
 
   /** Update the UI to show the selected topics */
