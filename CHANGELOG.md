@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## Unreleased
+
+- Scope pointer events on checkboxes to the miller-columns element (PR #14)
+
 ## 0.1.0
 
 - Initial release
