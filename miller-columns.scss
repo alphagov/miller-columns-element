@@ -10,15 +10,16 @@ $mc-selected-item-background: govuk-colour("grey-1");
 $mc-active-item-colour: govuk-colour("white");
 $mc-active-item-background: govuk-colour("blue");
 
-// Hide nested lists if JavaScript is enabled
 .js-enabled {
+  // Hide nested lists
   .miller-columns {
     display: none;
-  }
 
-  .govuk-checkboxes__input,
-  .govuk-checkboxes__label {
-    pointer-events: none;
+    // Disable pointer events on checkboxes to prevent them from interfering with the miller-columns items
+    .govuk-checkboxes__input,
+    .govuk-checkboxes__label {
+      pointer-events: none;
+    }
   }
 }
 
