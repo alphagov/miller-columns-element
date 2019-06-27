@@ -155,6 +155,11 @@ describe('miller-columns', function() {
 
       const selectedItems = document.querySelector('#selected-items')
       assert.equal(selectedItems.textContent, 'No selected topics')
+
+      const millerColumnsSelected = document.querySelector('miller-columns-selected')
+      millerColumnsSelected.addEventListener('remove-topic', function(e) {
+        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
+      })
     })
 
     it('creates entries of selected item for adjacent topics', function() {
