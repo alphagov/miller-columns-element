@@ -4,6 +4,20 @@ function nodesToArray(nodes: NodeList<HTMLElement> | HTMLCollection<HTMLElement>
   return Array.prototype.slice.call(nodes)
 }
 
+function triggerEvent(element: HTMLElement, eventName: string, detail: Object) {
+  const params = {bubbles: true, cancelable: true, detail: detail || null}
+  let event
+
+  if (typeof window.CustomEvent === 'function') {
+    event = new window.CustomEvent(eventName, params)
+  } else {
+    event = document.createEvent('CustomEvent')
+    event.initCustomEvent(eventName, params.bubbles, params.cancelable, params.detail)
+  }
+
+  element.dispatchEvent(event)
+}
+
 /**
  * This models the taxonomy shown in the miller columns and the current state
  * of it.
@@ -577,6 +591,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
     button.textContent = 'Remove topic'
     button.setAttribute('type', 'button')
     button.addEventListener('click', () => {
+      triggerEvent(button, 'remove-topic', topic)
       if (this.taxonomy) {
         this.taxonomy.removeTopic(topic)
       }
