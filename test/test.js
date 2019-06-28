@@ -99,9 +99,9 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)
 
-      const millerColumns = document.querySelector('miller-columns')
-      millerColumns.addEventListener('click-topic', function(e) {
-        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('click', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
       })
     })
 
