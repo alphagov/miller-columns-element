@@ -220,29 +220,6 @@ describe('miller-columns', function() {
       assert.isTrue(selectedItems.textContent.includes(secondLabelL2.textContent))
     })
 
-    it('provides an API to access a list of selected items by name', function() {
-      const elements = [
-        document.getElementById('parenting-childcare-and-childrens-services'),
-        document.getElementById('divorce-separation-and-legal-issues'),
-        document.getElementById('child-custody'),
-        document.getElementById('disagreements-about-parentage')
-      ]
-
-      for (const element of elements) {
-        element.closest('li').click()
-      }
-
-      const millerColumnsSelected = document.querySelector('miller-columns-selected')
-      assert.deepEqual(millerColumnsSelected.selectedTopicNames(), [
-        ["Parenting, childcare and children's services", 'Divorce, separation and legal issues', 'Child custody'],
-        [
-          "Parenting, childcare and children's services",
-          'Divorce, separation and legal issues',
-          'Disagreements about parentage'
-        ]
-      ])
-    })
-
     it('provides an API to access the breadcrumb trail of a topic', function() {
       const firstItemL2 = document.querySelector('miller-columns').taxonomy.topics[0].children[0]
       assert.deepEqual(firstItemL2.topicNames, [

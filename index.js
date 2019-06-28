@@ -539,15 +539,6 @@ class MillerColumnsSelectedElement extends HTMLElement {
     return millerColumns instanceof MillerColumnsElement ? millerColumns : null
   }
 
-  /** Used as an API into the underlying data represented */
-  selectedTopicNames(): Array<Array<string>> {
-    if (!this.taxonomy) {
-      return []
-    }
-
-    return this.taxonomy.selectedTopics.map(topic => topic.topicNames)
-  }
-
   /** Update the UI to show the selected topics */
   update(taxonomy: Taxonomy) {
     this.taxonomy = taxonomy
