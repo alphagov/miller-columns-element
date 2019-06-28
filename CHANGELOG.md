@@ -11,6 +11,8 @@
 ## Unreleased
 
 - Scope pointer events on checkboxes to the miller-columns element (PR #14)
+- Trigger remove-topic event on MillerColumnsSelectedElement (PR #15)
+- Trigger click-topic event on MillerColumnsElement (PR #16)
 
 ## 0.1.0
 

@@ -92,11 +92,17 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.classList.contains('miller-columns__item--parent'))
     })
 
-    it('styles active items', function() {
+    it('mark selected item as active', function() {
       const firstItem = document.querySelector('ul li')
       firstItem.click()
+
       assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)
+
+      const millerColumns = document.querySelector('miller-columns')
+      millerColumns.addEventListener('click-topic', function(e) {
+        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
+      })
     })
 
     it('show the child list for active list item', function() {

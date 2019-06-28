@@ -77,7 +77,7 @@ class Taxonomy {
       topic.select()
       this.active = topic
     }
-
+    triggerEvent(this.millerColumns, 'click-topic', topic)
     this.millerColumns.update()
   }
 
