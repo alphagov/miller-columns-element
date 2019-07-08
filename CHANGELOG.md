@@ -8,7 +8,7 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 0.1.1
 
 - Scope pointer events on checkboxes to the miller-columns element (PR #14)
 
