@@ -94,15 +94,15 @@ describe('miller-columns', function() {
 
     it('mark selected item as active', function() {
       const firstItem = document.querySelector('ul li')
-      firstItem.click()
-
-      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
-      assert.isTrue(firstItem.querySelector('input').checked)
-
       const firstItemCheckbox = firstItem.querySelector('input')
       firstItemCheckbox.addEventListener('click', function(e) {
         assert.deepEqual(e.target, firstItemCheckbox)
       })
+
+      firstItem.click()
+
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(firstItem.querySelector('input').checked)
     })
 
     it('show the child list for active list item', function() {
@@ -153,6 +153,10 @@ describe('miller-columns', function() {
 
     it('removes a chain from stored selected items', function() {
       const firstItemL1 = document.querySelector('ul li')
+      const millerColumnsSelected = document.querySelector('miller-columns-selected')
+      millerColumnsSelected.addEventListener('remove-topic', function(e) {
+        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
+      })
 
       firstItemL1.click()
 
@@ -161,11 +165,6 @@ describe('miller-columns', function() {
 
       const selectedItems = document.querySelector('#selected-items')
       assert.equal(selectedItems.textContent, 'No selected topics')
-
-      const millerColumnsSelected = document.querySelector('miller-columns-selected')
-      millerColumnsSelected.addEventListener('remove-topic', function(e) {
-        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
-      })
     })
 
     it('creates entries of selected item for adjacent topics', function() {
