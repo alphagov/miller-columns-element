@@ -12,6 +12,13 @@ describe('miller-columns', function() {
   })
 
   describe('after tree insertion', function() {
+    function pressKey(key, element) {
+      const event = document.createEvent('Event')
+      event.initEvent('keydown', true, true)
+      event.key = key
+      element.dispatchEvent(event)
+    }
+
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
@@ -92,7 +99,7 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.classList.contains('miller-columns__item--parent'))
     })
 
-    it('mark selected item as active', function() {
+    it('mark selected item as active when clicked', function() {
       const firstItem = document.querySelector('ul li')
       const firstItemCheckbox = firstItem.querySelector('input')
       firstItemCheckbox.addEventListener('click', function(e) {
@@ -100,6 +107,34 @@ describe('miller-columns', function() {
       })
 
       firstItem.click()
+
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(firstItem.querySelector('input').checked)
+    })
+
+    it('mark selected item as active when pressing Enter', function() {
+      const firstItem = document.querySelector('ul li')
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('keydown', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
+      })
+
+      firstItem.focus()
+      pressKey('Enter', firstItemCheckbox)
+
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(firstItem.querySelector('input').checked)
+    })
+
+    it('mark selected item as active when pressing Space', function() {
+      const firstItem = document.querySelector('ul li')
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('keydown', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
+      })
+
+      firstItem.focus()
+      pressKey(' ', firstItemCheckbox)
 
       assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)

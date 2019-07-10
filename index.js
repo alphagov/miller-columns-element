@@ -77,7 +77,6 @@ class Taxonomy {
       topic.select()
       this.active = topic
     }
-    topic.checkbox.dispatchEvent(new Event('click'))
     this.millerColumns.update()
   }
 
@@ -357,13 +356,21 @@ class MillerColumnsElement extends HTMLElement {
   /** Sets up the event handling for a list item and a topic */
   attachEvents(trigger: HTMLElement, topic: Topic) {
     trigger.tabIndex = 0
-    trigger.addEventListener('click', () => this.taxonomy.topicClicked(topic), false)
+    trigger.addEventListener(
+      'click',
+      () => {
+        this.taxonomy.topicClicked(topic)
+        topic.checkbox.dispatchEvent(new Event('click'))
+      },
+      false
+    )
     trigger.addEventListener(
       'keydown',
       (event: KeyboardEvent) => {
         if ([' ', 'Enter'].indexOf(event.key) !== -1) {
           event.preventDefault()
           this.taxonomy.topicClicked(topic)
+          topic.checkbox.dispatchEvent(new Event('click'))
         }
       },
       false
