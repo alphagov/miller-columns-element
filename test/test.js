@@ -12,6 +12,13 @@ describe('miller-columns', function() {
   })
 
   describe('after tree insertion', function() {
+    function pressKey(key, element) {
+      const event = document.createEvent('Event')
+      event.initEvent('keydown', true, true)
+      event.key = key
+      element.dispatchEvent(event)
+    }
+
     beforeEach(function() {
       const container = document.createElement('div')
       container.innerHTML = `
@@ -92,9 +99,43 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.classList.contains('miller-columns__item--parent'))
     })
 
-    it('styles active items', function() {
+    it('mark selected item as active when clicked', function() {
       const firstItem = document.querySelector('ul li')
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('click', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
+      })
+
       firstItem.click()
+
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(firstItem.querySelector('input').checked)
+    })
+
+    it('mark selected item as active when pressing Enter', function() {
+      const firstItem = document.querySelector('ul li')
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('keydown', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
+      })
+
+      firstItem.focus()
+      pressKey('Enter', firstItemCheckbox)
+
+      assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
+      assert.isTrue(firstItem.querySelector('input').checked)
+    })
+
+    it('mark selected item as active when pressing Space', function() {
+      const firstItem = document.querySelector('ul li')
+      const firstItemCheckbox = firstItem.querySelector('input')
+      firstItemCheckbox.addEventListener('keydown', function(e) {
+        assert.deepEqual(e.target, firstItemCheckbox)
+      })
+
+      firstItem.focus()
+      pressKey(' ', firstItemCheckbox)
+
       assert.isTrue(firstItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(firstItem.querySelector('input').checked)
     })
@@ -147,6 +188,10 @@ describe('miller-columns', function() {
 
     it('removes a chain from stored selected items', function() {
       const firstItemL1 = document.querySelector('ul li')
+      const millerColumnsSelected = document.querySelector('miller-columns-selected')
+      millerColumnsSelected.addEventListener('remove-topic', function(e) {
+        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
+      })
 
       firstItemL1.click()
 
@@ -155,11 +200,6 @@ describe('miller-columns', function() {
 
       const selectedItems = document.querySelector('#selected-items')
       assert.equal(selectedItems.textContent, 'No selected topics')
-
-      const millerColumnsSelected = document.querySelector('miller-columns-selected')
-      millerColumnsSelected.addEventListener('remove-topic', function(e) {
-        assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
-      })
     })
 
     it('creates entries of selected item for adjacent topics', function() {
