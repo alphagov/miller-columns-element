@@ -8,7 +8,7 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 1.0.0
 
 - Trigger click event on checkboxes when selecting an item in the MillerColumnsElement (PR #16)
 - BREAKING: Remove `selectedTopicNames` as we don't need this API method for analytics anymore (PR #17)
