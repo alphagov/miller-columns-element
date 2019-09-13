@@ -679,10 +679,9 @@
 
 .js-enabled .miller-columns {
   display: none; }
-
-.js-enabled .govuk-checkboxes__input,
-.js-enabled .govuk-checkboxes__label {
-  pointer-events: none; }
+  .js-enabled .miller-columns .govuk-checkboxes__input,
+  .js-enabled .miller-columns .govuk-checkboxes__label {
+    pointer-events: none; }
 
 .miller-columns {
   display: block;
