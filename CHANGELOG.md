@@ -8,7 +8,7 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 1.1.0
 
 - Update miller-columns-element to `govuk-frontend` 3.2 (PR #23)
 
