@@ -1,7 +1,7 @@
-@import "node_modules/govuk-frontend/settings/all";
-@import "node_modules/govuk-frontend/tools/all";
-@import "node_modules/govuk-frontend/helpers/all";
-@import "node_modules/govuk-frontend/components/breadcrumbs/breadcrumbs";
+@import "node_modules/govuk-frontend/govuk/settings/all";
+@import "node_modules/govuk-frontend/govuk/tools/all";
+@import "node_modules/govuk-frontend/govuk/helpers/all";
+@import "node_modules/govuk-frontend/govuk/components/breadcrumbs/breadcrumbs";
 
 .miller-columns-selected {
   @include govuk-responsive-margin(6, "bottom");
@@ -38,7 +38,6 @@
 }
 
 .miller-columns-selected__remove-topic {
-  @include govuk-focusable-fill;
   @include govuk-font($size: 16);
   position: absolute;
   top: govuk-spacing(2);
@@ -50,4 +49,8 @@
   background: transparent;
   text-decoration: underline;
   cursor: pointer;
+
+  &:focus {
+    @include govuk-focused-text;
+  }
 }

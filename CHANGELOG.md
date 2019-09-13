@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## Unreleased
+
+- Update miller-columns-element to `govuk-frontend` 3.2 (PR #23)
+
 ## 1.0.0
 
 - Trigger click event on checkboxes when selecting an item in the MillerColumnsElement (PR #16)

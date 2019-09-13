@@ -77,6 +77,20 @@
     return Array.prototype.slice.call(nodes);
   }
 
+  function triggerEvent(element, eventName, detail) {
+    var params = { bubbles: true, cancelable: true, detail: detail || null };
+    var event = void 0;
+
+    if (typeof window.CustomEvent === 'function') {
+      event = new window.CustomEvent(eventName, params);
+    } else {
+      event = document.createEvent('CustomEvent');
+      event.initCustomEvent(eventName, params.bubbles, params.cancelable, params.detail);
+    }
+
+    element.dispatchEvent(event);
+  }
+
   /**
    * This models the taxonomy shown in the miller columns and the current state
    * of it.
@@ -122,7 +136,6 @@
           topic.select();
           this.active = topic;
         }
-
         this.millerColumns.update();
       }
     }, {
@@ -576,12 +589,14 @@
 
         trigger.tabIndex = 0;
         trigger.addEventListener('click', function () {
-          return _this2.taxonomy.topicClicked(topic);
+          _this2.taxonomy.topicClicked(topic);
+          topic.checkbox.dispatchEvent(new Event('click'));
         }, false);
         trigger.addEventListener('keydown', function (event) {
           if ([' ', 'Enter'].indexOf(event.key) !== -1) {
             event.preventDefault();
             _this2.taxonomy.topicClicked(topic);
+            topic.checkbox.dispatchEvent(new Event('click'));
           }
         }, false);
       }
@@ -821,17 +836,6 @@
         }
       }
     }, {
-      key: 'selectedTopicNames',
-      value: function selectedTopicNames() {
-        if (!this.taxonomy) {
-          return [];
-        }
-
-        return this.taxonomy.selectedTopics.map(function (topic) {
-          return topic.topicNames;
-        });
-      }
-    }, {
       key: 'update',
       value: function update(taxonomy) {
         this.taxonomy = taxonomy;
@@ -930,6 +934,7 @@
         button.textContent = 'Remove topic';
         button.setAttribute('type', 'button');
         button.addEventListener('click', function () {
+          triggerEvent(button, 'remove-topic', topic);
           if (_this6.taxonomy) {
             _this6.taxonomy.removeTopic(topic);
           }
