@@ -12,7 +12,9 @@
   "watch": {
     "build": [
       "index.js",
-      "main.scss"
+      "main.scss",
+      "miller-columns.scss",
+      "miller-columns-selected.scss"
     ]
   },
   "scripts": {
