@@ -142,15 +142,15 @@ describe('miller-columns', function() {
 
     it('show the child list for active list item', function() {
       const firstItem = document.querySelector('ul li')
-      const l2List = document.querySelectorAll('ul')[1]
+      const l2List = document.querySelectorAll('.miller-columns__column')[1]
       assert.isTrue(l2List.classList.contains('miller-columns__column--collapse'))
       firstItem.click()
       assert.isFalse(l2List.classList.contains('miller-columns__column--collapse'))
     })
 
     it('unselect children when item is unselected', function() {
-      const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
-      const firstItemL2 = document.querySelector('ul:nth-of-type(2) li')
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
+      const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
       firstItemL1.click()
       firstItemL2.click()
       firstItemL1.click()
@@ -160,9 +160,11 @@ describe('miller-columns', function() {
     })
 
     it("doesn't unselect items above the item that was clicked in the tree", function() {
-      const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
       firstItemL1.click()
-      const firstItemL2 = document.querySelector('ul:not(.miller-columns__column--collapse):nth-of-type(2) li')
+      const firstItemL2 = document.querySelector(
+        '.miller-columns__column:not(.miller-columns__column--collapse):nth-of-type(2) li'
+      )
       firstItemL2.click()
 
       firstItemL2.click()
@@ -174,9 +176,9 @@ describe('miller-columns', function() {
     })
 
     it('shows active items in selected items', function() {
-      const firstItemL1 = document.querySelector('ul:nth-of-type(1) li')
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
       const firstLabelL1 = firstItemL1.querySelector('label')
-      const firstItemL2 = document.querySelector('ul:nth-of-type(2) li')
+      const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
       const firstLabelL2 = firstItemL2.querySelector('label')
       firstItemL1.click()
       firstItemL2.click()
@@ -187,7 +189,7 @@ describe('miller-columns', function() {
     })
 
     it('removes a chain from stored selected items', function() {
-      const firstItemL1 = document.querySelector('ul li')
+      const firstItemL1 = document.querySelector('.miller-columns__column li')
       const millerColumnsSelected = document.querySelector('miller-columns-selected')
       millerColumnsSelected.addEventListener('remove-topic', function(e) {
         assert.equal(e.detail.topicName, "Parenting, childcare and children's services")
@@ -203,9 +205,9 @@ describe('miller-columns', function() {
     })
 
     it('creates entries of selected item for adjacent topics', function() {
-      const firstItemL1 = document.querySelector('ul:nth-child(1) li')
-      const firstItemL2 = document.querySelector('ul:nth-child(2) li:nth-child(1)')
-      const secondItemL2 = document.querySelector('ul:nth-child(2) li:nth-child(2)')
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
+      const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
+      const secondItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li:nth-of-type(2)')
 
       const firstLabelL2 = firstItemL2.querySelector('label')
       const secondLabelL2 = secondItemL2.querySelector('label')
@@ -239,17 +241,25 @@ describe('miller-columns', function() {
     })
 
     it('shows active column while selecting items', function() {
-      const firstColumn = document.querySelector('ul:nth-of-type(1)')
+      const firstColumn = document.querySelectorAll('.miller-columns__column')[0]
       const firstItemL1 = firstColumn.querySelector('li')
-      const secondColumn = document.querySelector('ul:nth-of-type(2)')
-      const firstItemL2 = secondColumn.querySelector('ul:nth-of-type(2) li')
-      const thirdColumn = document.querySelector('ul:nth-of-type(3)')
+      const secondColumn = document.querySelectorAll('.miller-columns__column')[1]
+      const firstItemL2 = secondColumn.querySelector('li')
+      const thirdColumn = document.querySelectorAll('.miller-columns__column')[2]
 
       assert.equal(document.querySelector('.miller-columns__column--active'), firstColumn)
       firstItemL1.click()
       assert.equal(document.querySelector('.miller-columns__column--active'), secondColumn)
       firstItemL2.click()
       assert.equal(document.querySelector('.miller-columns__column--active'), thirdColumn)
+    })
+
+    it('shows parent element as heading for each column', function() {
+      const firstColumn = document.querySelectorAll('.miller-columns__column')[0]
+      const firstLabelL1 = firstColumn.querySelector('label')
+      const secondColumn = document.querySelectorAll('.miller-columns__column')[1]
+      const headingL2 = secondColumn.querySelector('.miller-columns__column-heading')
+      assert.isTrue(firstLabelL1.textContent.includes(headingL2.textContent))
     })
   })
 

@@ -290,6 +290,8 @@ class MillerColumnsElement extends HTMLElement {
     super()
     this.classNames = {
       column: 'miller-columns__column',
+      columnHeading: 'miller-columns__column-heading',
+      columnList: 'miller-columns__column-list',
       columnCollapse: 'miller-columns__column--collapse',
       columnMedium: 'miller-columns__column--medium',
       columnNarrow: 'miller-columns__column--narrow',
@@ -322,14 +324,30 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Build and insert a column of the taxonomy */
   renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
-    const ul = document.createElement('ul')
-    ul.className = this.classNames.column
-    if (root) {
-      ul.dataset.root = 'true'
-    } else {
-      ul.classList.add(this.classNames.columnCollapse)
+    const div = document.createElement('div')
+
+    if (!root) {
+      const h3 = document.createElement('h3')
+      h3.className = this.classNames.columnHeading
+      const parentTopicName = topics[0].parent ? topics[0].parent.topicName : null
+      if (parentTopicName) {
+        h3.innerHTML = parentTopicName
+      }
+      div.appendChild(h3)
     }
-    this.appendChild(ul)
+
+    const ul = document.createElement('ul')
+    ul.className = this.classNames.columnList
+    div.className = this.classNames.column
+    if (root) {
+      div.dataset.root = 'true'
+    } else {
+      div.classList.add(this.classNames.columnCollapse)
+    }
+    div.appendChild(ul)
+
+    this.appendChild(div)
+
     for (const topic of topics) {
       this.renderTopic(topic, ul)
     }
