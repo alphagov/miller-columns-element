@@ -293,6 +293,7 @@ class MillerColumnsElement extends HTMLElement {
       columnCollapse: 'miller-columns__column--collapse',
       columnMedium: 'miller-columns__column--medium',
       columnNarrow: 'miller-columns__column--narrow',
+      columnActive: 'miller-columns__column--active',
       item: 'miller-columns__item',
       itemParent: 'miller-columns__item--parent',
       itemActive: 'miller-columns__item--active',
@@ -452,13 +453,19 @@ class MillerColumnsElement extends HTMLElement {
     const narrowThreshold = Math.max(3, columnsToShow.length - 1)
     const showNarrow = columnsToShow.length > narrowThreshold
     const showMedium = showNarrow && narrowThreshold === 3
-    const {columnCollapse: collapseClass, columnNarrow: narrowClass, columnMedium: mediumClass} = this.classNames
+    const {
+      columnCollapse: collapseClass,
+      columnNarrow: narrowClass,
+      columnMedium: mediumClass,
+      columnActive: activeClass
+    } = this.classNames
 
     for (const item of allColumns) {
       if (!item) {
         continue
       }
 
+      item.classList.remove(activeClass)
       // we always want to show the root column
       if (item.dataset.root === 'true') {
         item.classList.remove(narrowClass, mediumClass)
@@ -486,6 +493,11 @@ class MillerColumnsElement extends HTMLElement {
       } else {
         // show this column in all it's glory
         item.classList.remove(collapseClass, narrowClass, mediumClass)
+      }
+
+      // mark last visible column as active
+      if (item === columnsToShow[columnsToShow.length - 1]) {
+        item.classList.add(activeClass)
       }
     }
   }

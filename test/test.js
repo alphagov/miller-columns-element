@@ -237,6 +237,19 @@ describe('miller-columns', function() {
       const millerColumns = document.querySelector('miller-columns')
       assert.equal(millerColumns.taxonomy.flattenedTopics.length, 6)
     })
+
+    it('shows active column while selecting items', function() {
+      const firstColumn = document.querySelector('ul:nth-of-type(1)')
+      const firstItemL1 = firstColumn.querySelector('li')
+      const secondColumn = document.querySelector('ul:nth-of-type(2)')
+      const firstItemL2 = secondColumn.querySelector('ul:nth-of-type(2) li')
+      const thirdColumn = document.querySelector('ul:nth-of-type(3)')
+
+      firstItemL1.click()
+      assert.equal(document.querySelector('.miller-columns__column--active'), secondColumn)
+      firstItemL2.click()
+      assert.equal(document.querySelector('.miller-columns__column--active'), thirdColumn)
+    })
   })
 
   describe('when loading pre-selected items', function() {
