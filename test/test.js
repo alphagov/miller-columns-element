@@ -261,6 +261,19 @@ describe('miller-columns', function() {
       const headingL2 = secondColumn.querySelector('.miller-columns__column-heading')
       assert.isTrue(firstLabelL1.textContent.includes(headingL2.textContent))
     })
+
+    it('shows previous column when back link button is clicked', function() {
+      const firstColumn = document.querySelectorAll('.miller-columns__column')[0]
+      const firstItemL1 = firstColumn.querySelector('li')
+      const secondColumn = document.querySelectorAll('.miller-columns__column')[1]
+      const backButtonL2 = secondColumn.querySelector('.govuk-back-link')
+
+      firstItemL1.click()
+      assert.equal(document.querySelector('.miller-columns__column--active'), secondColumn)
+
+      backButtonL2.click()
+      assert.equal(document.querySelector('.miller-columns__column--active'), firstColumn)
+    })
   })
 
   describe('when loading pre-selected items', function() {

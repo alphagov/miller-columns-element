@@ -291,6 +291,7 @@ class MillerColumnsElement extends HTMLElement {
     this.classNames = {
       column: 'miller-columns__column',
       columnHeading: 'miller-columns__column-heading',
+      backLink: 'govuk-back-link',
       columnList: 'miller-columns__column-list',
       columnCollapse: 'miller-columns__column--collapse',
       columnMedium: 'miller-columns__column--medium',
@@ -327,6 +328,23 @@ class MillerColumnsElement extends HTMLElement {
     const div = document.createElement('div')
 
     if (!root) {
+      // Append back link
+      const backLink = document.createElement('button')
+      backLink.className = this.classNames.backLink
+      backLink.type = 'button'
+      backLink.innerHTML = 'Back'
+      backLink.addEventListener(
+        'click',
+        () => {
+          if (topics[0].parent) {
+            this.showCurrentColumns(topics[0].parent.parent)
+          }
+        },
+        false
+      )
+      div.appendChild(backLink)
+
+      // Append heading
       const h3 = document.createElement('h3')
       h3.className = this.classNames.columnHeading
       const parentTopicName = topics[0].parent ? topics[0].parent.topicName : null
@@ -336,6 +354,7 @@ class MillerColumnsElement extends HTMLElement {
       div.appendChild(h3)
     }
 
+    // Append list
     const ul = document.createElement('ul')
     ul.className = this.classNames.columnList
     div.className = this.classNames.column
@@ -346,6 +365,7 @@ class MillerColumnsElement extends HTMLElement {
     }
     div.appendChild(ul)
 
+    // Append column
     this.appendChild(div)
 
     for (const topic of topics) {

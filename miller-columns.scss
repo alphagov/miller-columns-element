@@ -3,6 +3,7 @@
 @import "node_modules/govuk-frontend/govuk/tools/all";
 @import "node_modules/govuk-frontend/govuk/helpers/all";
 @import "node_modules/govuk-frontend/govuk/components/checkboxes/checkboxes";
+@import "node_modules/govuk-frontend/govuk/components/back-link/back-link";
 @import "miller-columns-selected";
 
 $mc-transition-time: 400ms;
@@ -88,7 +89,7 @@ $mc-active-item-background: govuk-colour("blue");
 
 .miller-columns__column-heading {
   @extend %govuk-heading-s;
-  padding: 2px 9px;
+  padding: 0;
 
   @include govuk-media-query($from: tablet) {
     display: none;
@@ -186,6 +187,21 @@ $mc-active-item-background: govuk-colour("blue");
   .govuk-list {
     .govuk-list {
       margin-left: govuk-spacing(6);
+    }
+  }
+
+  .govuk-back-link {
+    margin-bottom: govuk-spacing(4);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    background: transparent;
+
+    @include govuk-media-query($from: tablet) {
+      display: none;
     }
   }
 }
