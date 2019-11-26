@@ -474,6 +474,9 @@ class MillerColumnsElement extends HTMLElement {
         } else if (showNarrow) {
           item.classList.add(narrowClass)
         }
+        if (columnsToShow.length === 0) {
+          item.classList.add(activeClass)
+        }
         continue
       }
 

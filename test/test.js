@@ -245,6 +245,7 @@ describe('miller-columns', function() {
       const firstItemL2 = secondColumn.querySelector('ul:nth-of-type(2) li')
       const thirdColumn = document.querySelector('ul:nth-of-type(3)')
 
+      assert.equal(document.querySelector('.miller-columns__column--active'), firstColumn)
       firstItemL1.click()
       assert.equal(document.querySelector('.miller-columns__column--active'), secondColumn)
       firstItemL2.click()
