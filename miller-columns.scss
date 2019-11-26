@@ -34,16 +34,23 @@ $mc-active-item-background: govuk-colour("blue");
 }
 
 .miller-columns__column {
-  display: inline-block;
-  width: 33.3%;
+  display: none;
+  width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
-  border-right: 1px solid $govuk-border-colour;
   vertical-align: top;
   white-space: normal;
   transition-duration: $mc-transition-time;
   transition-property: width;
+
+  &.miller-columns__column--active {
+    display: inline-block;
+  }
+
+  @include govuk-media-query($from: tablet) {
+    display: inline-block;
+    width: 33.3%;
+    border-right: 1px solid $govuk-border-colour;
+  }
 }
 
 .miller-columns__column--narrow {
