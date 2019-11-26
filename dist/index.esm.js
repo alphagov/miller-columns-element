@@ -482,9 +482,13 @@ var MillerColumnsElement = function (_CustomElement2) {
 
     _this.classNames = {
       column: 'miller-columns__column',
+      columnHeading: 'miller-columns__column-heading',
+      backLink: 'govuk-back-link',
+      columnList: 'miller-columns__column-list',
       columnCollapse: 'miller-columns__column--collapse',
       columnMedium: 'miller-columns__column--medium',
       columnNarrow: 'miller-columns__column--narrow',
+      columnActive: 'miller-columns__column--active',
       item: 'miller-columns__item',
       itemParent: 'miller-columns__item--parent',
       itemActive: 'miller-columns__item--active',
@@ -516,16 +520,49 @@ var MillerColumnsElement = function (_CustomElement2) {
 
     /** Build and insert a column of the taxonomy */
     value: function renderTaxonomyColumn(topics) {
+      var _this2 = this;
+
       var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-      var ul = document.createElement('ul');
-      ul.className = this.classNames.column;
-      if (root) {
-        ul.dataset.root = 'true';
-      } else {
-        ul.classList.add(this.classNames.columnCollapse);
+      var div = document.createElement('div');
+
+      if (!root) {
+        // Append back link
+        var backLink = document.createElement('button');
+        backLink.className = this.classNames.backLink;
+        backLink.type = 'button';
+        backLink.innerHTML = 'Back';
+        backLink.addEventListener('click', function () {
+          if (topics[0].parent) {
+            _this2.showCurrentColumns(topics[0].parent.parent);
+          }
+        }, false);
+        div.appendChild(backLink);
+
+        // Append heading
+        var h3 = document.createElement('h3');
+        h3.className = this.classNames.columnHeading;
+        var parentTopicName = topics[0].parent ? topics[0].parent.topicName : null;
+        if (parentTopicName) {
+          h3.innerHTML = parentTopicName;
+        }
+        div.appendChild(h3);
       }
-      this.appendChild(ul);
+
+      // Append list
+      var ul = document.createElement('ul');
+      ul.className = this.classNames.columnList;
+      div.className = this.classNames.column;
+      if (root) {
+        div.dataset.root = 'true';
+      } else {
+        div.classList.add(this.classNames.columnCollapse);
+      }
+      div.appendChild(ul);
+
+      // Append column
+      this.appendChild(div);
+
       var _iteratorNormalCompletion7 = true;
       var _didIteratorError7 = false;
       var _iteratorError7 = undefined;
@@ -579,17 +616,17 @@ var MillerColumnsElement = function (_CustomElement2) {
   }, {
     key: 'attachEvents',
     value: function attachEvents(trigger, topic) {
-      var _this2 = this;
+      var _this3 = this;
 
       trigger.tabIndex = 0;
       trigger.addEventListener('click', function () {
-        _this2.taxonomy.topicClicked(topic);
+        _this3.taxonomy.topicClicked(topic);
         topic.checkbox.dispatchEvent(new Event('click'));
       }, false);
       trigger.addEventListener('keydown', function (event) {
         if ([' ', 'Enter'].indexOf(event.key) !== -1) {
           event.preventDefault();
-          _this2.taxonomy.topicClicked(topic);
+          _this3.taxonomy.topicClicked(topic);
           topic.checkbox.dispatchEvent(new Event('click'));
         }
       }, false);
@@ -659,7 +696,7 @@ var MillerColumnsElement = function (_CustomElement2) {
   }, {
     key: 'showSelectedTopics',
     value: function showSelectedTopics(selectedTopics) {
-      var _this3 = this;
+      var _this4 = this;
 
       var selectedItems = selectedTopics.reduce(function (memo, child) {
         var _iteratorNormalCompletion9 = true;
@@ -670,7 +707,7 @@ var MillerColumnsElement = function (_CustomElement2) {
           for (var _iterator9 = child.withParents()[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
             var topic = _step9.value;
 
-            var item = topic.checkbox.closest('.' + _this3.classNames.item);
+            var item = topic.checkbox.closest('.' + _this4.classNames.item);
             if (item instanceof HTMLElement) {
               memo.push(item);
             }
@@ -701,7 +738,7 @@ var MillerColumnsElement = function (_CustomElement2) {
   }, {
     key: 'showActiveTopic',
     value: function showActiveTopic(activeTopic) {
-      var _this4 = this;
+      var _this5 = this;
 
       var activeItems = void 0;
 
@@ -709,7 +746,7 @@ var MillerColumnsElement = function (_CustomElement2) {
         activeItems = [];
       } else {
         activeItems = activeTopic.withParents().reduce(function (memo, topic) {
-          var item = topic.checkbox.closest('.' + _this4.classNames.item);
+          var item = topic.checkbox.closest('.' + _this5.classNames.item);
 
           if (item instanceof HTMLElement) {
             memo.push(item);
@@ -734,7 +771,8 @@ var MillerColumnsElement = function (_CustomElement2) {
       var _classNames = this.classNames,
           collapseClass = _classNames.columnCollapse,
           narrowClass = _classNames.columnNarrow,
-          mediumClass = _classNames.columnMedium;
+          mediumClass = _classNames.columnMedium,
+          activeClass = _classNames.columnActive;
       var _iteratorNormalCompletion10 = true;
       var _didIteratorError10 = false;
       var _iteratorError10 = undefined;
@@ -748,6 +786,7 @@ var MillerColumnsElement = function (_CustomElement2) {
             continue;
           }
 
+          item.classList.remove(activeClass);
           // we always want to show the root column
           if (item.dataset.root === 'true') {
             item.classList.remove(narrowClass, mediumClass);
@@ -755,6 +794,9 @@ var MillerColumnsElement = function (_CustomElement2) {
               item.classList.add(mediumClass);
             } else if (showNarrow) {
               item.classList.add(narrowClass);
+            }
+            if (columnsToShow.length === 0) {
+              item.classList.add(activeClass);
             }
             continue;
           }
@@ -775,6 +817,11 @@ var MillerColumnsElement = function (_CustomElement2) {
           } else {
             // show this column in all it's glory
             item.classList.remove(collapseClass, narrowClass, mediumClass);
+          }
+
+          // mark last column as active
+          if (item === columnsToShow[columnsToShow.length - 1]) {
+            item.classList.add(activeClass);
           }
         }
       } catch (err) {
@@ -946,7 +993,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
   }, {
     key: 'removeTopicElement',
     value: function removeTopicElement(topic) {
-      var _this6 = this;
+      var _this7 = this;
 
       var button = document.createElement('button');
       button.className = 'miller-columns-selected__remove-topic';
@@ -954,8 +1001,8 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       button.setAttribute('type', 'button');
       button.addEventListener('click', function () {
         triggerEvent(button, 'remove-topic', topic);
-        if (_this6.taxonomy) {
-          _this6.taxonomy.removeTopic(topic);
+        if (_this7.taxonomy) {
+          _this7.taxonomy.removeTopic(topic);
         }
       });
       return button;

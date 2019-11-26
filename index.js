@@ -290,9 +290,13 @@ class MillerColumnsElement extends HTMLElement {
     super()
     this.classNames = {
       column: 'miller-columns__column',
+      columnHeading: 'miller-columns__column-heading',
+      backLink: 'govuk-back-link',
+      columnList: 'miller-columns__column-list',
       columnCollapse: 'miller-columns__column--collapse',
       columnMedium: 'miller-columns__column--medium',
       columnNarrow: 'miller-columns__column--narrow',
+      columnActive: 'miller-columns__column--active',
       item: 'miller-columns__item',
       itemParent: 'miller-columns__item--parent',
       itemActive: 'miller-columns__item--active',
@@ -321,14 +325,49 @@ class MillerColumnsElement extends HTMLElement {
 
   /** Build and insert a column of the taxonomy */
   renderTaxonomyColumn(topics: Array<Topic>, root: boolean = false) {
-    const ul = document.createElement('ul')
-    ul.className = this.classNames.column
-    if (root) {
-      ul.dataset.root = 'true'
-    } else {
-      ul.classList.add(this.classNames.columnCollapse)
+    const div = document.createElement('div')
+
+    if (!root) {
+      // Append back link
+      const backLink = document.createElement('button')
+      backLink.className = this.classNames.backLink
+      backLink.type = 'button'
+      backLink.innerHTML = 'Back'
+      backLink.addEventListener(
+        'click',
+        () => {
+          if (topics[0].parent) {
+            this.showCurrentColumns(topics[0].parent.parent)
+          }
+        },
+        false
+      )
+      div.appendChild(backLink)
+
+      // Append heading
+      const h3 = document.createElement('h3')
+      h3.className = this.classNames.columnHeading
+      const parentTopicName = topics[0].parent ? topics[0].parent.topicName : null
+      if (parentTopicName) {
+        h3.innerHTML = parentTopicName
+      }
+      div.appendChild(h3)
     }
-    this.appendChild(ul)
+
+    // Append list
+    const ul = document.createElement('ul')
+    ul.className = this.classNames.columnList
+    div.className = this.classNames.column
+    if (root) {
+      div.dataset.root = 'true'
+    } else {
+      div.classList.add(this.classNames.columnCollapse)
+    }
+    div.appendChild(ul)
+
+    // Append column
+    this.appendChild(div)
+
     for (const topic of topics) {
       this.renderTopic(topic, ul)
     }
@@ -452,13 +491,19 @@ class MillerColumnsElement extends HTMLElement {
     const narrowThreshold = Math.max(3, columnsToShow.length - 1)
     const showNarrow = columnsToShow.length > narrowThreshold
     const showMedium = showNarrow && narrowThreshold === 3
-    const {columnCollapse: collapseClass, columnNarrow: narrowClass, columnMedium: mediumClass} = this.classNames
+    const {
+      columnCollapse: collapseClass,
+      columnNarrow: narrowClass,
+      columnMedium: mediumClass,
+      columnActive: activeClass
+    } = this.classNames
 
     for (const item of allColumns) {
       if (!item) {
         continue
       }
 
+      item.classList.remove(activeClass)
       // we always want to show the root column
       if (item.dataset.root === 'true') {
         item.classList.remove(narrowClass, mediumClass)
@@ -466,6 +511,9 @@ class MillerColumnsElement extends HTMLElement {
           item.classList.add(mediumClass)
         } else if (showNarrow) {
           item.classList.add(narrowClass)
+        }
+        if (columnsToShow.length === 0) {
+          item.classList.add(activeClass)
         }
         continue
       }
@@ -486,6 +534,11 @@ class MillerColumnsElement extends HTMLElement {
       } else {
         // show this column in all it's glory
         item.classList.remove(collapseClass, narrowClass, mediumClass)
+      }
+
+      // mark last visible column as active
+      if (item === columnsToShow[columnsToShow.length - 1]) {
+        item.classList.add(activeClass)
       }
     }
   }
