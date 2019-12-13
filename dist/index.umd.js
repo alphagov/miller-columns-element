@@ -806,7 +806,7 @@
               item.classList.remove(collapseClass, narrowClass, mediumClass);
             }
 
-            // mark last column as active
+            // mark last visible column as active
             if (item === columnsToShow[columnsToShow.length - 1]) {
               item.classList.add(activeClass);
             }
