@@ -986,6 +986,12 @@
             _this7.taxonomy.removeTopic(topic);
           }
         });
+
+        var span = document.createElement('span');
+        span.className = 'govuk-visually-hidden';
+        span.textContent = ': ' + topic.topicName;
+        button.appendChild(span);
+
         return button;
       }
     }, {
