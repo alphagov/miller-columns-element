@@ -647,6 +647,12 @@ class MillerColumnsSelectedElement extends HTMLElement {
         this.taxonomy.removeTopic(topic)
       }
     })
+
+    const span = document.createElement('span')
+    span.className = 'govuk-visually-hidden'
+    span.textContent = `: ${topic.topicName}`
+    button.appendChild(span)
+
     return button
   }
 }
