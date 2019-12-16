@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## 1.2.1
+
+- Improve remove action for screen readers (PR #28)
+
 ## 1.2.0
 
 - Enhance mobile view (PR #25)
