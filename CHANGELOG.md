@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## Unreleased
+
+- Fix active column on root taxons (PR #30)
+
 ## 1.2.1
 
 - Improve remove action for screen readers (PR #28)
