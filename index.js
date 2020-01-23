@@ -487,7 +487,7 @@ class MillerColumnsElement extends HTMLElement {
   /** Change what columns are visible based on the active (or not) topic */
   showCurrentColumns(activeTopic: ?Topic) {
     const allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column))
-    const columnsToShow = this.columnsForActiveTopic(activeTopic)
+    const columnsToShow = activeTopic ? this.columnsForActiveTopic(activeTopic) : [allColumns[0]]
     const narrowThreshold = Math.max(3, columnsToShow.length - 1)
     const showNarrow = columnsToShow.length > narrowThreshold
     const showMedium = showNarrow && narrowThreshold === 3
@@ -512,7 +512,7 @@ class MillerColumnsElement extends HTMLElement {
         } else if (showNarrow) {
           item.classList.add(narrowClass)
         }
-        if (columnsToShow.length === 0) {
+        if (columnsToShow.length === 1) {
           item.classList.add(activeClass)
         }
         continue

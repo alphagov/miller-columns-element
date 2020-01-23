@@ -79,6 +79,14 @@ describe('miller-columns', function() {
                 </li>
              </ul>
           </li>
+          <li>
+             <div class="govuk-checkboxes__item">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68474" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68474" tabindex="-1">
+                <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68474" class="govuk-label govuk-checkboxes__label">
+                Corporate information
+                </label>
+             </div>
+          </li>
           </ul>
         </miller-columns>
       `
@@ -239,12 +247,13 @@ describe('miller-columns', function() {
 
     it('provides an API to access all topics in a flat list', function() {
       const millerColumns = document.querySelector('miller-columns')
-      assert.equal(millerColumns.taxonomy.flattenedTopics.length, 6)
+      assert.equal(millerColumns.taxonomy.flattenedTopics.length, 7)
     })
 
     it('shows active column while selecting items', function() {
       const firstColumn = document.querySelectorAll('.miller-columns__column')[0]
       const firstItemL1 = firstColumn.querySelector('li')
+      const secondItemL1 = firstColumn.querySelector('li:nth-of-type(2)')
       const secondColumn = document.querySelectorAll('.miller-columns__column')[1]
       const firstItemL2 = secondColumn.querySelector('li')
       const thirdColumn = document.querySelectorAll('.miller-columns__column')[2]
@@ -254,6 +263,8 @@ describe('miller-columns', function() {
       assert.equal(document.querySelector('.miller-columns__column--active'), secondColumn)
       firstItemL2.click()
       assert.equal(document.querySelector('.miller-columns__column--active'), thirdColumn)
+      secondItemL1.click()
+      assert.equal(document.querySelector('.miller-columns__column--active'), firstColumn)
     })
 
     it('shows parent element as heading for each column', function() {

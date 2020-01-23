@@ -764,7 +764,7 @@ var MillerColumnsElement = function (_CustomElement2) {
     key: 'showCurrentColumns',
     value: function showCurrentColumns(activeTopic) {
       var allColumns = nodesToArray(this.getElementsByClassName(this.classNames.column));
-      var columnsToShow = this.columnsForActiveTopic(activeTopic);
+      var columnsToShow = activeTopic ? this.columnsForActiveTopic(activeTopic) : [allColumns[0]];
       var narrowThreshold = Math.max(3, columnsToShow.length - 1);
       var showNarrow = columnsToShow.length > narrowThreshold;
       var showMedium = showNarrow && narrowThreshold === 3;
@@ -795,7 +795,7 @@ var MillerColumnsElement = function (_CustomElement2) {
             } else if (showNarrow) {
               item.classList.add(narrowClass);
             }
-            if (columnsToShow.length === 0) {
+            if (columnsToShow.length === 1) {
               item.classList.add(activeClass);
             }
             continue;
