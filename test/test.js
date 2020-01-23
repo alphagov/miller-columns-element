@@ -97,17 +97,17 @@ describe('miller-columns', function() {
       document.body.innerHTML = undefined
     })
 
-    it('unnest lists', function() {
+    it('unnests lists', function() {
       const lists = document.querySelectorAll('ul')
       assert.equal(lists.length, 4)
     })
 
-    it('mark items with children as parents', function() {
+    it('marks items with children as parents', function() {
       const firstItem = document.querySelector('ul li')
       assert.isTrue(firstItem.classList.contains('miller-columns__item--parent'))
     })
 
-    it('mark selected item as active when clicked', function() {
+    it('marks selected item as active when clicked', function() {
       const firstItem = document.querySelector('ul li')
       const firstItemCheckbox = firstItem.querySelector('input')
       firstItemCheckbox.addEventListener('click', function(e) {
@@ -120,7 +120,7 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.querySelector('input').checked)
     })
 
-    it('mark selected item as active when pressing Enter', function() {
+    it('marks selected item as active when pressing Enter', function() {
       const firstItem = document.querySelector('ul li')
       const firstItemCheckbox = firstItem.querySelector('input')
       firstItemCheckbox.addEventListener('keydown', function(e) {
@@ -134,7 +134,7 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.querySelector('input').checked)
     })
 
-    it('mark selected item as active when pressing Space', function() {
+    it('marks selected item as active when pressing Space', function() {
       const firstItem = document.querySelector('ul li')
       const firstItemCheckbox = firstItem.querySelector('input')
       firstItemCheckbox.addEventListener('keydown', function(e) {
@@ -148,7 +148,47 @@ describe('miller-columns', function() {
       assert.isTrue(firstItem.querySelector('input').checked)
     })
 
-    it('show the child list for active list item', function() {
+    it('marks next item as focused when pressing ArrowDown', function() {
+      const firstItem = document.querySelector('.miller-columns__column li:nth-of-type(1)')
+      const secondItem = document.querySelector('.miller-columns__column li:nth-of-type(2)')
+
+      firstItem.focus()
+      pressKey('ArrowDown', firstItem)
+
+      assert.deepEqual(secondItem, document.activeElement)
+    })
+
+    it('marks previous item as focused when pressing ArrowUp', function() {
+      const firstItem = document.querySelector('.miller-columns__column li:nth-of-type(1)')
+      const secondItem = document.querySelector('.miller-columns__column li:nth-of-type(2)')
+
+      secondItem.focus()
+      pressKey('ArrowUp', secondItem)
+
+      assert.deepEqual(firstItem, document.activeElement)
+    })
+
+    it('marks first child item as focused when pressing ArrowRight', function() {
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
+      const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
+
+      firstItemL1.focus()
+      pressKey('ArrowRight', firstItemL1)
+
+      assert.deepEqual(firstItemL2, document.activeElement)
+    })
+
+    it('marks parent item as focused when pressing ArrowLeft', function() {
+      const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
+      const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
+
+      firstItemL2.focus()
+      pressKey('ArrowLeft', firstItemL2)
+
+      assert.deepEqual(firstItemL1, document.activeElement)
+    })
+
+    it('shows the child list for active list item', function() {
       const firstItem = document.querySelector('ul li')
       const l2List = document.querySelectorAll('.miller-columns__column')[1]
       assert.isTrue(l2List.classList.contains('miller-columns__column--collapse'))
@@ -156,7 +196,7 @@ describe('miller-columns', function() {
       assert.isFalse(l2List.classList.contains('miller-columns__column--collapse'))
     })
 
-    it('unselect children when item is unselected', function() {
+    it('unselects children when item is unselected', function() {
       const firstItemL1 = document.querySelector('.miller-columns__column:nth-of-type(1) li')
       const firstItemL2 = document.querySelector('.miller-columns__column:nth-of-type(2) li')
       firstItemL1.click()
@@ -360,14 +400,14 @@ describe('miller-columns', function() {
       document.body.innerHTML = undefined
     })
 
-    it('mark items with checked inputs as selected', function() {
+    it('marks items with checked inputs as selected', function() {
       const selectedCheckbox = document.querySelector('ul li input:checked')
       const listItem = selectedCheckbox.closest('li')
       assert.isTrue(listItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(listItem.querySelector('input').checked)
     })
 
-    it('mark selected item’s parent as selected', function() {
+    it('marks selected item’s parent as selected', function() {
       const listItem = document.querySelector('ul li')
       assert.isTrue(listItem.classList.contains('miller-columns__item--active'))
       assert.isTrue(listItem.querySelector('input').checked)

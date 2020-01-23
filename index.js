@@ -120,14 +120,23 @@ class Topic {
       return topics
     }
 
-    for (const item of list.children) {
+    const children = Array.from(list.children)
+
+    for (const [index, item] of children.entries()) {
       const label = item.querySelector('label')
       const checkbox = item.querySelector('input')
       if (label instanceof HTMLLabelElement && checkbox instanceof HTMLInputElement) {
         let childList = item.querySelector('ul')
         childList = childList instanceof HTMLUListElement ? childList : null
 
-        const topic = new Topic(label, checkbox, childList, parent)
+        const previous = index > 0 ? topics[index - 1] : null
+
+        const topic = new Topic(label, checkbox, childList, parent, previous)
+
+        if (index > 0) {
+          topics[index - 1].next = topic
+        }
+
         topics.push(topic)
       }
     }
@@ -139,17 +148,26 @@ class Topic {
   checkbox: HTMLInputElement
   children: Array<Topic>
   parent: ?Topic
+  next: ?Topic
+  previous: ?Topic
   // Whether this topic is selected, we only allow one item in a branch of the
   // taxonomy to be selected.
   // E.g. given education > school > 6th form only one of these can be selected
   // at a time and the parents are implicity selected from it
   selected: boolean
 
-  constructor(label: HTMLLabelElement, checkbox: HTMLInputElement, childList: ?HTMLUListElement, parent: ?Topic) {
+  constructor(
+    label: HTMLLabelElement,
+    checkbox: HTMLInputElement,
+    childList: ?HTMLUListElement,
+    parent: ?Topic,
+    previous: ?Topic
+  ) {
     this.label = label
     this.checkbox = checkbox
     this.parent = parent
     this.children = Topic.fromList(childList, this)
+    this.previous = previous
 
     if (this.checkbox.checked) {
       this.select()
@@ -392,6 +410,16 @@ class MillerColumnsElement extends HTMLElement {
     }
   }
 
+  /** Focus the miller columns item associated with a topic */
+  focusTopic(topic: ?Topic) {
+    if (topic instanceof Topic && topic.checkbox) {
+      const item = topic.checkbox.closest(`.${this.classNames.item}`)
+      if (item instanceof HTMLElement) {
+        item.focus()
+      }
+    }
+  }
+
   /** Sets up the event handling for a list item and a topic */
   attachEvents(trigger: HTMLElement, topic: Topic) {
     trigger.tabIndex = 0
@@ -412,6 +440,34 @@ class MillerColumnsElement extends HTMLElement {
             event.preventDefault()
             this.taxonomy.topicClicked(topic)
             topic.checkbox.dispatchEvent(new Event('click'))
+            break
+          case 'ArrowUp':
+            event.preventDefault()
+            if (topic.previous) {
+              this.showCurrentColumns(topic.previous)
+              this.focusTopic(topic.previous)
+            }
+            break
+          case 'ArrowDown':
+            event.preventDefault()
+            if (topic.next) {
+              this.showCurrentColumns(topic.next)
+              this.focusTopic(topic.next)
+            }
+            break
+          case 'ArrowLeft':
+            event.preventDefault()
+            if (topic.parent) {
+              this.showCurrentColumns(topic.parent)
+              this.focusTopic(topic.parent)
+            }
+            break
+          case 'ArrowRight':
+            event.preventDefault()
+            if (topic.children) {
+              this.showCurrentColumns(topic.children[0])
+              this.focusTopic(topic.children[0])
+            }
             break
           default:
             return
