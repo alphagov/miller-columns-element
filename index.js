@@ -406,10 +406,15 @@ class MillerColumnsElement extends HTMLElement {
     trigger.addEventListener(
       'keydown',
       (event: KeyboardEvent) => {
-        if ([' ', 'Enter'].indexOf(event.key) !== -1) {
-          event.preventDefault()
-          this.taxonomy.topicClicked(topic)
-          topic.checkbox.dispatchEvent(new Event('click'))
+        switch (event.key) {
+          case ' ':
+          case 'Enter':
+            event.preventDefault()
+            this.taxonomy.topicClicked(topic)
+            topic.checkbox.dispatchEvent(new Event('click'))
+            break
+          default:
+            return
         }
       },
       false
