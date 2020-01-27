@@ -1,3 +1,5 @@
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -179,13 +181,17 @@ var Topic = function () {
         return topics;
       }
 
+      var children = Array.from(list.children);
+
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = list.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var item = _step2.value;
+        for (var _iterator2 = children.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var _step2$value = _slicedToArray(_step2.value, 2),
+              index = _step2$value[0],
+              item = _step2$value[1];
 
           var label = item.querySelector('label');
           var checkbox = item.querySelector('input');
@@ -193,7 +199,14 @@ var Topic = function () {
             var childList = item.querySelector('ul');
             childList = childList instanceof HTMLUListElement ? childList : null;
 
-            var topic = new Topic(label, checkbox, childList, parent);
+            var previous = index > 0 ? topics[index - 1] : null;
+
+            var topic = new Topic(label, checkbox, childList, parent, previous);
+
+            if (index > 0) {
+              topics[index - 1].next = topic;
+            }
+
             topics.push(topic);
           }
         }
@@ -221,13 +234,14 @@ var Topic = function () {
 
   }]);
 
-  function Topic(label, checkbox, childList, parent) {
+  function Topic(label, checkbox, childList, parent, previous) {
     _classCallCheck(this, Topic);
 
     this.label = label;
     this.checkbox = checkbox;
     this.parent = parent;
     this.children = Topic.fromList(childList, this);
+    this.previous = previous;
 
     if (this.checkbox.checked) {
       this.select();
@@ -611,6 +625,19 @@ var MillerColumnsElement = function (_CustomElement2) {
       }
     }
 
+    /** Focus the miller columns item associated with a topic */
+
+  }, {
+    key: 'focusTopic',
+    value: function focusTopic(topic) {
+      if (topic instanceof Topic && topic.checkbox) {
+        var item = topic.checkbox.closest('.' + this.classNames.item);
+        if (item instanceof HTMLElement) {
+          item.focus();
+        }
+      }
+    }
+
     /** Sets up the event handling for a list item and a topic */
 
   }, {
@@ -624,10 +651,43 @@ var MillerColumnsElement = function (_CustomElement2) {
         topic.checkbox.dispatchEvent(new Event('click'));
       }, false);
       trigger.addEventListener('keydown', function (event) {
-        if ([' ', 'Enter'].indexOf(event.key) !== -1) {
-          event.preventDefault();
-          _this3.taxonomy.topicClicked(topic);
-          topic.checkbox.dispatchEvent(new Event('click'));
+        switch (event.key) {
+          case ' ':
+          case 'Enter':
+            event.preventDefault();
+            _this3.taxonomy.topicClicked(topic);
+            topic.checkbox.dispatchEvent(new Event('click'));
+            break;
+          case 'ArrowUp':
+            event.preventDefault();
+            if (topic.previous) {
+              _this3.showCurrentColumns(topic.previous);
+              _this3.focusTopic(topic.previous);
+            }
+            break;
+          case 'ArrowDown':
+            event.preventDefault();
+            if (topic.next) {
+              _this3.showCurrentColumns(topic.next);
+              _this3.focusTopic(topic.next);
+            }
+            break;
+          case 'ArrowLeft':
+            event.preventDefault();
+            if (topic.parent) {
+              _this3.showCurrentColumns(topic.parent);
+              _this3.focusTopic(topic.parent);
+            }
+            break;
+          case 'ArrowRight':
+            event.preventDefault();
+            if (topic.children) {
+              _this3.showCurrentColumns(topic.children[0]);
+              _this3.focusTopic(topic.children[0]);
+            }
+            break;
+          default:
+            return;
         }
       }, false);
     }
