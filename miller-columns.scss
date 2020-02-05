@@ -137,7 +137,7 @@ $mc-active-item-background: govuk-colour("blue");
 }
 
 .miller-columns__item--parent:after {
-  content: "\203A";
+  content: "\203A" / "";
   position: absolute;
   top: 50%;
   right: 5px;
