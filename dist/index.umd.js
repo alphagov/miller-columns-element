@@ -568,6 +568,8 @@
     _createClass(MillerColumnsElement, [{
       key: 'connectedCallback',
       value: function connectedCallback() {
+        this.describedbyId = this.getAttribute('aria-describedby');
+
         var source = document.getElementById(this.getAttribute('for') || '');
         if (source) {
           this.taxonomy = new Taxonomy(Topic.fromList(source), this);
@@ -656,6 +658,10 @@
         var li = document.createElement('li');
         li.classList.add(this.classNames.item);
         li.classList.add('govuk-checkboxes--small');
+        if (this.describedbyId) {
+          li.setAttribute('aria-describedby', this.describedbyId);
+        }
+
         var div = document.createElement('div');
         div.className = 'govuk-checkboxes__item';
         div.appendChild(topic.checkbox);

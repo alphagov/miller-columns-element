@@ -1231,7 +1231,7 @@
     box-shadow: none; }
 
 .miller-columns__item--parent:after {
-  content: "\203A";
+  content: "\203A" / "";
   position: absolute;
   top: 50%;
   right: 5px;
