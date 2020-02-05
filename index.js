@@ -303,6 +303,7 @@ class Topic {
 class MillerColumnsElement extends HTMLElement {
   taxonomy: Taxonomy
   classNames: Object
+  describedbyId: ?string
 
   constructor() {
     super()
@@ -323,6 +324,8 @@ class MillerColumnsElement extends HTMLElement {
   }
 
   connectedCallback() {
+    this.describedbyId = this.getAttribute('aria-describedby')
+
     const source = document.getElementById(this.getAttribute('for') || '')
     if (source) {
       this.taxonomy = new Taxonomy(Topic.fromList(source), this)
@@ -396,6 +399,10 @@ class MillerColumnsElement extends HTMLElement {
     const li = document.createElement('li')
     li.classList.add(this.classNames.item)
     li.classList.add('govuk-checkboxes--small')
+    if (this.describedbyId) {
+      li.setAttribute('aria-describedby', this.describedbyId)
+    }
+
     const div = document.createElement('div')
     div.className = 'govuk-checkboxes__item'
     div.appendChild(topic.checkbox)

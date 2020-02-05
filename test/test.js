@@ -23,7 +23,8 @@ describe('miller-columns', function() {
       const container = document.createElement('div')
       container.innerHTML = `
         <miller-columns-selected id="selected-items" for="miller-columns"></miller-columns-selected>
-        <miller-columns id="miller-columns" for="taxonomy" selected="selected-items">
+        <p id="navigation-instructions" class="govuk-body govuk-visually-hidden">Use the right arrow to explore sub-topics, use the up and down arrows to find other topics.</p>
+        <miller-columns id="miller-columns" for="taxonomy" selected="selected-items" aria-describedby="navigation-instructions">
           <ul id="taxonomy">
           <li>
              <div class="govuk-checkboxes__item">
@@ -326,6 +327,15 @@ describe('miller-columns', function() {
 
       backButtonL2.click()
       assert.equal(document.querySelector('.miller-columns__column--active'), firstColumn)
+    })
+
+    it('applies aria-describedby to each individual item', function() {
+      const millerColumnsElement = document.querySelector('miller-columns')
+      const describedbyId = millerColumnsElement.getAttribute('aria-describedby')
+
+      const millerColumnsItem = document.querySelector('.miller-columns__item')
+
+      assert.equal(millerColumnsItem.getAttribute('aria-describedby'), describedbyId)
     })
   })
 
