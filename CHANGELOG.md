@@ -8,9 +8,11 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 1.3.0
 
 - Fix active column on root taxons (PR #30)
+- Enable keyboard navigation (PR #31)
+- Enable navigation instructions for assistive technologies (PR #32)
 
 ## 1.2.1
 
