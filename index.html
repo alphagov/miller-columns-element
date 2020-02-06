@@ -18,8 +18,9 @@
       <h1 class="govuk-heading-xl">miller-columns element</h1>
       <p class="govuk-body">Express a hierarchy by showing selectable lists of the items in each hierarchy level.<br/>Selection of any item shows that item’s children in the next list.</p>
       <h2 class="govuk-heading-m">Selected topics</h2>
+      <p id="navigation-instructions" class="govuk-body govuk-visually-hidden">Use the right arrow to explore sub-topics, use the up and down arrows to find other topics.</p>
       <miller-columns-selected class="miller-columns-selected" id="selected-items" for="miller-columns"></miller-columns-selected>
-      <miller-columns id="miller-columns" class="miller-columns" for="taxonomy" selected="selected-items">
+      <miller-columns id="miller-columns" class="miller-columns" for="taxonomy" selected="selected-items" aria-describedby="navigation-instructions">
         <ul id="taxonomy" class="govuk-list">
           <li>
             <div class="govuk-checkboxes__item">
