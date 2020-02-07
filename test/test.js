@@ -28,7 +28,7 @@ describe('miller-columns', function() {
           <ul id="taxonomy">
           <li>
              <div class="govuk-checkboxes__item">
-                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473">
                 <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label" id="parenting-childcare-and-childrens-services">
                 Parenting, childcare and children's services
                 </label>
@@ -36,7 +36,7 @@ describe('miller-columns', function() {
              <ul>
                 <li>
                    <div class="govuk-checkboxes__item">
-                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1">
+                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7">
                       <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label" id="divorce-separation-and-legal-issues">
                       Divorce, separation and legal issues
                       </label>
@@ -44,7 +44,7 @@ describe('miller-columns', function() {
                    <ul>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
+                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718">
                             <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label" id="child-custody">
                             Child custody
                             </label>
@@ -52,7 +52,7 @@ describe('miller-columns', function() {
                       </li>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
+                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0">
                             <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label" id="disagreements-about-parentage">
                             Disagreements about parentage
                             </label>
@@ -62,7 +62,7 @@ describe('miller-columns', function() {
                 </li>
                 <li>
                    <div class="govuk-checkboxes__item">
-                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
+                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae">
                       <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
                       Childcare and early years
                       </label>
@@ -70,7 +70,7 @@ describe('miller-columns', function() {
                    <ul>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
+                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10">
                             <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
                             Local authorities and early years
                             </label>
@@ -82,7 +82,7 @@ describe('miller-columns', function() {
           </li>
           <li>
              <div class="govuk-checkboxes__item">
-                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68474" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68474" tabindex="-1">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68474" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68474">
                 <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68474" class="govuk-label govuk-checkboxes__label">
                 Corporate information
                 </label>
@@ -337,6 +337,13 @@ describe('miller-columns', function() {
 
       assert.equal(millerColumnsItem.getAttribute('aria-describedby'), describedbyId)
     })
+
+    it('removes checkboxes from the focus order', function() {
+      const item = document.querySelector('ul li')
+      const itemCheckbox = item.querySelector('input')
+
+      assert.equal(itemCheckbox.getAttribute('tabindex'), '-1')
+    })
   })
 
   describe('when loading pre-selected items', function() {
@@ -348,7 +355,7 @@ describe('miller-columns', function() {
           <ul id="taxonomy">
           <li>
              <div class="govuk-checkboxes__item">
-                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473" tabindex="-1">
+                <input type="checkbox" id="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-checkboxes__input" name="topics[]" value="206b7f3a-49b5-476f-af0f-fd27e2a68473">
                 <label for="topic-206b7f3a-49b5-476f-af0f-fd27e2a68473" class="govuk-label govuk-checkboxes__label">
                 Parenting, childcare and children's services
                 </label>
@@ -356,7 +363,7 @@ describe('miller-columns', function() {
              <ul>
                 <li>
                    <div class="govuk-checkboxes__item">
-                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" tabindex="-1" checked>
+                      <input type="checkbox" id="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-checkboxes__input" name="topics[]" value="1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" checked>
                       <label for="topic-1423ec9f-d62c-40f7-b10e-a2bdf020d8b7" class="govuk-label govuk-checkboxes__label">
                       Divorce, separation and legal issues
                       </label>
@@ -364,7 +371,7 @@ describe('miller-columns', function() {
                    <ul>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718" tabindex="-1">
+                            <input type="checkbox" id="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-checkboxes__input" name="topics[]" value="9ed56732-8600-493e-8467-295233529718">
                             <label for="topic-9ed56732-8600-493e-8467-295233529718" class="govuk-label govuk-checkboxes__label">
                             Child custody
                             </label>
@@ -372,7 +379,7 @@ describe('miller-columns', function() {
                       </li>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0" tabindex="-1">
+                            <input type="checkbox" id="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-checkboxes__input" name="topics[]" value="237b2e72-c465-42fe-9293-8b6af21713c0">
                             <label for="topic-237b2e72-c465-42fe-9293-8b6af21713c0" class="govuk-label govuk-checkboxes__label">
                             Disagreements about parentage
                             </label>
@@ -382,7 +389,7 @@ describe('miller-columns', function() {
                 </li>
                 <li>
                    <div class="govuk-checkboxes__item">
-                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae" tabindex="-1">
+                      <input type="checkbox" id="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-checkboxes__input" name="topics[]" value="f1d9c348-5c5e-4fc6-9172-13a62537d3ae">
                       <label for="topic-f1d9c348-5c5e-4fc6-9172-13a62537d3ae" class="govuk-label govuk-checkboxes__label">
                       Childcare and early years
                       </label>
@@ -390,7 +397,7 @@ describe('miller-columns', function() {
                    <ul>
                       <li>
                          <div class="govuk-checkboxes__item">
-                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10" tabindex="-1">
+                            <input type="checkbox" id="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-checkboxes__input" name="topics[]" value="1da1c700-cef8-45c4-9bb7-11a4b0003e10">
                             <label for="topic-1da1c700-cef8-45c4-9bb7-11a4b0003e10" class="govuk-label govuk-checkboxes__label">
                             Local authorities and early years
                             </label>
