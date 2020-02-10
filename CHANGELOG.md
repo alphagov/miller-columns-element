@@ -8,7 +8,7 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 1.3.1
 
 - Ensure checkboxes are focusable without JS (PR #35)
 
