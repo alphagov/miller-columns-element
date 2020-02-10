@@ -62,6 +62,21 @@ To continuously build files while developing run:
 npm run watch
 ```
 
+To install and run a local HTTP server using Node.js:
+
+```
+npm install -g http-server
+http-server
+```
+
+To manually check examples in a web browser or using BrowserStack:
+
+- `http://127.0.0.1:8080/examples/index.html` (default example)
+- `http://127.0.0.1:8080/examples/checkboxes-checked.html` (with pre-selected items at page load)
+- `http://127.0.0.1:8080/examples/miller-columns-test.html` (example used for tests)
+
+Alternatively, you can open one of the HTML files in the [`/examples`](https://github.com/alphagov/miller-columns-element/tree/master/examples) directory for a quick preview.
+
 ## License
 
 Distributed under the MIT license. See LICENSE for details.
