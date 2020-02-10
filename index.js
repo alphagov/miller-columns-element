@@ -129,6 +129,8 @@ class Topic {
         let childList = item.querySelector('ul')
         childList = childList instanceof HTMLUListElement ? childList : null
 
+        checkbox.tabIndex = -1
+
         const previous = index > 0 ? topics[index - 1] : null
 
         const topic = new Topic(label, checkbox, childList, parent, previous)

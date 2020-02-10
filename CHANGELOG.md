@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## Unreleased
+
+- Ensure checkboxes are focusable without JS (PR #35)
+
 ## 1.3.0
 
 - Fix active column on root taxons (PR #30)

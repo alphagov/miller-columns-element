@@ -279,6 +279,8 @@
               var childList = item.querySelector('ul');
               childList = childList instanceof HTMLUListElement ? childList : null;
 
+              checkbox.tabIndex = -1;
+
               var previous = index > 0 ? topics[index - 1] : null;
 
               var topic = new Topic(label, checkbox, childList, parent, previous);
