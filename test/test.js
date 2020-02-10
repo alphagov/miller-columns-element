@@ -338,6 +338,12 @@ describe('miller-columns', function() {
       assert.equal(millerColumnsItem.getAttribute('aria-describedby'), describedbyId)
     })
 
+    it('adds each item to the tab order', function() {
+      const millerColumnsItem = document.querySelector('.miller-columns__item')
+
+      assert.equal(millerColumnsItem.getAttribute('tabindex'), '0')
+    })
+
     it('removes checkboxes from the focus order', function() {
       const item = document.querySelector('ul li')
       const itemCheckbox = item.querySelector('input')
