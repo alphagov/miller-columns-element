@@ -36,7 +36,7 @@
     "babel-preset-flow": "^6.23.0",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
-    "eslint-plugin-github": "1.0.0",
+    "eslint-plugin-github": "1.6.0",
     "flow-bin": "^0.120.1",
     "govuk-frontend": "^3.6.0",
     "karma": "^4.4.1",
