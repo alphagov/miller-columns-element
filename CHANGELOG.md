@@ -8,6 +8,10 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
+## 1.3.2
+
+- Fix back-link styles by updating miller-columns-element to `govuk-frontend` 3.7 (PR #75)
+
 ## 1.3.1
 
 - Ensure checkboxes are focusable without JS (PR #35)
