@@ -147,7 +147,7 @@
   line-height: 1.11111;
   display: block;
   margin-bottom: 5px;
-  color: #626a6e; }
+  color: #505a5f; }
   @media print {
     .govuk-caption-xl {
       font-family: sans-serif; } }
@@ -171,7 +171,7 @@
   line-height: 1.11111;
   display: block;
   margin-bottom: 5px;
-  color: #626a6e; }
+  color: #505a5f; }
   @media print {
     .govuk-caption-l {
       font-family: sans-serif; } }
@@ -197,7 +197,7 @@
   font-size: 1rem;
   line-height: 1.25;
   display: block;
-  color: #626a6e; }
+  color: #505a5f; }
   @media print {
     .govuk-caption-m {
       font-family: sans-serif; } }
@@ -538,7 +538,7 @@
   line-height: 1.25;
   display: block;
   margin-bottom: 15px;
-  color: #626a6e; }
+  color: #505a5f; }
   @media print {
     .govuk-hint {
       font-family: sans-serif; } }
@@ -742,11 +742,12 @@
 
 .govuk-checkboxes__label::after {
   content: "";
+  box-sizing: border-box;
   position: absolute;
   top: 11px;
   left: 9px;
-  width: 18px;
-  height: 7px;
+  width: 23px;
+  height: 12px;
   -webkit-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
   transform: rotate(-45deg);
@@ -817,8 +818,8 @@
 .govuk-checkboxes--small .govuk-checkboxes__label::after {
   top: 15px;
   left: 6px;
-  width: 9px;
-  height: 3.5px;
+  width: 12px;
+  height: 6.5px;
   border-width: 0 0 3px 3px; }
 
 .govuk-checkboxes--small .govuk-checkboxes__hint {
@@ -900,7 +901,7 @@
   transform: rotate(225deg);
   border: solid;
   border-width: 1px 1px 0 0;
-  border-color: #626a6e; }
+  border-color: #505a5f; }
 
 .govuk-back-link:after {
   content: "";
@@ -1002,7 +1003,7 @@
     transform: rotate(45deg);
     border: solid;
     border-width: 1px 1px 0 0;
-    border-color: #626a6e; }
+    border-color: #505a5f; }
   .govuk-breadcrumbs__list-item:first-child {
     margin-left: 0;
     padding-left: 0; }
@@ -1267,7 +1268,7 @@
 .miller-columns__item--selected,
 .miller-columns__item--selected:hover {
   color: #ffffff;
-  background-color: #626a6e; }
+  background-color: #505a5f; }
   .miller-columns__item--selected .govuk-checkboxes__label,
   .miller-columns__item--selected:hover .govuk-checkboxes__label {
     color: #ffffff; }
