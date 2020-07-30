@@ -18,6 +18,7 @@
     ]
   },
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "clean": "rm -rf dist",
     "lint": "sass-lint main.scss -v -q && eslint index.js test/ && flow check",
     "prebuild": "npm run clean && mkdir dist",
@@ -48,5 +49,8 @@
     "node-sass": "^4.13.1",
     "npm-watch": "^0.6.0",
     "sass-lint": "^1.13.1"
+  },
+  "resolutions": {
+    "dot-prop": "5.2.0"
   }
 }
