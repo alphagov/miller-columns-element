@@ -1,9 +1,5 @@
+@import "node_modules/govuk-frontend/govuk/base";
 @import "node_modules/govuk-frontend/govuk/core/typography";
-@import "node_modules/govuk-frontend/govuk/settings/all";
-@import "node_modules/govuk-frontend/govuk/tools/all";
-@import "node_modules/govuk-frontend/govuk/helpers/all";
-@import "node_modules/govuk-frontend/govuk/components/checkboxes/checkboxes";
-@import "node_modules/govuk-frontend/govuk/components/back-link/back-link";
 @import "miller-columns-selected";
 
 $mc-transition-time: 400ms;
