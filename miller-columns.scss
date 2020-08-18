@@ -1,7 +1,6 @@
 $govuk-include-default-font-face: false;
 
 @import "node_modules/govuk-frontend/govuk/base";
-@import "node_modules/govuk-frontend/govuk/core/typography";
 @import "miller-columns-selected";
 
 $mc-transition-time: 400ms;
@@ -86,7 +85,10 @@ $mc-active-item-background: govuk-colour("blue");
 }
 
 .miller-columns__column-heading {
-  @extend %govuk-heading-s;
+  @include govuk-text-colour;
+  @include govuk-font($size: 19, $weight: bold);
+  margin-bottom: govuk-spacing(3);
+  margin-top: 0;
   padding: 0;
 
   @include govuk-media-query($from: tablet) {
