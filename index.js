@@ -719,7 +719,7 @@ class MillerColumnsSelectedElement extends HTMLElement {
     })
 
     const span = document.createElement('span')
-    span.className = 'govuk-visually-hidden'
+    span.className = 'miller-columns-selected__remove-topic-name'
     span.textContent = `: ${topic.topicName}`
     button.appendChild(span)
 
