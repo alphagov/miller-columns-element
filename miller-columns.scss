@@ -1,3 +1,5 @@
+$govuk-include-default-font-face: false;
+
 @import "node_modules/govuk-frontend/govuk/base";
 @import "node_modules/govuk-frontend/govuk/core/typography";
 @import "miller-columns-selected";
