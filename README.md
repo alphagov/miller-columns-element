@@ -12,6 +12,8 @@ npm install --save miller-columns-element
 
 ## Usage
 
+This element is expected to be used in an application with [govuk-frontend](https://github.com/alphagov/govuk-frontend) installed. The expected CSS dependencies are outlined in [examples.scss](./examples.scss).
+
 ```html
 <p id="navigation-instructions" class="govuk-body govuk-visually-hidden">
   Use the right arrow to explore sub-topics, use the up and down arrows to find other topics.

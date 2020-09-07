@@ -1,9 +1,3 @@
-@import "node_modules/govuk-frontend/govuk/settings/all";
-@import "node_modules/govuk-frontend/govuk/tools/all";
-@import "node_modules/govuk-frontend/govuk/helpers/all";
-@import "node_modules/govuk-frontend/govuk/utilities/visually-hidden";
-@import "node_modules/govuk-frontend/govuk/components/breadcrumbs/breadcrumbs";
-
 .miller-columns-selected {
   @include govuk-responsive-margin(6, "bottom");
   display: block;
@@ -54,4 +48,8 @@
   &:focus {
     @include govuk-focused-text;
   }
+}
+
+.miller-columns-selected__remove-topic-name {
+  @include govuk-visually-hidden;
 }

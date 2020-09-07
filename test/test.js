@@ -247,7 +247,7 @@ describe('miller-columns', function() {
       firstItemL1.click()
 
       const firstItemRemove = document.querySelector('#selected-items button')
-      const firstItemRemoveHiddenText = firstItemRemove.querySelector('span.govuk-visually-hidden')
+      const firstItemRemoveHiddenText = firstItemRemove.querySelector('.miller-columns-selected__remove-topic-name')
       assert.include(firstItemRemoveHiddenText.textContent, "Parenting, childcare and children's services")
       firstItemRemove.click()
 

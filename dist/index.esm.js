@@ -1075,7 +1075,7 @@ var MillerColumnsSelectedElement = function (_CustomElement3) {
       });
 
       var span = document.createElement('span');
-      span.className = 'govuk-visually-hidden';
+      span.className = 'miller-columns-selected__remove-topic-name';
       span.textContent = ': ' + topic.topicName;
       button.appendChild(span);
 
