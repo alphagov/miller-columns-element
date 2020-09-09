@@ -8,7 +8,7 @@
   useful summary for people upgrading their application, not a replication
   of the commit log.
 
-## Unreleased
+## 2.0.0
 
 - BREAKING: govuk-frontend classes are no longer bundled with this module, apps using this are expected to already be using `govuk-frontend` (PR #97)
 
