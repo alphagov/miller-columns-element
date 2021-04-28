@@ -1,0 +1,43 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: eslint-plugin-github
+    versions:
+    - "> 1.6.0"
+  - dependency-name: flow-bin
+    versions:
+    - "> 0.133.0, < 1"
+  - dependency-name: flow-bin
+    versions:
+    - ">= 0.145.a, < 0.146"
+  - dependency-name: y18n
+    versions:
+    - 4.0.1
+    - 4.0.2
+    - 4.0.3
+  - dependency-name: eslint
+    versions:
+    - 7.19.0
+    - 7.21.0
+    - 7.23.0
+  - dependency-name: karma
+    versions:
+    - 6.0.3
+    - 6.0.4
+    - 6.1.0
+    - 6.1.2
+    - 6.3.0
+    - 6.3.1
+  - dependency-name: mocha
+    versions:
+    - 8.3.1
+  - dependency-name: chai
+    versions:
+    - 4.3.1
+    - 4.3.3
