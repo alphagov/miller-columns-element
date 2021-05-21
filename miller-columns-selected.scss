@@ -33,6 +33,8 @@
 }
 
 .miller-columns-selected__remove-topic {
+  @include govuk-link-common;
+  @include govuk-link-style-no-visited-state;
   @include govuk-font($size: 16);
   position: absolute;
   top: govuk-spacing(2);
@@ -42,7 +44,6 @@
   border: 0;
   color: $govuk-link-colour;
   background: transparent;
-  text-decoration: underline;
   cursor: pointer;
 
   &:focus {
