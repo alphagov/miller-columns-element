@@ -1,16 +1,9 @@
 .govuk-button-group {
   margin-bottom: 5px;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center; }
   @media (min-width: 40.0625em) {
@@ -46,16 +39,10 @@
   @media (min-width: 40.0625em) {
     .govuk-button-group {
       margin-right: -15px;
-      -webkit-box-orient: horizontal;
-      -webkit-box-direction: normal;
-      -webkit-flex-direction: row;
       -ms-flex-direction: row;
       flex-direction: row;
-      -webkit-flex-wrap: wrap;
       -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-      -webkit-box-align: baseline;
-      -webkit-align-items: baseline;
       -ms-flex-align: baseline;
       align-items: baseline; }
       .govuk-button-group .govuk-button,
@@ -213,7 +200,7 @@
 .govuk-template {
   background-color: #f3f2f1;
   -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
   text-size-adjust: 100%; }
   @media screen {
     .govuk-template {
@@ -1148,7 +1135,7 @@
   left: 0;
   width: 40px;
   height: 40px;
-  border: 2px solid currentColor;
+  border: 2px solid currentcolor;
   background: transparent; }
 
 .govuk-checkboxes__label:after {
@@ -1189,7 +1176,8 @@
 .govuk-checkboxes__input:disabled + .govuk-checkboxes__label {
   cursor: default; }
 
-.govuk-checkboxes__input:disabled + .govuk-checkboxes__label {
+.govuk-checkboxes__input:disabled + .govuk-checkboxes__label,
+.govuk-checkboxes__input:disabled ~ .govuk-hint {
   opacity: .5; }
 
 .govuk-checkboxes__divider {
@@ -1461,8 +1449,6 @@
       top: 6px;
       margin: 0; }
   .govuk-breadcrumbs--collapse-on-mobile .govuk-breadcrumbs__list {
-    display: -webkit-box;
-    display: -webkit-flex;
     display: -ms-flexbox;
     display: flex; } }
 
