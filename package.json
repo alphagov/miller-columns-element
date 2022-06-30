@@ -31,6 +31,8 @@
     "watch": "npm-watch"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.6",
+    "@babel/eslint-parser": "^7.18.2",
     "babel-cli": "^6.18.0",
     "babel-plugin-transform-custom-element-classes": "^0.1.0",
     "babel-preset-es2015": "^6.24.1",
