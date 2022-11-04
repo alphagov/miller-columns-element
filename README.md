@@ -1,3 +1,6 @@
+> # ⚠️ This repo is no longer supported ⚠️
+> This module was created to support the Miller Columns at gov.uk/browse which we have removed. This module is no longer needed.
+
 # &lt;miller-columns&gt; element
 
 Express a hierarchy by showing selectable lists of the items in each hierarchy level.
