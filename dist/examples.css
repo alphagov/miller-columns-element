@@ -202,6 +202,11 @@
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   text-size-adjust: 100%; }
+  @supports (position: -webkit-sticky) or (position: sticky) {
+    .govuk-template {
+      scroll-padding-top: 60px; }
+      .govuk-template:not(:has(.govuk-exit-this-page)) {
+        scroll-padding-top: 0; } }
   @media screen {
     .govuk-template {
       overflow-y: scroll; } }
@@ -236,7 +241,7 @@
           margin-left: auto; } } }
 
 :root {
-  --govuk-frontend-version: "4.6.0"; }
+  --govuk-frontend-version: "4.7.0"; }
 
 .govuk-link {
   font-family: "GDS Transport", arial, sans-serif;
@@ -1358,6 +1363,18 @@
   bottom: -14px;
   left: 0; }
 
+.govuk-back-link--inverse:link, .govuk-back-link--inverse:visited {
+  color: #ffffff; }
+
+.govuk-back-link--inverse:hover, .govuk-back-link--inverse:active {
+  color: rgba(255, 255, 255, 0.99); }
+
+.govuk-back-link--inverse:focus {
+  color: #0b0c0c; }
+
+.govuk-back-link--inverse:before {
+  border-color: currentcolor; }
+
 .govuk-breadcrumbs {
   font-family: "GDS Transport", arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -1468,6 +1485,17 @@
   .govuk-breadcrumbs--collapse-on-mobile .govuk-breadcrumbs__list {
     display: -ms-flexbox;
     display: flex; } }
+
+.govuk-breadcrumbs--inverse {
+  color: #ffffff; }
+  .govuk-breadcrumbs--inverse .govuk-breadcrumbs__link:link, .govuk-breadcrumbs--inverse .govuk-breadcrumbs__link:visited {
+    color: #ffffff; }
+  .govuk-breadcrumbs--inverse .govuk-breadcrumbs__link:hover, .govuk-breadcrumbs--inverse .govuk-breadcrumbs__link:active {
+    color: rgba(255, 255, 255, 0.99); }
+  .govuk-breadcrumbs--inverse .govuk-breadcrumbs__link:focus {
+    color: #0b0c0c; }
+  .govuk-breadcrumbs--inverse .govuk-breadcrumbs__list-item:before {
+    border-color: currentcolor; }
 
 .miller-columns-selected {
   margin-bottom: 20px;
@@ -1601,6 +1629,10 @@
   clip-path: inset(50%) !important;
   border: 0 !important;
   white-space: nowrap !important; }
+  .miller-columns-selected__remove-topic-name:before {
+    content: "\00a0"; }
+  .miller-columns-selected__remove-topic-name:after {
+    content: "\00a0"; }
 
 .js-enabled .miller-columns {
   display: none; }

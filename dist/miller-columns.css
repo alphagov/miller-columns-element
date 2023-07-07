@@ -130,6 +130,10 @@
   clip-path: inset(50%) !important;
   border: 0 !important;
   white-space: nowrap !important; }
+  .miller-columns-selected__remove-topic-name:before {
+    content: "\00a0"; }
+  .miller-columns-selected__remove-topic-name:after {
+    content: "\00a0"; }
 
 .js-enabled .miller-columns {
   display: none; }
