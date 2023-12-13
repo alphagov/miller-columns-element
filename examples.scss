@@ -3,12 +3,12 @@
 $govuk-include-default-font-face: false;
 
 // Core styles used for the example pages
-@import "node_modules/govuk-frontend/govuk/base";
-@import "node_modules/govuk-frontend/govuk/objects/all";
-@import "node_modules/govuk-frontend/govuk/core/all";
-@import "node_modules/govuk-frontend/govuk/components/checkboxes/checkboxes";
-@import "node_modules/govuk-frontend/govuk/components/back-link/back-link";
-@import "node_modules/govuk-frontend/govuk/components/breadcrumbs/breadcrumbs";
+@import "node_modules/govuk-frontend/dist/govuk/base";
+@import "node_modules/govuk-frontend/dist/govuk/objects/all";
+@import "node_modules/govuk-frontend/dist/govuk/core/all";
+@import "node_modules/govuk-frontend/dist/govuk/components/checkboxes/checkboxes";
+@import "node_modules/govuk-frontend/dist/govuk/components/back-link/back-link";
+@import "node_modules/govuk-frontend/dist/govuk/components/breadcrumbs/breadcrumbs";
 
 // Component specific styles
 @import "miller-columns";

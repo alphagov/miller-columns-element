@@ -1,7 +1,7 @@
 $govuk-include-default-font-face: false;
 $govuk-new-link-styles: true;
 
-@import "node_modules/govuk-frontend/govuk/base";
+@import "node_modules/govuk-frontend/dist/govuk/base";
 @import "miller-columns-selected";
 
 $mc-transition-time: 400ms;
