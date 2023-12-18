@@ -1,3 +1,46 @@
+/*# sourceMappingURL=_assets.scss.map */
+/*# sourceMappingURL=_warnings.scss.map */
+/*# sourceMappingURL=_global-styles.scss.map */
+/*# sourceMappingURL=_media-queries.scss.map */
+/*# sourceMappingURL=_colours-palette.scss.map */
+/*# sourceMappingURL=_colours-organisations.scss.map */
+/*# sourceMappingURL=_colours-palette.scss.map */
+/*# sourceMappingURL=_colours-organisations.scss.map */
+/*# sourceMappingURL=_warnings.scss.map */
+/*# sourceMappingURL=_colour.scss.map */
+/*# sourceMappingURL=_colours-applied.scss.map */
+/*# sourceMappingURL=_spacing.scss.map */
+/*# sourceMappingURL=_measurements.scss.map */
+/*# sourceMappingURL=_typography-font.scss.map */
+/*# sourceMappingURL=_typography-responsive.scss.map */
+/*# sourceMappingURL=_links.scss.map */
+/*# sourceMappingURL=_all.scss.map */
+/*# sourceMappingURL=_exports.scss.map */
+/*# sourceMappingURL=_font-url.scss.map */
+/*# sourceMappingURL=_image-url.scss.map */
+/*# sourceMappingURL=_px-to-em.scss.map */
+/*# sourceMappingURL=_px-to-rem.scss.map */
+/*# sourceMappingURL=_all.scss.map */
+/*# sourceMappingURL=_clearfix.scss.map */
+/*# sourceMappingURL=_colours-palette.scss.map */
+/*# sourceMappingURL=_colours-organisations.scss.map */
+/*# sourceMappingURL=_warnings.scss.map */
+/*# sourceMappingURL=_colour.scss.map */
+/*# sourceMappingURL=_device-pixels.scss.map */
+/*# sourceMappingURL=_focused.scss.map */
+/*# sourceMappingURL=_exports.scss.map */
+/*# sourceMappingURL=_font-faces.scss.map */
+/*# sourceMappingURL=_grid.scss.map */
+/*# sourceMappingURL=_links.scss.map */
+/*# sourceMappingURL=_sass-mq.scss.map */
+/*# sourceMappingURL=_media-queries.scss.map */
+/*# sourceMappingURL=_shape-arrow.scss.map */
+/*# sourceMappingURL=_spacing.scss.map */
+/*# sourceMappingURL=_px-to-rem.scss.map */
+/*# sourceMappingURL=_typography.scss.map */
+/*# sourceMappingURL=_visually-hidden.scss.map */
+/*# sourceMappingURL=_all.scss.map */
+/*# sourceMappingURL=_base.scss.map */
 .miller-columns-selected {
   margin-bottom: 20px;
   display: block; }
@@ -16,7 +59,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
-  font-size: 14px;
   font-size: 0.875rem;
   line-height: 1.14286;
   color: #0b0c0c;
@@ -28,7 +70,6 @@
       font-family: sans-serif; } }
   @media (min-width: 40.0625em) {
     .miller-columns-selected__list {
-      font-size: 16px;
       font-size: 1rem;
       line-height: 1.25; } }
   @media print {
@@ -58,7 +99,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
-  font-size: 14px;
   font-size: 0.875rem;
   line-height: 1.14286;
   position: absolute;
@@ -102,7 +142,6 @@
       font-family: sans-serif; } }
   @media (min-width: 40.0625em) {
     .miller-columns-selected__remove-topic {
-      font-size: 16px;
       font-size: 1rem;
       line-height: 1.25; } }
   @media print {
@@ -129,10 +168,13 @@
   -webkit-clip-path: inset(50%) !important;
   clip-path: inset(50%) !important;
   border: 0 !important;
-  white-space: nowrap !important; }
-  .miller-columns-selected__remove-topic-name:before {
+  white-space: nowrap !important;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .miller-columns-selected__remove-topic-name::before {
     content: "\00a0"; }
-  .miller-columns-selected__remove-topic-name:after {
+  .miller-columns-selected__remove-topic-name::after {
     content: "\00a0"; }
 
 .js-enabled .miller-columns {
@@ -196,7 +238,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 700;
-  font-size: 16px;
   font-size: 1rem;
   line-height: 1.25;
   margin-bottom: 15px;
@@ -210,7 +251,6 @@
       font-family: sans-serif; } }
   @media (min-width: 40.0625em) {
     .miller-columns__column-heading {
-      font-size: 19px;
       font-size: 1.1875rem;
       line-height: 1.31579; } }
   @media print {
@@ -236,7 +276,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
-  font-size: 14px;
   font-size: 0.875rem;
   line-height: 1.14286; }
   @media print {
@@ -244,7 +283,6 @@
       font-family: sans-serif; } }
   @media (min-width: 40.0625em) {
     .miller-columns__item {
-      font-size: 16px;
       font-size: 1rem;
       line-height: 1.25; } }
   @media print {
@@ -269,7 +307,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 400;
-    font-size: 14px;
     font-size: 0.875rem;
     line-height: 1.14286;
     padding: 12px 15px 10px 1px; }
@@ -278,7 +315,6 @@
         font-family: sans-serif; } }
     @media (min-width: 40.0625em) {
       .miller-columns__item .govuk-checkboxes__label {
-        font-size: 16px;
         font-size: 1rem;
         line-height: 1.25; } }
     @media print {
