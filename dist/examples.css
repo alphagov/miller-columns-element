@@ -544,7 +544,7 @@
 /*# sourceMappingURL=_all.scss.map */
 /*# sourceMappingURL=_warnings.scss.map */
 :root {
-  --govuk-frontend-version: "5.4.0";
+  --govuk-frontend-version: "5.4.1";
   --govuk-frontend-breakpoint-mobile: 20rem;
   --govuk-frontend-breakpoint-tablet: 40.0625rem;
   --govuk-frontend-breakpoint-desktop: 48.0625rem; }
@@ -1460,8 +1460,8 @@
 
 .govuk-checkboxes__conditional {
   margin-bottom: 15px;
-  margin-left: 18px;
-  padding-left: 33px;
+  margin-left: 20px;
+  padding-left: 35px;
   border-left: 4px solid #b1b4b6; }
   @media (min-width: 40.0625em) {
     .govuk-checkboxes__conditional {
@@ -1499,6 +1499,10 @@
 .govuk-checkboxes--small .govuk-checkboxes__conditional {
   margin-left: 10px;
   padding-left: 20px; }
+
+.govuk-checkboxes--small .govuk-checkboxes__divider {
+  width: 24px;
+  margin-bottom: 5px; }
 
 .govuk-checkboxes--small .govuk-checkboxes__item:hover .govuk-checkboxes__input:not(:disabled) + .govuk-checkboxes__label::before {
   outline: 3px dashed transparent;
