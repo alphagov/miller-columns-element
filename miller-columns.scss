@@ -37,6 +37,8 @@ $mc-active-item-background: govuk-colour("blue");
   display: none;
   width: 100%;
   height: 100%;
+  position: sticky;
+  top: 0;
   vertical-align: top;
   white-space: normal;
   transition-duration: $mc-transition-time;

@@ -54,8 +54,8 @@ Browsers without native [custom element support][support] require a [polyfill][]
 - Chrome
 - Firefox
 - Safari
-- Internet Explorer 11
 - Microsoft Edge
+- Internet Explorer 11 (Functional)
 
 [support]: https://caniuse.com/#feat=custom-elementsv1
 [polyfill]: https://github.com/webcomponents/custom-elements
