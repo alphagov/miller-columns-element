@@ -544,7 +544,7 @@
 /*# sourceMappingURL=_all.scss.map */
 /*# sourceMappingURL=_warnings.scss.map */
 :root {
-  --govuk-frontend-version: "5.5.0";
+  --govuk-frontend-version: "5.6.0";
   --govuk-frontend-breakpoint-mobile: 20rem;
   --govuk-frontend-breakpoint-tablet: 40.0625rem;
   --govuk-frontend-breakpoint-desktop: 48.0625rem; }
