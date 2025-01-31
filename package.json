@@ -35,7 +35,7 @@
     "babel-plugin-transform-custom-element-classes": "^0.1.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-flow": "^6.23.0",
-    "chai": "^4.2.0",
+    "chai": "^5.1.2",
     "eslint": "^7.2.0",
     "eslint-plugin-github": "1.6.0",
     "eslint-plugin-relay": "^1.8.3",
