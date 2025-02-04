@@ -1,3 +1,5 @@
+import {assert} from 'chai'
+
 describe('miller-columns', function() {
   describe('element creation', function() {
     it('creates from document.createElement', function() {
