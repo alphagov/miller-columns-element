@@ -21,7 +21,7 @@
     "clean": "rm -rf dist",
     "lint": "sass-lint examples.scss -v -q && eslint index.js test/ && flow check",
     "prebuild": "npm run clean && mkdir dist",
-    "build-css": "node-sass examples.scss dist/examples.css && node-sass miller-columns.scss dist/miller-columns.css",
+    "build-css": "sass examples.scss dist/examples.css && sass miller-columns.scss dist/miller-columns.css",
     "build-umd": "BABEL_ENV=umd babel index.js -o dist/index.umd.js",
     "build-esm": "BABEL_ENV=esm babel index.js -o dist/index.esm.js",
     "build-examples": "rm -rf examples/dist && cp -r dist examples/dist",
@@ -47,8 +47,8 @@
     "karma-mocha": "^2.0.0",
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^10.0.0",
-    "node-sass": "^9.0.0",
     "npm-watch": "^0.13.0",
+    "sass": "^1.83.4",
     "sass-lint": "^1.13.1"
   }
 }
