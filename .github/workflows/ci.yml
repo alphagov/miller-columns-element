@@ -13,8 +13,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -29,8 +29,8 @@ jobs:
     permissions:
       contents: write 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -45,10 +45,10 @@ jobs:
       - name: Establish version
         run: |
           LOCAL=$(node -p "require('./package.json').version")
-          echo "::set-output name=local::${LOCAL}"
-          echo "::set-output name=remote::$(npm view miller-columns-element version)"
-          if git ls-remote --tags --exit-code origin ${LOCAL}; then
-            echo "::set-output name=tagged::yes"
+          echo "local=${LOCAL}" >> "$GITHUB_OUTPUT"
+          echo "remote=$(npm view miller-columns-element version)" >> "$GITHUB_OUTPUT"
+          if git ls-remote --tags --exit-code origin "${LOCAL}"; then
+            echo "tagged=yes" >> "$GITHUB_OUTPUT"
           fi
         id: version
       - name: Tag version
