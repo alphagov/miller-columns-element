@@ -38,7 +38,7 @@
     "chai": "^4.2.0",
     "eslint": "^7.2.0",
     "eslint-plugin-github": "1.6.0",
-    "eslint-plugin-relay": "^1.8.3",
+    "eslint-plugin-relay": "^2.0.0",
     "flow-bin": "^0.133.0",
     "govuk-frontend": "^5.0.0",
     "karma": "^6.0.0",
