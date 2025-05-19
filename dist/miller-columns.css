@@ -128,9 +128,11 @@
     color: #0b0c0c;
     background-color: #ffdd00;
     box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-    text-decoration: none;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone; }
+    text-decoration: none; }
+    @supports not (text-wrap: balance) {
+      .miller-columns-selected__remove-topic:focus {
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone; } }
   .miller-columns-selected__remove-topic:link {
     color: #1d70b8; }
   .miller-columns-selected__remove-topic:visited {
@@ -157,9 +159,11 @@
     color: #0b0c0c;
     background-color: #ffdd00;
     box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-    text-decoration: none;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone; }
+    text-decoration: none; }
+    @supports not (text-wrap: balance) {
+      .miller-columns-selected__remove-topic:focus {
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone; } }
 
 .miller-columns-selected__remove-topic-name {
   position: absolute !important;
@@ -301,9 +305,11 @@
     color: #0b0c0c;
     background-color: #ffdd00;
     box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-    text-decoration: none;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone; }
+    text-decoration: none; }
+    @supports not (text-wrap: balance) {
+      .miller-columns__item:focus {
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone; } }
   .miller-columns__item .govuk-checkboxes__item {
     float: none; }
   .miller-columns__item .govuk-checkboxes__label {
@@ -351,9 +357,11 @@
   color: #0b0c0c;
   background-color: #ffdd00;
   box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-  text-decoration: none;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone; }
+  text-decoration: none; }
+  @supports not (text-wrap: balance) {
+    .miller-columns__item--selected:focus {
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone; } }
   .miller-columns__item--selected:focus .govuk-checkboxes__label {
     color: #0b0c0c; }
 
@@ -371,9 +379,11 @@
   color: #0b0c0c;
   background-color: #ffdd00;
   box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-  text-decoration: none;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone; }
+  text-decoration: none; }
+  @supports not (text-wrap: balance) {
+    .miller-columns__item--active:focus {
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone; } }
   .miller-columns__item--active:focus .govuk-checkboxes__label {
     color: #0b0c0c; }
 
